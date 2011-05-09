@@ -23,12 +23,12 @@ void handle_write(const boost::system::error_code&, // error
 {
 }
 
-RobotIO::RobotIO() : m_robot(0), port(io, "COM4")
+RobotIO::RobotIO() : m_robot(0), m_port(m_io, "COM4")
 {}
 
 RobotIO::~RobotIO()
 {
-	port.close();
+	m_port.close();
 }
 
 
@@ -71,15 +71,15 @@ void RobotIO::receiveMessage(){
 
 bool RobotIO::sendCommand(RobotCommand cmd)
 {
-	if( !port.is_open() )
+	if( !m_port.is_open() )
 	{
 		throw NO_CONNECTION;
 	}
-	port.set_option( asio_serial::baud_rate( 9600 ) ); 
-	port.set_option( asio_serial::flow_control( asio_serial::flow_control::none ) ); 
-	port.set_option( asio_serial::parity( asio_serial::parity::none ) ); 
-	port.set_option( asio_serial::stop_bits( asio_serial::stop_bits::one ) ); 
-	port.set_option( asio_serial::character_size( 8 ) ); 
+	m_port.set_option( asio_serial::baud_rate( 9600 ) ); 
+	m_port.set_option( asio_serial::flow_control( asio_serial::flow_control::none ) ); 
+	m_port.set_option( asio_serial::parity( asio_serial::parity::none ) ); 
+	m_port.set_option( asio_serial::stop_bits( asio_serial::stop_bits::one ) ); 
+	m_port.set_option( asio_serial::character_size( 8 ) ); 
 	
 	std::string buff;	
 	for( int i = 0; i < cmd.getCycles(); i++ )
@@ -87,7 +87,7 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 		buff.push_back(cmd.getCode());
 
 		// send it
-		boost::asio::async_write(port, boost::asio::buffer(buff), boost::bind(handle_write, boost::asio::placeholders::error,
+		boost::asio::async_write(m_port, boost::asio::buffer(buff), boost::bind(handle_write, boost::asio::placeholders::error,
 			  boost::asio::placeholders::bytes_transferred));
 
 		buff.pop_back();
@@ -113,9 +113,34 @@ void RobotIO::SendQueue()
 {
 	while(m_msgQueue.size())
 	{
-		sendCommand(m_msgQueue.front());
+		try
+		{
+			sendCommand(m_msgQueue.front());
 		m_msgQueue.pop_front();
 
 		waitKey(100);
+		}catch(int e)
+		{
+			throw NO_CONNECTION;
+		}
 	}
+}
+
+bool RobotIO::openPort()
+{
+	if( !m_port.is_open() )
+	{
+		m_port.open("COM4");
+		return true;
+	}
+	return false;
+}
+bool RobotIO::closePort()
+{
+	if( m_port.is_open() )
+	{
+		m_port.close();
+		return true;
+	}
+	return false;
 }

@@ -87,12 +87,15 @@ bool A2BControl::sendCommand()
 bool A2BControl::setDestination(Point dest)
 {
 	Point robPos;
+	bool robCheck = true;
+	int n = -1;
 	int spaceStart = 0;
 	int spaceDest = 0;
 
 	//change the first part setDestinatoin to be "findRobot"
 	do
 	{
+		n++;
 		getImage();
 		m_gui->drawImage( (m_showPlainImage ? m_plainImage->mat() : m_edgedImage->mat()) );
 	
@@ -101,8 +104,13 @@ bool A2BControl::setDestination(Point dest)
 		spaceDest = A2BUtilities::pixelToSpaceId( dest.x,dest.y);
 		clearRobot(spaceStart, m_obstacleMap, robPos);
 		m_gui->markRobot(robPos);
+
+		if(n < 5)
+			robCheck = !m_gui->showError("Is this the robot?",BOX_YESNO);
+		else
+			return false;
 	}						 // keep looping if they answer no
-	while( !m_gui->showError("Is this the robot?",BOX_YESNO) );
+	while( robCheck );
 
 	if( !m_pathing->makePath(spaceDest, spaceStart, m_obstacleMap) )
 	{
@@ -113,7 +121,13 @@ bool A2BControl::setDestination(Point dest)
 		m_robotio->fillQueue(m_pathing->getPath());
 
 		// this is only for the alpha release... will be replaced by startmission message being sent
-		m_robotio->SendQueue();
+		try
+		{
+			m_robotio->SendQueue();
+		}catch(int e)
+		{
+			m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+		}
 	}
 	return true;
 }
@@ -164,9 +178,10 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 }
 void A2BControl::startThreads()
 {
+
 	int key = 0;
 	// getKey stuff is what GUI should be handling; put in thread later
-
+	bool connection = true;
 
 	try
 	{
@@ -194,6 +209,7 @@ void A2BControl::startThreads()
 	{
 		m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
 		key = 'q';
+		connection = false;
 	}
 
 	// Number of cycles to send to robot for manual move demo
@@ -213,16 +229,44 @@ void A2BControl::startThreads()
 		switch(key)
 		{
 		case 'f':
-			m_robotio->sendCommand(RobotCommand('f', cycles));
+			try
+			{
+				m_robotio->sendCommand(RobotCommand('f', cycles));
+			}
+			catch(int e)
+			{
+				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+			}
 			break;
 		case 'l':
-			m_robotio->sendCommand(RobotCommand('l', cycles));
+			try
+			{
+				m_robotio->sendCommand(RobotCommand('l', cycles));
+			}
+			catch(int e)
+			{
+				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+			}
 			break;
 		case 'r':
-			m_robotio->sendCommand(RobotCommand('r', cycles));
+			try
+			{
+				m_robotio->sendCommand(RobotCommand('r', cycles));
+			}
+			catch(int e)
+			{
+				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+			}
 			break;
 		case 'b':
-			m_robotio->sendCommand(RobotCommand('b', cycles));
+			try
+			{
+				m_robotio->sendCommand(RobotCommand('b', cycles));
+			}
+			catch(int e)
+			{
+				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+			}
 			break;
 		case 'i':
 			createTestVector();
@@ -233,7 +277,15 @@ void A2BControl::startThreads()
 		case 'p':
 			makeTestVector3();
 			break;
-
+		case 'c':
+			//this will connect or disconnect the port!
+			if(connection)
+				m_robotio->closePort();
+			else
+				m_robotio->openPort();
+			
+			connection = (connection) ? false : true;
+			break;
 		case 'e':
 			m_gui->showError("This is a substantial error. Please regard.", BOX_OK);
 			break;
@@ -267,4 +319,5 @@ void A2BControl::getImage()
 	m_edgedImage = ImageProcessor::createEdgedImage(m_plainImage);
 
 	ImageProcessor::mapObstacles(*m_edgedImage, m_obstacleMap);
+//	ImageProcessor::makeImageBorder(&(m_plainImage->mat()));
 }

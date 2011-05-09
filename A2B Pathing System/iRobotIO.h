@@ -36,6 +36,9 @@ public:
 	virtual void receiveMessage() =0;
 	virtual void setRobot(Robot & rob) =0;
 	virtual void SendQueue()=0;
+//might be for testing only. Probably remove before release
+	virtual bool openPort() = 0;
+	virtual bool closePort() = 0;
 
 };
 #endif // !defined(EA_DBAB8A73_11ED_4c42_9DF2_D06E4B4F2123__INCLUDED_)

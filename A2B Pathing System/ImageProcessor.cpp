@@ -86,3 +86,28 @@ bool ImageProcessor::allWhite( const Mat & square )
 	}
 	return white;
 }
+
+bool ImageProcessor::makeImageBorder(Mat* image)
+{
+	// white out top and bottom rows
+	for(int x(0); x < CAMERA_ROW_SIZE; x++)
+	{
+		// white out top line of image
+		image->data[0 + x] = 255; // 255 = white
+
+		// white out bottom line of image
+		image->data[(CAMERA_COL_SIZE-1)*CAMERA_ROW_SIZE + x] = 255; // 255 = white
+	}
+
+	// white out left and right columns
+	for(int y(0); y < CAMERA_COL_SIZE; y++)
+	{
+		// white out leftmost line of image
+		image->data[y*CAMERA_ROW_SIZE + 0] = 255;
+
+		// white out rightmost line of image
+		image->data[y*CAMERA_ROW_SIZE + CAMERA_ROW_SIZE - 1] = 255;
+	}
+
+	return true;
+}

@@ -59,6 +59,7 @@ void A2BGUI::drawImage(Mat img)
 {
 	m_view.release();
 	m_view = img.clone();
+	
 	imshow(m_window, m_view);
 }
 

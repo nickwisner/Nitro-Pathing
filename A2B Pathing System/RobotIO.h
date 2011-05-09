@@ -32,13 +32,15 @@ public:
 	bool sendCommand(RobotCommand cmd); // later make private
 	void setRobot(Robot & rob);
 	void SendQueue();
+	bool openPort();
+	bool closePort(); 
 
 private:
 	list<RobotCommand> m_msgQueue;
 	Robot * m_robot;
 
-	boost::asio::io_service io;
-	boost::asio::serial_port port;
+	boost::asio::io_service m_io;
+	boost::asio::serial_port m_port;
 
 	int processRobotMessage(string msg);
 

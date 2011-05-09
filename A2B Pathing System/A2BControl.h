@@ -60,7 +60,15 @@ void sendTestVector( vector<RobotCommand> blah)
 {
 	for(int i = 0; i < blah.size(); i++)
 	{
-		m_robotio->sendCommand(blah[i]);
+		try
+		{
+			m_robotio->sendCommand(blah[i]);
+		}
+		catch(int e)
+		{
+			m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+			i = blah.size() + 1;
+		}
 	}
 }
 
