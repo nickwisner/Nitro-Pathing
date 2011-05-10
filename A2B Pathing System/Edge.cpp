@@ -8,20 +8,17 @@
 #include "Edge.h"
 
 
-Edge::Edge(){
-	m_start = Point(0,0);
-	m_end = Point(0,0);
-}
+Edge::Edge() : m_start(Point(0,0)), m_end(Point(0,0))
+{ }
 
-Edge::Edge( Point s, Point e)
-{
-	m_start = s;
-	m_end = e;
-}
+Edge::Edge( Point start, Point end ) : m_start(start), m_end(end)
+{ }
+
 Edge::Edge( const Edge & cpy )
 {
 	*this = cpy;
 }
+
 Edge & Edge::operator=( const Edge & cpy )
 {
 	if(this != &cpy)
@@ -29,7 +26,6 @@ Edge & Edge::operator=( const Edge & cpy )
 		this->m_end = cpy.m_end;
 		this->m_start = cpy.m_start;
 	}
-
 	return *this;
 }
 void Edge::setStart(Point start)
@@ -41,19 +37,15 @@ void Edge::setEnd(Point end)
 	m_end = end;
 }
 
-Edge::~Edge(){
+Edge::~Edge()
+{ }
 
-}
-
-
-
-Point Edge::getEnd(){
-
+Point Edge::getEnd()
+{
 	return  m_end;
 }
 
-
-Point Edge::getStart(){
-
+Point Edge::getStart()
+{
 	return m_start;
 }

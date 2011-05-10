@@ -121,26 +121,6 @@ void A2BGUI::getCircularROI(int R, vector < int > & RxV)
         RxV[y] = cvRound(sqrt((double)R*R - y*y));
 }
 
-/*
-// This draws a circle in the green channel
-// (note the "[1]" for a BGR" image,
-// blue and red channels are not modified),
-// but is really an example of how to *sample* from a circular region.
-void drawCircle(Mat &image, int R, Point center)
-{
-    vector<int> RxV;
-    getCircularROI(R, RxV);
-
-    Mat_<Vec3b>& img = (Mat_<Vec3b>&)image; //3 channel pointer to image
-    for( int dy = -R; dy <= R; dy++ )
-    {
-        int Rx = RxV[abs(dy)];
-        for( int dx = -Rx; dx <= Rx; dx++ )
-            img(center.y+dy, center.x+dx)[1] = 255;
-    }
-}
-
-*/
 bool A2BGUI::toggleImage()
 {
 	m_showEdged = (m_showEdged ? false : true);

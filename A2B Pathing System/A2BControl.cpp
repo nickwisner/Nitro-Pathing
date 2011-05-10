@@ -217,6 +217,7 @@ void A2BControl::startThreads()
 
 	while(key != 'q')
 	{
+		// Update window
 		getImage();
 		if(m_pathing->isActive())
 		{
@@ -224,10 +225,11 @@ void A2BControl::startThreads()
 		}
 		m_gui->drawImage( (m_showPlainImage ? m_plainImage->mat() : m_edgedImage->mat()) );
 		
-		key = waitKey(500);
+		key = waitKey(500); // Get key input from user, poll every 500 ms
 
 		switch(key)
 		{
+			// Manual move forward
 		case 'f':
 			try
 			{
@@ -238,6 +240,8 @@ void A2BControl::startThreads()
 				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
 			}
 			break;
+
+			// Manual turn left
 		case 'l':
 			try
 			{
@@ -248,6 +252,8 @@ void A2BControl::startThreads()
 				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
 			}
 			break;
+
+			// Manual turn right
 		case 'r':
 			try
 			{
@@ -258,6 +264,8 @@ void A2BControl::startThreads()
 				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
 			}
 			break;
+
+			// Manual move backwards
 		case 'b':
 			try
 			{
@@ -268,6 +276,8 @@ void A2BControl::startThreads()
 				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
 			}
 			break;
+
+			// PathVector tests
 		case 'i':
 			createTestVector();
 			break;
@@ -277,8 +287,9 @@ void A2BControl::startThreads()
 		case 'p':
 			makeTestVector3();
 			break;
+
+			// This will connect or disconnect the port!
 		case 'c':
-			//this will connect or disconnect the port!
 			if(connection)
 				m_robotio->closePort();
 			else
@@ -286,10 +297,13 @@ void A2BControl::startThreads()
 			
 			connection = (connection) ? false : true;
 			break;
+
+			// Test OK message box
 		case 'e':
 			m_gui->showError("This is a substantial error. Please regard.", BOX_OK);
 			break;
 		
+			// Test YES/NO message box
 		case 'z':
 			if(m_gui->showError("Would you like to continue?", BOX_YESNO))
 				m_gui->showError("Coolio",BOX_OK);
@@ -297,6 +311,7 @@ void A2BControl::startThreads()
 				key = 'q';
 			break;
 
+			// Toggle image
 		case 't':
 			m_showPlainImage = (m_showPlainImage) ? false : true;
 			break;

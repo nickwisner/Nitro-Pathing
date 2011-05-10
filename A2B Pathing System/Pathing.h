@@ -28,7 +28,7 @@ class Pathing : public iPathing
 
 public:
 	Pathing();
-	virtual ~Pathing();
+	~Pathing();
 
 	bool deletePath();
 	Path * getPath();

@@ -5,8 +5,8 @@
 //  Original author: peter.finn
 ///////////////////////////////////////////////////////////
 
-#if !defined(EA_EB5B4313_AF62_4540_8607_AF31F1793B4A__INCLUDED_)
-#define EA_EB5B4313_AF62_4540_8607_AF31F1793B4A__INCLUDED_
+#ifndef EDGE_H
+#define EDGE_H
 
 #include <opencv2/imgproc/imgproc.hpp>
 using cv::Point;
@@ -16,10 +16,10 @@ class Edge
 
 public:
 	Edge();
-	Edge( Point s, Point e);
+	Edge( Point start, Point end );
 	Edge( const Edge & cpy );
 	Edge & operator=( const Edge & cpy );
-	virtual ~Edge();
+	~Edge();
 
 	Point getEnd();
 	Point getStart();
@@ -32,4 +32,5 @@ private:
 	Point m_start;
 
 };
-#endif // !defined(EA_EB5B4313_AF62_4540_8607_AF31F1793B4A__INCLUDED_)
+
+#endif
