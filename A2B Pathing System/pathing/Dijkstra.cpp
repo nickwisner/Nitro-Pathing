@@ -264,15 +264,25 @@ vector<int> Dijkstra::Calculate(Vertex<Space, DPath> *_from, Vertex<Space, DPath
 	host = orig;
 	current = dest;
 	travel[0] = dest;
-	for(i = 1; current != host; i++)
+
+	i = 1;	// start right before the destination going backwards
+
+	// haven't made it back to the start and path is valid
+	while(current != host && current > 0)
 	{
 		travel[i] = predecessor[current];
 		current = predecessor[current];
+
+		i++;	// go backwards one more
 	}
 
-	//Print(i, distance[dest]);
+	// not a valid path
+	if(current < 0)
+		travelPath.clear();	// make sure we are sending back an empty path
+	else
+		travelPath = CompileRoute(i);	// put the path together
 
-	return CompileRoute(i);
+	return travelPath;
 }
 
 

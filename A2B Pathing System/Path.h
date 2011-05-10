@@ -5,10 +5,10 @@
 //  Original author: peter.finn
 ///////////////////////////////////////////////////////////
 
-//#if !defined(EA_E5B9E8A1_8074_41fc_940E_A5273EB81DA1__INCLUDED_)
-//#define EA_E5B9E8A1_8074_41fc_940E_A5273EB81DA1__INCLUDED_
-#ifndef __PATH_H
-#define __PATH_H
+#if !defined(EA_E5B9E8A1_8074_41fc_940E_A5273EB81DA1__INCLUDED_)
+#define EA_E5B9E8A1_8074_41fc_940E_A5273EB81DA1__INCLUDED_
+//#ifndef __PATH_H
+//#define __PATH_H
 
 #include <opencv2/imgproc/imgproc.hpp>
 using cv::Point;
