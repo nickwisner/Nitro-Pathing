@@ -9,53 +9,55 @@
 // edging
 const int EDGE_THRESH = 30;
 
+// Takes plain image, returns edged image
+// change this fn prototype to just take a ref.
 Mat ImageProcessor::createEdgedImage(Mat * image)
 {
 	Mat frame = *image;
+	Mat gray, edge, cedge; // temp mats
 
-	Mat gray, edge, cedge;
-
-	cvtColor(frame, gray, CV_RGB2GRAY);
-	blur(gray, edge, Size(3,3));
-	Canny(edge, edge, EDGE_THRESH, EDGE_THRESH*3, 3);
+	cvtColor(frame, gray, CV_RGB2GRAY); // grayscale it
+	
+	blur(gray, edge, Size(3,3));	// prepare for canny edge detection
+	Canny(edge, edge, EDGE_THRESH, EDGE_THRESH*3, 3); // save canny to edge
 	cedge = Scalar::all(0);
 	frame.copyTo(cedge, edge);
-	threshold(cedge, cedge, EDGE_THRESH, 255, CV_THRESH_BINARY_INV);
+	threshold(cedge, cedge, EDGE_THRESH, 255, CV_THRESH_BINARY_INV); // make it white and black
 
-	//Image * edged = new Image(cedge);
-
-	return cedge;
+	return cedge; // edged image, in color
 }
 
 Point ImageProcessor::findRobot(Mat * room, Robot * robot)
 {
 	Point robotPos;
 	
-	// because I changed the function params. Need robot wid/len, so.
+	// load picture of robot into "bot"
 	Mat bot = robot->peekSymbol().clone();
 	
+	// Needed for matchTemplate, which finds the robot picture inside the bigger pic
 	Mat rtn((room->rows - bot.rows) + 1, (room->cols - bot.cols) + 1,DataType<float>::type); 
 	
 	matchTemplate(*(room), bot, rtn, CV_TM_SQDIFF);
 
-	Point robotLoc;//(0,0);
-	robotLoc.x = 0; robotLoc.y = 0;
+	Point robotLoc;
+	robotLoc.x = 0; robotLoc.y = 0; // Point robotLoc(0,0) wasn't working for some reason
 	double minVal = 0;
 
 	minMaxLoc(rtn, &minVal,(double *)0,&robotLoc,(Point *)0,Mat());
 	
-	robotPos.x = robotLoc.x;// * (size of robot image in pixels));//what this should be is the position it is in with relation to the rtn Mat * the size of the robot pic in pixles
+	//what this should be is the position it is in with relation to the rtn Mat * the size of the robot pic in pixels
+	robotPos.x = robotLoc.x;
 	robotPos.y = robotLoc.y;
 
-	;
-
 	// Assume robot is facing "up" or "down"
-	robotPos.x += robot->width() / 2;
-	robotPos.y += robot->length() / 2;
+	robotPos.x += robot->getWidth() / 2;
+	robotPos.y += robot->getLength() / 2;
 
 	return robotPos;
 }
 
+// Fills obstacleGrid (one-dim array of size COL_SIZE * ROW_SIZE) with bools
+// trues in the sea of falses. true means there's an obstacle.
 void ImageProcessor::mapObstacles( Mat & image, bool * obstacleGrid )
 {
 	Mat square;
@@ -66,13 +68,13 @@ void ImageProcessor::mapObstacles( Mat & image, bool * obstacleGrid )
 		{
 			square = img(Rect(colid*GRID_SQUARE_SIZE, rowid*GRID_SQUARE_SIZE, GRID_SQUARE_SIZE, GRID_SQUARE_SIZE));
 
-			obstacleGrid[rowid*ROW_SIZE + colid] = !(allWhite(square) ? true : false);
+			// set false if no obstacles there (all white).
+			obstacleGrid[rowid*ROW_SIZE + colid] = !allWhite(square);
 		}
 	}
-
-
 }
 
+// Returns true if everything is white here.
 bool ImageProcessor::allWhite( const Mat & square )
 {
 	bool white = true;
