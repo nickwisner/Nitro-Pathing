@@ -224,10 +224,9 @@ void A2BControl::startThreads()
 		m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
 		key = 'q';
 
-		// Just kidding! for now, instead of quitting:
-		// DEBUG. Just to make the rest of it work. We often don't have robot running while deving
-		m_robotio = new RobotIO;
-		
+		// Below is for DEBUG. Just to make the rest of it work since we often don't have robot running while deving
+//		m_robotio = new DummyRobIO;
+
 		connection = false;
 	}
 
