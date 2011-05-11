@@ -18,33 +18,16 @@ const int NINETY_DEGREES = 956;
 const int DEBUG_MOVE = 2;
 const int DEBUG_TURN = 2;
 
-PathVector::PathVector(){
-
-}
-
-
-
+PathVector::PathVector()
+{	}
 PathVector::~PathVector()
-{
-
+{	
+	m_commands.clear();
+	m_edge.~Edge();
 }
 
-PathVector::PathVector( Edge e, int & heading)
+PathVector::PathVector( Edge e, int & heading) : m_edge(e)
 {
-	Point start = e.getStart();
-	Point end = e.getEnd();
-	m_edge.setStart(start);
-	m_edge.setEnd(end);
-	
-	
-	//The question is, how do we make sure that it is facing the way we want it to?
-		
-	/*
-		I thnk my logic in this is wrong. We need a robot heading i think?
-		//So all of this code is assuming that the robot is facing the top of the screen when it turs on
-	*/
-
-	//assuming the robot is facing the top of the screen and that :
 	// 1 = robot facing top
 	// 2 = robot facing right
 	// 3 = robot facing bottom
@@ -52,24 +35,24 @@ PathVector::PathVector( Edge e, int & heading)
 	switch( heading)
 	{
 		case 1:
-			heading = translateUp(start, end, heading);
+			heading = translateUp(start, end);
 			break;
 		case 2:
-			heading = translateRight(start, end, heading);
+			heading = translateRight(start, end);
 			break;
 		case 3:
-			heading = translateBottom(start, end, heading);
+			heading = translateBottom(start, end);
 			break;
 		case 4:
-			heading = translateLeft(start, end, heading);
+			heading = translateLeft(start, end);
 			break;
-
+		default:
+			break;
 	}
 }
 
 PathVector::PathVector( const PathVector & cpy)
 {
-	
 	*this = cpy;
 }
 
@@ -85,9 +68,28 @@ PathVector & PathVector::operator=(const PathVector & cpy)
 	return *this;
 }
 
-int PathVector::translateUp(Point start, Point end, int heading)
+/**************************** translateUp *****************************
+* Purpose:
+*	This method is called when the robot is in the position that if
+*	it moved forward it would move to the top of the screen. It
+*	translates the start and end point into a robot command. It does
+*	this by finding the distance between the two pixels and then
+*	converts it to the amount of milliseconds the motors must be on
+*	for the robot to make it to the end point.
+* 
+* Entry:
+*	Two points in terms of pixels. They represent where the robot
+*	will start at this command and where it should end at the end of
+*	the command.
+* 
+* Exit:
+*	This function returns the way the robot will be facing after the
+*	command is completed.
+**********************************************************************/
+int PathVector::translateUp(Point start, Point end)
 {	
 	int diff = 0;
+	int heading = 1;
 	//how we currently have it the
 	if(start.x > end.x)
 	{
@@ -95,56 +97,39 @@ int PathVector::translateUp(Point start, Point end, int heading)
 			//turn left
 			//move forward
 
-		m_commands.push_back(*(new RobotCommand('l',DEBUG_TURN)));//NINETY_DEGREES))); //90 is wrong but whatever the time to turn 90 degrees is correct
-		//so PIX_TO_MILISECONDS is some #define that is the number of miliseconds to to move 1 pixel
-		
-		diff = start.x - end.x;
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i <= diff + 30;)
-		{
-			m_commands.push_back( *(new RobotCommand('f',DEBUG_MOVE)));//((start.x - end.x)*SPACE_TO_MILLISECONDS)))); 
-			i += 100;
-		}
+		//DEBUG_TURN is only to be used until we can have the robot take multiple parameters
+		m_commands.push_back(RobotCommand('l',DEBUG_TURN));
+		//m_commands.push_back(*(new RobotCommand('l',NINETY_DEGREES))); 
+
+		m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		//m_commands.push_back( *(new RobotCommand('f',((start.x - end.x)*SPACE_TO_MILLISECONDS)))); 
+
 		heading = 4;
 	}else if(start.x < end.x)
 	{
 		//move right
 			//turn right
 			//move forward
-		m_commands.push_back(/**( new */ RobotCommand('r',DEBUG_TURN));//);//NINETY_DEGREES)));
+		m_commands.push_back(RobotCommand('r',DEBUG_TURN));
+		//m_commands.push_back(RobotCommand('r',NINETY_DEGREES)));
 		
-		diff = end.x - start.x;
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i <= diff + 30;)
-		{
-			m_commands.push_back( *(new RobotCommand('f',DEBUG_MOVE)));//((end.x - start.x)*SPACE_TO_MILLISECONDS)))); 
-			i += 100;
-		}
+		m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		//m_commands.push_back( RobotCommand('f',((end.x - start.x)*SPACE_TO_MILLISECONDS)))); 
+
 
 		heading = 2;
 	}else if(start.y > end.y)
 	{
-		diff = start.y - end.y;
 		//move forward		
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i  <= diff + 30;)
-		{
-			m_commands.push_back( /**( new */ RobotCommand('f',DEBUG_MOVE));//););//((start.y - end.y)*SPACE_TO_MILLISECONDS))));
-			i += 100;
-		}
+
+		m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		//m_commands.push_back( RobotCommand('f',((start.y - end.y)*SPACE_TO_MILLISECONDS))));
 		
 	}else if(start.y < end.y)
 	{
-
-		diff = end.y - start.y;
 		//move backward
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i  <= diff + 30;)
-		{
-			//move backward
-			m_commands.push_back(/**( new */ RobotCommand('b',DEBUG_MOVE));//););//((end.y - start.y)*SPACE_TO_MILLISECONDS))));
-			i += 100;
-		}
+		m_commands.push_back( RobotCommand('b',DEBUG_MOVE));
+		//m_commands.push_back( RobotCommand('b',((end.y - start.y)*SPACE_TO_MILLISECONDS))));
 		
 	}else
 	{ /*Might be empty*/}
@@ -152,70 +137,67 @@ int PathVector::translateUp(Point start, Point end, int heading)
 	
 	return heading;
 }
-int PathVector::translateRight(Point start, Point end, int heading)
+
+/*************************** translateRight ***************************
+* Purpose:
+*	This method is called when the robot is in the position that if
+*	it moved forward it would move to the right of the screen. It
+*	translates the start and end point into a robot command. It does
+*	this by finding the distance between the two pixels and then
+*	converts it to the amount of milliseconds the motors must be on
+*	for the robot to make it to the end point.
+* 
+* Entry:
+*	Two points in terms of pixels. They represent where the robot
+*	will start at this command and where it should end at the end of
+*	the command.
+* 
+* Exit:
+*	This function returns the way the robot will be facing after the
+*	command is completed.
+**********************************************************************/
+int PathVector::translateRight(Point start, Point end)
 {
 	int diff = 0;
+	int heading = 2;
+	
 	if(start.x > end.x)
 	{
-		diff = start.x - end.x;
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i <= diff + 30;)
-		{
-		
-			//backward
-			m_commands.push_back(/**( new */ RobotCommand('b',DEBUG_MOVE));//););//((end.x - start.x)*SPACE_TO_MILLISECONDS))));		
-			i += 100;
-		}
+
+		//backward
+		m_commands.push_back( RobotCommand('b',DEBUG_MOVE));
+		//m_commands.push_back( RobotCommand('b',((end.x - start.x)*SPACE_TO_MILLISECONDS))));		
 			
 	}else if(start.x < end.x)
 	{
 
-		diff = end.x - start.x;
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i <= diff + 30;)
-		{
-		
-			//forward
-			m_commands.push_back(/**( new */ RobotCommand('f',DEBUG_MOVE));//););//((end.x - start.x)*SPACE_TO_MILLISECONDS)))); 
-			i += 100;
-		}
+		//forward
+		m_commands.push_back(RobotCommand('f',DEBUG_MOVE));
+		//m_commands.push_back(RobotCommand('f',((end.x - start.x)*SPACE_TO_MILLISECONDS)))); 
 		
 	}else if(start.y > end.y)
 	{
 		//move left
 			//turn left
 			//move forward
-		m_commands.push_back(/**( new */ RobotCommand('l',DEBUG_TURN));//););//NINETY_DEGREES))); //90 is wrong but whatever the time to turn 90 degrees is correct
-	
-		diff = start.y - end.y;
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i <= diff + 30;)
-		{
-			//forward
-			//so PIX_TO_MILISECONDS is some #define that is the number of miliseconds to to move 1 pixle
-			m_commands.push_back(/**( new */ RobotCommand('f',DEBUG_MOVE));//););//((start.y - end.y)*SPACE_TO_MILLISECONDS)))); 
-			i += 100;
-		}
+		m_commands.push_back( RobotCommand('l',DEBUG_TURN));
+		//m_commands.push_back( RobotCommand('l',NINETY_DEGREES))); //90 is wrong but whatever the time to turn 90 degrees is correct
 
+		//forward
+		m_commands.push_back(RobotCommand('f',DEBUG_MOVE));
+		//m_commands.push_back(RobotCommand('f',((start.y - end.y)*SPACE_TO_MILLISECONDS)))); 
 		heading = 1;
 	}else if(start.y < end.y)
 	{
 		//move right
 			//turn right
 			//move forward
-		m_commands.push_back(/**( new */ RobotCommand('r',DEBUG_TURN));//););//NINETY_DEGREES)));
+		m_commands.push_back( RobotCommand('r',DEBUG_TURN));
+		//m_commands.push_back( RobotCommand('r',NINETY_DEGREES)));
 		
-		
-		diff = start.y - end.y;
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i <= diff + 30;)
-		{
-			//forward
-			//so PIX_TO_MILISECONDS is some #define that is the number of miliseconds to to move 1 pixle
-			
-			m_commands.push_back(/**( new */ RobotCommand('f',DEBUG_MOVE));//););//((end.y - start.y)*SPACE_TO_MILLISECONDS))));
-			i += 100;
-		}
+		//forward
+		m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		//m_commands.push_back( RobotCommand('f',((end.y - start.y)*SPACE_TO_MILLISECONDS))));
 
 		heading = 3;
 	}else
@@ -223,26 +205,41 @@ int PathVector::translateRight(Point start, Point end, int heading)
 	
 	return heading;
 }
-int PathVector::translateBottom(Point start, Point end, int heading)
+/************************** translateBottom ***************************
+* Purpose:
+*	This method is called when the robot is in the position that if
+*	it moved forward it would move to the bottom of the screen. It
+*	translates the start and end point into a robot command. It does
+*	this by finding the distance between the two pixels and then
+*	converts it to the amount of milliseconds the motors must be on
+*	for the robot to make it to the end point.
+* 
+* Entry:
+*	Two points in terms of pixels. They represent where the robot
+*	will start at this command and where it should end at the end of
+*	the command.
+* 
+* Exit:
+*	This function returns the way the robot will be facing after the
+*	command is completed.
+**********************************************************************/
+int PathVector::translateBottom(Point start, Point end)
 {
 	int diff = 0;
+	int heading = 3;
+	
 	if(start.x > end.x)
 	{
 		//move right
 			//turn right
 			//move forward
-		m_commands.push_back(/**( new */ RobotCommand('r',DEBUG_TURN));//););//NINETY_DEGREES)));
+		m_commands.push_back(RobotCommand('r',DEBUG_TURN));
+		//m_commands.push_back(RobotCommand('r',NINETY_DEGREES)));
 	
-		diff = start.x - end.x;
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i <= diff + 30;)
-		{
-			//forward
-			//so PIX_TO_MILISECONDS is some #define that is the number of miliseconds to to move 1 pixle
-			
-			m_commands.push_back(/**( new */ RobotCommand('f',DEBUG_MOVE));//););//((start.x - end.x)*SPACE_TO_MILLISECONDS))));
-			i += 100;
-		}
+		//forward
+		m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		//m_commands.push_back( RobotCommand('f',((start.x - end.x)*SPACE_TO_MILLISECONDS))));
+
 		
 		heading = 2;
 		
@@ -251,90 +248,85 @@ int PathVector::translateBottom(Point start, Point end, int heading)
 		//move left
 			//turn left
 			//move forward
-		m_commands.push_back(/**( new */ RobotCommand('l',DEBUG_TURN));//););//NINETY_DEGREES))); //90 is wrong but whatever the time to turn 90 degrees is correct
-		
-		
-		diff = end.x - start.x;
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i <= diff + 30;)
-		{
-			//forward
-			//so PIX_TO_MILISECONDS is some #define that is the number of miliseconds to to move 1 pixle
-			m_commands.push_back(/**( new */ RobotCommand('f',DEBUG_MOVE));//););//((end.x - start.x)*SPACE_TO_MILLISECONDS)))); 
-			i += 100;
-		}
+		m_commands.push_back(RobotCommand('l',DEBUG_TURN));
+		//m_commands.push_back(RobotCommand('l',NINETY_DEGREES))); 
+
+		//forward
+		m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		//m_commands.push_back( RobotCommand('f',((end.x - start.x)*SPACE_TO_MILLISECONDS)))); 
 		
 		heading = 4;
 	}else if(start.y > end.y)
 	{
-
-		diff = start.y - end.y;
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i <= diff + 30;)
-		{
-			//move backward
-			m_commands.push_back(/**( new */ RobotCommand('b',DEBUG_MOVE));//););//((start.y - end.y)*SPACE_TO_MILLISECONDS))));
-			i += 100;
-		}
-				
+		//move backward
+		m_commands.push_back( RobotCommand('b',DEBUG_MOVE));
+		//m_commands.push_back( RobotCommand('b',((start.y - end.y)*SPACE_TO_MILLISECONDS))));
+	
 	}else if(start.y < end.y)
 	{
-		
-		diff = end.y - start.y;
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i <= diff + 30;)
-		{
-			//move forward
-			m_commands.push_back(/**( new */ RobotCommand('f',DEBUG_MOVE));//););//((end.y - start.y)*SPACE_TO_MILLISECONDS))));
-			i += 100;
-		}
-		
+
+		//move forward
+		m_commands.push_back(RobotCommand('f',DEBUG_MOVE));//););//((end.y - start.y)*SPACE_TO_MILLISECONDS))));
+
 	}else
 	{ /*Might be empty*/}
 	
 	return heading;
 }
-int PathVector::translateLeft(Point start, Point end, int heading)
+/*************************** translateLeft ****************************
+* Purpose:
+*	This method is called when the robot is in the position that if
+*	it moved forward it would move to the leftof the screen. It
+*	translates the start and end point into a robot command. It does
+*	this by finding the distance between the two pixels and then
+*	converts it to the amount of milliseconds the motors must be on
+*	for the robot to make it to the end point.
+* 
+* Entry:
+*	Two points in terms of pixels. They represent where the robot
+*	will start at this command and where it should end at the end of
+*	the command.
+* 
+* Exit:
+*	This function returns the way the robot will be facing after the
+*	command is completed.
+**********************************************************************/
+int PathVector::translateLeft(Point start, Point end)
 {
 	int diff = 0;
+	int heading = 4;
+	
 	if(start.x > end.x)
 	{
 		diff = start.x - end.x;
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i <= diff + 30;)
-		{
-			//move backward
-			m_commands.push_back(/**( new */ RobotCommand('b', DEBUG_MOVE));//););//((start.x - end.x)*SPACE_TO_MILLISECONDS))));
-			//.push_back(RobotCommand('b',100);
-			i += 100;
-		}
+
+		//move backward
+		m_commands.push_back( RobotCommand('b', DEBUG_MOVE));
+		//m_commands.push_back( RobotCommand('b',((start.x - end.x)*SPACE_TO_MILLISECONDS))));
+
 	}else if(start.x < end.x)
 	{
 
 		diff = end.x - start.x;
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i <= diff + 30;)
-		{
-			//move forward
-			m_commands.push_back(/**( new */ RobotCommand('f',DEBUG_MOVE));//););//((end.x - start.x)*SPACE_TO_MILLISECONDS))));
-			i += 100;
-		}
+
+		//move forward
+		m_commands.push_back(RobotCommand('f',DEBUG_MOVE));
+		//m_commands.push_back(RobotCommand('f',((end.x - start.x)*SPACE_TO_MILLISECONDS))));
+
 
 	}else if(start.y > end.y)
 	{
 		//move right
 			//turn right
 			//move forward
-		m_commands.push_back(/**( new */ RobotCommand('r',DEBUG_TURN));//););//NINETY_DEGREES)));
+		m_commands.push_back(RobotCommand('r',DEBUG_TURN));
+		//m_commands.push_back(RobotCommand('r',NINETY_DEGREES)));
 		
-		diff = start.y - end.y;
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i <= diff + 30;)
-		{
-			//move forward
-			m_commands.push_back(/**( new */ RobotCommand('f',DEBUG_MOVE));//););//((start.y - end.y)*SPACE_TO_MILLISECONDS))));
-			i += 100;
-		}
+
+		//move forward
+		m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		//m_commands.push_back( RobotCommand('f',((start.y - end.y)*SPACE_TO_MILLISECONDS))));
+
 		
 		heading = 1;
 		
@@ -343,17 +335,12 @@ int PathVector::translateLeft(Point start, Point end, int heading)
 		//move left
 			//turn left
 			//move forward
-		m_commands.push_back(/**( new */ RobotCommand('l',DEBUG_TURN));//););//NINETY_DEGREES))); //90 is wrong but whatever the time to turn 90 degrees is correct
-		
-		diff = end.y - start.y;
-		//this for-loop is completely for alpha testing. It is to check how many 'f'/'b' commands to push onto the vector because we cannot send miliseconds yet
-		for(int i = 0; diff - 30 >= i && i <= diff + 30;)
-		{
-			//move forward
-			//so PIX_TO_MILISECONDS is some #define that is the number of miliseconds to to move 1 pixle
-			m_commands.push_back(/**( new */ RobotCommand('f',DEBUG_MOVE));//););//((end.y - start.y)*SPACE_TO_MILLISECONDS)))); 
-			i += 100;
-		}
+		m_commands.push_back(RobotCommand('l',DEBUG_TURN));
+		//m_commands.push_back(RobotCommand('l',NINETY_DEGREES)));
+
+		//move forward
+		m_commands.push_back(RobotCommand('f',DEBUG_MOVE));
+		//m_commands.push_back(RobotCommand('f',((end.y - start.y)*SPACE_TO_MILLISECONDS)))); 
 		
 		heading = 2;
 	}else
@@ -361,8 +348,6 @@ int PathVector::translateLeft(Point start, Point end, int heading)
 	
 	return heading;
 }
-
-
 
 Edge PathVector::getEdge()
 {
@@ -372,8 +357,6 @@ int PathVector::getCommandSize()
 {
 	return m_commands.size();
 }
-
-
 RobotCommand PathVector::popCommand()
 {
 	RobotCommand r(m_commands.front());	

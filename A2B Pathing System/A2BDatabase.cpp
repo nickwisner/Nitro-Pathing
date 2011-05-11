@@ -14,26 +14,19 @@ A2BDatabase::A2BDatabase()
 	// initialize database here
 }
 
-
-
 A2BDatabase::~A2BDatabase()
 {}
 
 
-int A2BDatabase::currentMission(){
-
+int A2BDatabase::getCurrentMission()
+{
 	return 0;
 }
 
 
-bool A2BDatabase::endMission(Point end){
-
+bool A2BDatabase::endMission(Point end)
+{
 	return false;
-}
-
-
-void A2BDatabase::initialization(){
-
 }
 
 
@@ -42,8 +35,8 @@ void A2BDatabase::insertError(ErrorLog code){
 }
 
 
-int A2BDatabase::startMission(Point start, Point dest){
-
+int A2BDatabase::startMission(Point start, Point dest)
+{
 	return 0;
 }
 

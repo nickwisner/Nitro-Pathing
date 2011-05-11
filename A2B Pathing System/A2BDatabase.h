@@ -1,12 +1,30 @@
-///////////////////////////////////////////////////////////
-//  A2BDatabase.h
-//  Implementation of the Class A2BDatabase
-//  Created on:      17-Apr-2011 5:24:52 PM
-//  Original author: peter.finn
-///////////////////////////////////////////////////////////
+/********************************************************************
+* Constructors:
+*	A2BDatabase() - The base constructor connects to the database.
+*	
+*	virtual ~A2BDatabase() - Closes the connection to the database.
+* 
+* Mutators:
+*	Edge getEdge() - Returns a copy of m_edge
+*	
+*	int getCommandSize() - Returns the number of robot commands
+*	inside of the list
+*	
+*	RobotCommand popCommand() - Returns the front of the robot
+*	command list and then removes it from list.
+*	
+* 
+* Methods:
+*	int translateUp(Point start, Point end, int heading) - From the
+*	start and end point ( in pixels ) and then translates them into a
+*	robot command which it pushes onto the list. Returns a int which
+*	should be caught back into heading. This function is only called
+*	if the heading is 1. Meaning the robot is facing up.
+**********************************************************************/
 
-#if !defined(EA_D11EACC8_E9A2_4023_B545_34E8FB6B6577__INCLUDED_)
-#define EA_D11EACC8_E9A2_4023_B545_34E8FB6B6577__INCLUDED_
+/*	CURRENTLY IMPLEMENTED AS A STUB FILE  */
+#ifndef DATABASE_H
+#define DATABASE_H
 
 #include "Mission.h"
 #include "ErrorLog.h"
@@ -23,10 +41,9 @@ class A2BDatabase : public iDatabase
 public:
 	A2BDatabase();
 	virtual ~A2BDatabase();
-	Mission *m_Mission;
-	ErrorLog *m_ErrorLog;
 
-	int currentMission();
+	int getCurrentMission();
+	
 	bool endMission(Point end);
 	void insertError(ErrorLog code);
 	int startMission(Point start, Point dest);
@@ -39,7 +56,5 @@ private:
 //	hconnection m_db;
 	vector<ErrorLog> m_tempqueue;
 
-	void initialization();
-
 };
-#endif // !defined(EA_D11EACC8_E9A2_4023_B545_34E8FB6B6577__INCLUDED_)
+#endif 

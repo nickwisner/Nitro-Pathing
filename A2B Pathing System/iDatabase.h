@@ -5,8 +5,8 @@
 //  Original author: nagisa.day
 ///////////////////////////////////////////////////////////
 
-#if !defined(EA_6AD8EA81_18AB_49bc_A2B4_6C4DB0152F97__INCLUDED_)
-#define EA_6AD8EA81_18AB_49bc_A2B4_6C4DB0152F97__INCLUDED_
+#ifndef iDATABASE_H
+#define DATABASE_H
 
 #include <opencv2/imgproc/imgproc.hpp>
 using cv::Point;
@@ -20,10 +20,6 @@ class iDatabase
 {
 
 public:
-	iDatabase() {
-
-	}
-
 	virtual ~iDatabase() {
 
 	}
@@ -34,4 +30,4 @@ public:
 	virtual void update(string query) =0;
 
 };
-#endif // !defined(EA_6AD8EA81_18AB_49bc_A2B4_6C4DB0152F97__INCLUDED_)
+#endif 
