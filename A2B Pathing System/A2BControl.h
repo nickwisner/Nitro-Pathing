@@ -39,16 +39,32 @@ class A2BControl : public iControl
 public:
 	A2BControl();
 	virtual ~A2BControl();
-
+	
+	//Ends the mission with a pass or fail code entered in
 	bool endMission(int error);
+	//joins all threads and ends them
+		//Not implemented
 	void endThreads();
+	//Finds the robot, and makes the path
+		//Then sends the path to robotio and sends the whole queue of messages to the robot
 	bool setDestination(Point dest);
+	//Starts up all threads
+		//Not implimented
 	void startThreads();
+	//Will update the image and check the path
+		//Not implimented
 	bool update();
 	
+	//checks to see if there are any save queueres
+		//Not implimented
 	bool checkSavedQueries();
+	//Saves the queries off to a flat file
+		//Not implimented
 	void saveQueriesToFile();
+	//gets the image from the camera and then also makes a edge image and a bool obsticle map
 	void getImage();
+	//sets all of the false (obsticles) on the bool array for where the robot is
+		//AKA makes the robot no longer a obsticle in the bool array
 	void clearRobot(int space, bool * obstMap, Point robPos);
 
 private:

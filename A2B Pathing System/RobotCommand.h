@@ -20,11 +20,15 @@ public:
 	RobotCommand( const RobotCommand & cmd );
 	~RobotCommand();
 
+	//getters
 	char getCode();
 	int getCycles();
 
 private:
+	//A char which is either f,b,l,r meaning forward, back, left or right respectivly.
+	//Can also be s for stop.
 	char m_code;
+	//The amount of time in miliseconds that the robot will set the motors.
 	int m_cycles;	
 
 };

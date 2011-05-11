@@ -73,25 +73,29 @@ bool RobotIO::fillQueue(Path * Pathmsg)
 	return filledQueue;
 }
 
-
+//Should get a string from receiveMessage then process it. Returning a int telling the system what it should do based of the integer.
 int RobotIO::processRobotMessage(string msg){
 	// not implemented
 	return false;
 }
 
-
+//Should be called to get the whole message the robot is sending
 void RobotIO::receiveMessage(){
 	// not implemented
 }
 
-
+//Takes a robot command object and then sends the char and integer to the robot.
+	//With how it is currently implemented it just sends the char to the robot for the number of cycles we have.
+	//This will hopefully be changed in beta
 bool RobotIO::sendCommand(RobotCommand cmd)
 {
+	//Checks if the connection is still open. If not will throw a exception.
 	if( !m_port.is_open() )
 	{
 		throw NO_CONNECTION;
 	}
 
+	//Everytime we send a message we reset the options, just in case.
 	m_port.set_option( asio_serial::baud_rate( 9600 ) ); 
 	m_port.set_option( asio_serial::flow_control( asio_serial::flow_control::none ) ); 
 	m_port.set_option( asio_serial::parity( asio_serial::parity::none ) ); 
@@ -115,12 +119,7 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 	return true;
 }
 
-
-bool RobotIO::receiveCommand(RobotCommand com)
-{
-	return false;
-}
-
+//Makes a deep copy of what is passed in and sets that to the m_robot datamember
 void RobotIO::setRobot(Robot & rob)
 {
 	m_robot = new Robot(rob);
@@ -146,6 +145,7 @@ void RobotIO::SendQueue()
 	}
 }
 
+//attemps to open the com port. Should have error handing in here.
 bool RobotIO::openPort()
 {
 	if( !m_port.is_open() )
@@ -159,6 +159,7 @@ bool RobotIO::openPort()
 	return false;
 }
 
+//attemps to close the com port. Should have error handing in here.
 bool RobotIO::closePort()
 {
 	if( m_port.is_open() )

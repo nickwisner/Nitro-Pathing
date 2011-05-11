@@ -76,6 +76,7 @@ bool Pathing::makePath(int destSpace, int startSpace, bool * obstMap)
 	return m_active;
 }
 
+//Will take the vector of points and return another vector of points filled with only the vertexes of direction change
 vector<int> Pathing::gutPoints(const vector<int> &pathPoints)
 {
 	int spaceDiff = pathPoints[1] - pathPoints[0];
@@ -139,7 +140,7 @@ bool Pathing::validatePath()
 	return false;
 }
 
-
+//takes a vector of ints, which represent the spaces [16x16 pixle squares] on the image, and then converts them into robot commands
 void Pathing::translateToPath( vector<int> path)
 {
 	if( m_path != 0)

@@ -37,7 +37,9 @@ Point ImageProcessor::findRobot(Mat * room, Robot * robot)
 	// Needed for matchTemplate, which finds the robot picture inside the bigger pic
 	Mat rtn((room->rows - bot.rows) + 1, (room->cols - bot.cols) + 1,DataType<float>::type); 
 	
+	//A openCV algorithm that will fill rtn with itegers where the minimum point is where the robot is found
 	matchTemplate(*(room), bot, rtn, CV_TM_SQDIFF);
+
 
 	Point robotLoc;
 	robotLoc.x = 0; robotLoc.y = 0; // Point robotLoc(0,0) wasn't working for some reason
@@ -91,6 +93,8 @@ bool ImageProcessor::allWhite( const Mat & square )
 	return white;
 }
 
+//Should make a white boarder around the image. This is in hopes that matchTemplate will not attempt to find the robot outside of the image.
+//Currently not implemented.
 bool ImageProcessor::makeImageBorder(Mat* image)
 {
 	// white out top and bottom rows

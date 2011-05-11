@@ -14,8 +14,12 @@ Path::Path()
 
 
 
-Path::~Path(){
-
+Path::~Path()
+{
+	for(int i = 0; i < this->m_path.size(); i++)
+	{
+		delete &m_path[i];
+	}
 }
 
 int Path::getPathVSize()
