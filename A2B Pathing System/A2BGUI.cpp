@@ -19,7 +19,18 @@ using std::string;
 #include "RobotIO.h"
 
 
-
+/************************** A2BGUI::onMouse ***************************
+* The callback function for the window for A2BGUI.
+* 
+* This is a private static function. This needs to be static
+* because it is a callback function, and since static functions
+* cannot reference nonstatic members, it takes a pointer to itself
+* in the last parameter which needs to be reinterpret_cast'ed from
+* a void*. It works.
+* 
+* This currently only takes a left button click. That calls GUI's
+* setDest at cursor x,y.
+**********************************************************************/
 void A2BGUI::onMouse( int event, int x, int y, int, void * gui )
 {
 	switch( event )

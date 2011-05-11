@@ -40,12 +40,13 @@ public:
 
 private:
 	iControl * m_control;	// pointer to Control, used for setDest, etc
-	string m_window;		// name of the window; 
-	Mat m_view;
+	string m_window;		// name of the window, also used to reference window
+	Mat m_view;				// the image shown in the window; deep copied from source
 
-	// 
+	// Used for markRobot, finds the area inside the circle to make colored.
 	void getCircularROI(int R, vector < int > & RxV);
 
+	// The callback for mouse events on window
 	static void onMouse( int event, int x, int y, int, void * gui );
 
 };
