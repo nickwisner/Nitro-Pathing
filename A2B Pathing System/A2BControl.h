@@ -50,80 +50,10 @@ public:
 	bool update();
 	
 	bool checkSavedQueries();
-	Image * getEdgedImage();
+	Mat * getEdgedImage(); //needed?
 	void saveQueriesToFile();
 	void getImage();
 	void clearRobot(int space, bool * obstMap, Point robPos);
-
-	//delete this ish after testing.
-void sendTestVector( vector<RobotCommand> blah)
-{
-	for(int i = 0; i < blah.size(); i++)
-	{
-		try
-		{
-			m_robotio->sendCommand(blah[i]);
-		}
-		catch(int e)
-		{
-			m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
-			i = blah.size() + 1;
-		}
-	}
-}
-
-void createTestVector()
-{
-	vector<RobotCommand> test;
-	test.push_back(RobotCommand('f', 2));
-	test.push_back(RobotCommand('r',2));
-	test.push_back(RobotCommand('f', 2));
-	test.push_back(RobotCommand('l',2));
-	test.push_back(RobotCommand('b', 1));
-	test.push_back(RobotCommand('f',1));
-	sendTestVector(test);
-}
-
-void makeTestVector2()
-{
-	int heading = 1;
-	vector<RobotCommand> test;
-	Edge e1(Point(1,1), Point(10,1));
-	Edge e2(Point(10,1), Point(10,10));
-	
-	PathVector v1(e1, heading);
-	PathVector v2(e2, heading);
-	
-	for(int i = v1.getCommandSize(); i > 0; i-- )
-	{
-		test.push_back(v1.popCommand());
-	}
-	for(int i = v2.getCommandSize(); i > 0; i-- )
-	{
-		test.push_back(v2.popCommand());
-	}
-	sendTestVector(test);
-}
-void makeTestVector3()
-{
-	int heading = 1;
-	vector<RobotCommand> test;
-	Edge e1(Point(10,1), Point(1,1));
-	Edge e2(Point(1,1), Point(1,10));
-	
-	PathVector v1(e1, heading);
-	PathVector v2(e2, heading);
-	
-	for(int i = v1.getCommandSize(); i > 0; i-- )
-	{
-		test.push_back(v1.popCommand());
-	}
-	for(int i = v2.getCommandSize(); i > 0; i-- )
-	{
-		test.push_back(v2.popCommand());
-	}
-	sendTestVector(test);
-}
 
 
 private:
@@ -133,8 +63,8 @@ private:
 	iRobotIO * m_robotio; // Interface through which we can send the path to queue commands, and tell when to send commands out to the robot.
 	iDatabase * m_database; //Interface to update database through (missions, errors)
 	
-	Image * m_edgedImage; // Holds the image of the room with edge detecting effects on it.
-	Image * m_plainImage; // The raw, unprocessed image of the floor. A "human" view of things.
+	Mat * m_edgedImage; // Holds the image of the room with edge detecting effects on it.
+	Mat * m_plainImage; // The raw, unprocessed image of the floor. A "human" view of things.
 
 	Timer * m_tUpdatePath; // This timer goes off when it is time to update the path, the picture, etc.
 

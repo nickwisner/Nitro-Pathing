@@ -24,7 +24,8 @@ void handle_write(const boost::system::error_code&, // error
 }
 
 RobotIO::RobotIO() : m_robot(0), m_port(m_io, "COM4")
-{}
+{
+}
 
 RobotIO::~RobotIO()
 {

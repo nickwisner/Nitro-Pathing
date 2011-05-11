@@ -6,45 +6,64 @@
 ///////////////////////////////////////////////////////////
 
 #include "ImageAcquisition.h"
+#include <boost/thread.hpp>
 
 
 #include <string>
 using std::string;
 
-//int const WEBCAM_ID = -1;
-
 // ERRORS
-
 int const NO_WEBCAM = -1;
 
 
-ImageAcquisition::ImageAcquisition() : m_current_image(0)
+ImageAcquisition::ImageAcquisition() : m_plainCur(0), m_edgeCur(0)
 {
-	//m_capture.open( /*WEBCAM_ID*/ -1 );
 	m_capture = cvCaptureFromCAM(-1);
 
-	// doesn't work... try videoInput library?
-//	cvSetCaptureProperty( m_capture, CV_CAP_PROP_FRAME_WIDTH, 1280 );
-//	cvSetCaptureProperty( m_capture, CV_CAP_PROP_FRAME_HEIGHT, 720 );
-
-	if (!m_capture)///*!m_capture.isOpened()*/)
+	if (!m_capture)
 	{
 		throw NO_WEBCAM;
 	}
-
+	
+	m_obstMap = new bool[ROW_SIZE * COL_SIZE];
 }
 
 ImageAcquisition::~ImageAcquisition()
-{ }
-
-Image * ImageAcquisition::getImage()
+{ 
+	delete [] m_obstMap;
+}
+void ImageAcquisition::getImages()
 {
-	delete m_current_image;
+		// getImage news the image, but it also deletes its current image which is same address as m_plainImage here
+	m_plainImage = m_imageacquisition->getImage();
+	
+	delete m_edgedImage; // createEdgedImage news the image but has no image to delete so we do it here
+	m_edgedImage = ImageProcessor::createEdgedImage(m_plainImage);
 
-	Mat frame;
-	//m_capture >> frame;
-	frame = cvQueryFrame(m_capture);
-	m_current_image = new Image( frame );
+	ImageProcessor::mapObstacles(*m_edgedImage, m_obstacleMap);
+//	ImageProcessor::makeImageBorder(&(m_plainImage->mat()))
+}
+Mat ImageAcquisition::getPlain()
+{
+	return m_plainCur->clone();
+}
+Mat ImageAcquisition::getEdge()
+{
+	return m_edgeCur->clone();
+}
+bool* ImageAcquisition::getObstMap()
+{//this is sad-face
 
-	return m_current_image;
+	bool * tmp = new bool[ROW_SIZE * COL_SIZE];
+	memcpy(tmp, m_obstMap, sizeof(bool)* (ROW_SIZE*COL_SIZE));
+	
+	return tmp;
+}
+Mat ImageAcquisition::getImage()
+{
+    delete m_plainCur;
+
+    *m_plainCur = cvQueryFrame(m_capture);
+
+    return m_plainCur->clone();
 }

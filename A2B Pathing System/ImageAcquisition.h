@@ -9,7 +9,8 @@
 #define EA_F06BFFF8_B909_48f9_B235_EE3F3D8C7005__INCLUDED_
 
 #include "iImageAcquisition.h"
-#include "Image.h"
+//#include "Image.h"
+#include "A2BUtilities.h"
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -24,14 +25,25 @@ class ImageAcquisition : public iImageAcquisition
 
 public:
 	ImageAcquisition();
+	ImageAcquisition( int Row, int Col );
 	virtual ~ImageAcquisition();
 
-	Image * getImage();
+	
 
+	Mat getPlain();
+	Mat getEdge();
+	bool* getObstMap();
+	//depricated!
+	Mat getImage();
 private:
 	//VideoCapture m_capture;
-	CvCapture * m_capture;
-	Image * m_current_image;
+	Mat * m_plainCur;
+	Mat * m_edgeCur;
+	bool * m_obstMap;
 
+	void getImages();
+	
+	CvCapture * m_capture;
+	
 };
 #endif // !defined(EA_F06BFFF8_B909_48f9_B235_EE3F3D8C7005__INCLUDED_)

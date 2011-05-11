@@ -6,12 +6,13 @@
 ///////////////////////////////////////////////////////////
 
 #include "ImageProcessor.h"
+
 // edging
 const int EDGE_THRESH = 30;
 
-Image * ImageProcessor::createEdgedImage(Image * image)
+Mat ImageProcessor::createEdgedImage(Mat * image)
 {
-	Mat frame = image->mat();
+	Mat frame = *image;
 //	frame.copyTo(em);
 	Mat gray, edge, cedge;
 
@@ -22,9 +23,9 @@ Image * ImageProcessor::createEdgedImage(Image * image)
 	frame.copyTo(cedge, edge);
 	threshold(cedge, cedge, EDGE_THRESH, 255, CV_THRESH_BINARY_INV);
 
-	Image * edged = new Image(cedge);
+	//Image * edged = new Image(cedge);
 
-	return edged;
+	return cedge;
 }
 
 Point ImageProcessor::findRobot(Mat * room, Robot * robot)//(Image * image, Robot * robot)
@@ -56,15 +57,15 @@ Point ImageProcessor::findRobot(Mat * room, Robot * robot)//(Image * image, Robo
 	return robotPos;
 }
 
-void ImageProcessor::mapObstacles( Image & image, bool * obstacleGrid )
+void ImageProcessor::mapObstacles( Mat & image, bool * obstacleGrid )
 {
 	Mat square;
-	Mat img = image.mat();
+	//Mat img = image;
 	for( int rowid = 0; rowid < COL_SIZE; rowid++ )
 	{
 		for( int colid = 0; colid < ROW_SIZE; colid++ )
 		{
-			square = img(Rect(colid*GRID_SQUARE_SIZE, rowid*GRID_SQUARE_SIZE, GRID_SQUARE_SIZE, GRID_SQUARE_SIZE));
+			square = image(Rect(colid*GRID_SQUARE_SIZE, rowid*GRID_SQUARE_SIZE, GRID_SQUARE_SIZE, GRID_SQUARE_SIZE));
 
 			obstacleGrid[rowid*ROW_SIZE + colid] = !(allWhite(square) ? true : false);
 		}

@@ -23,7 +23,8 @@ public:
 	}
 	A2BDatabase *m_A2BDatabase;
 
-	virtual bool endMission(int missionid) =0;
+	virtual Mat * getEdgedImage() = 0;
+	virtual bool endMission(int missionid) = 0;
 	virtual void endThreads() =0;
 	virtual void getImage() =0;
 	virtual bool sendCommand() =0;
