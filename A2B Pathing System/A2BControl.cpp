@@ -99,7 +99,7 @@ bool A2BControl::setDestination(Point dest)
 		m_gui->markRobot(robPos);
 
 		if(n < 5)
-			robCheck = !m_gui->showError("Is this the robot?",BOX_YESNO);
+			robCheck = !m_gui->showError("Is this the robot?",MB_YESNO);
 		else
 			return false;
 	}						 // keep looping if they answer no
@@ -107,7 +107,7 @@ bool A2BControl::setDestination(Point dest)
 
 	if( !m_pathing->makePath(spaceDest, spaceStart, m_obstacleMap) )
 	{
-		m_gui->showError("Cannot create a path to indicated destination.",BOX_OK);
+		m_gui->showError("Cannot create a path to indicated destination.",MB_OK);
 	}
 	else
 	{
@@ -283,13 +283,13 @@ void A2BControl::startThreads()
 
 			// Test OK message box
 		case 'e':
-			m_gui->showError("This is a substantial error. Please regard.", BOX_OK);
+			m_gui->showError("This is a substantial error. Please regard.", MB_OK);
 			break;
 		
 			// Test YES/NO message box
 		case 'z':
-			if(m_gui->showError("Would you like to continue?", BOX_YESNO))
-				m_gui->showError("Coolio",BOX_OK);
+			if(m_gui->showError("Would you like to continue?", MB_YESNO))
+				m_gui->showError("Coolio",MB_OK);
 			else
 				key = 'q';
 			break;

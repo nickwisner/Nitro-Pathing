@@ -1,12 +1,21 @@
-///////////////////////////////////////////////////////////
-//  iGUI.h
-//  Implementation of the Interface iGUI
-//  Created on:      12-Apr-2011 4:56:35 AM
-//  Original author: nagisa.day
-///////////////////////////////////////////////////////////
-
-#if !defined(EA_D23F979E_9CF4_4917_B058_F363BBC68D7E__INCLUDED_)
-#define EA_D23F979E_9CF4_4917_B058_F363BBC68D7E__INCLUDED_
+/************************** Interface: iGUI ***************************
+* Defines an interface for the GUI of this application, A2BGUI.
+* 
+* setControl: Sets pointer to Control, since GUI depends on
+*	Control.
+* drawImage: Displays image inside the window.
+* drawPath: Displays the path overlaying the image in the window.
+* endMission: Called when user triggers manual abortion of the
+*	robot mission!
+* markRobot: Draws a mark overlaying the image on where the robot
+*	is thought to be.
+* setDest: Called when user indicates a destination point. Sends
+*	point to Control.
+* showError: Pops a message box with error. Basically, wraps WinAPI
+*	MessageBox.
+**********************************************************************/
+#ifndef IGUI_H
+#define IGUI_H
 
 #include <opencv2/imgproc/imgproc.hpp>
 using namespace cv;
@@ -19,8 +28,8 @@ using std::vector;
 #include <string>
 using std::string;
 
-extern int const BOX_OK;
-extern int const BOX_YESNO;
+// for MessageBox
+#include <Windows.h>
 
 class iGUI
 {
@@ -40,9 +49,7 @@ public:
 	virtual void endMission() =0;
 	virtual void markRobot(Point point) =0;
 	virtual void setDest(int x, int y) =0;
-	virtual int showError(const string & error, int type = BOX_OK) =0;
-	virtual bool toggleImage() =0;
-	virtual void CoverRobot(Point topLeft, Point bottomRight) = 0;
+	virtual int showError(const string & error, int type = MB_OK) =0;
 
 };
-#endif // !defined(EA_D23F979E_9CF4_4917_B058_F363BBC68D7E__INCLUDED_)
+#endif

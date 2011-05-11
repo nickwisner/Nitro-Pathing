@@ -1,50 +1,49 @@
-///////////////////////////////////////////////////////////
-//  A2BGUI.h
-//  Implementation of the Class A2BGUI
-//  Created on:      16-Apr-2011 4:18:50 PM
-//  Original author: peter.finn
-///////////////////////////////////////////////////////////
-
+/*************************** Class: A2BGUI ****************************
+* The main purpose of A2BGUI is to create a window and display
+* images in it to show the user what the camera/system is seeing,
+* and to let the user click inside the window to indicate where the
+* robot should go.
+**********************************************************************/
 #ifndef A2BGUI_H
 #define A2BGUI_H
 
 #include "iControl.h"
 #include "iGUI.h"
 
-#include "A2BMessageBox.h"
-
 #include <string>
 using std::string;
 
-//void onMouse( int event, int x, int y, int, void * gui );
 
 class A2BGUI : public iGUI
 {
-	friend class A2BMessageBox;
 
 public:
+	// Creates window
 	A2BGUI();
+	// Destroys window
 	virtual ~A2BGUI();
 
+	// set m_control
 	void setControl(iControl * ctrl);
+	// Displays image inside the window.
 	void drawImage(Mat img);
+	// Displays the path overlaying the image in the window.
 	void drawPath(const vector<Point> & path, Mat * view);
+	// Called when user triggers manual abortion of the robot mission!
 	void endMission();
-	int showError(const string & error, int type = BOX_OK);
+	// Pops a message box with error. Basically, wraps WinAPI MessageBox.
+	int showError(const string & error, int type = MB_OK);
+	// Draws a mark overlaying the image on where the robot is thought to be.
 	void markRobot(Point point);
-
-	// We don't use this...! Easier to do in Control, not GUI. what do?
-	bool toggleImage();
-
+	//Called when user indicates a destination point. Sends point to Control.
 	void setDest(int x, int y);
-	void CoverRobot(Point topLeft, Point bottomRight);
+
 private:
-	iControl * m_control;
-	string m_window;
-	bool m_showEdged;
+	iControl * m_control;	// pointer to Control, used for setDest, etc
+	string m_window;		// name of the window; 
 	Mat m_view;
 
-	//Test functoins
+	// 
 	void getCircularROI(int R, vector < int > & RxV);
 
 	static void onMouse( int event, int x, int y, int, void * gui );
