@@ -52,12 +52,6 @@ using std::string;
 #include "../A2BUtilities.h"
 #include <stdlib.h>
 
-//const int ROW_SIZE = 45;
-//const int COL_SIZE = 80;
-//const int m_boardSize = ROW_SIZE * COL_SIZE;
-
-//DPath* makePath(Coord dest, map obstacles)
-// setdestination, image is the raw image
 class Dijkstra
 {
 public:

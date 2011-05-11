@@ -140,9 +140,9 @@ Vertex<T,U>& Vertex<T,U>::operator= (const Vertex<T,U> &rhs)
 
 /*************************************************************************
 *
-*	Purpose:		Returns the description of the DEdge.
-*	Entry:			Nothing.
-*	Exit:			Returns the string value of description.
+*	Purpose:		Equality comparison
+*	Entry:			the vertex we are comparing to
+*	Exit:			The result of the equality
 *
 *************************************************************************/
 template <typename T, typename U>
@@ -153,9 +153,9 @@ bool Vertex<T,U>::operator ==(const Vertex<T,U> &rhs)
 
 /*************************************************************************
 *
-*	Purpose:		Returns the description of the DEdge.
-*	Entry:			Nothing.
-*	Exit:			Returns the string value of description.
+*	Purpose:		Inequality comparison
+*	Entry:			the vertex we are comparing to
+*	Exit:			The result of the equality
 *
 *************************************************************************/
 template <typename T, typename U>
@@ -166,9 +166,9 @@ bool Vertex<T,U>::operator !=(const Vertex<T,U> &rhs)
 
 /*************************************************************************
 *
-*	Purpose:		Returns the description of the DEdge.
-*	Entry:			Nothing.
-*	Exit:			Returns the string value of description.
+*	Purpose:		Adds an Edge to the vertex
+*	Entry:			The vertex on the other side of the edge, the path's id and it's weight
+*	Exit:			Nothing
 *
 *************************************************************************/
 template <typename T, typename U>
@@ -204,9 +204,9 @@ void Vertex<T,U>::AddEdge(Vertex<T,U> &_add, int pathId, int weight)
 
 /*************************************************************************
 *
-*	Purpose:		Returns the description of the DEdge.
-*	Entry:			Nothing.
-*	Exit:			Returns the string value of description.
+*	Purpose:		Removes an Edge to the vertex
+*	Entry:			The vertex on the other side of the edge
+*	Exit:			Nothing
 *
 *************************************************************************/
 template <typename T, typename U>
@@ -239,9 +239,9 @@ void Vertex<T,U>::RemoveEdge(Vertex<T,U> &_remove)
 
 /*************************************************************************
 *
-*	Purpose:		Returns the description of the DEdge.
+*	Purpose:		getter for the data in the vertex
 *	Entry:			Nothing.
-*	Exit:			Returns the string value of description.
+*	Exit:			The data
 *
 *************************************************************************/
 template <typename T, typename U>
@@ -252,9 +252,9 @@ T& Vertex<T,U>::GetData()
 
 /*************************************************************************
 *
-*	Purpose:		Returns the description of the DEdge.
+*	Purpose:		Returns if the vertex has no edges
 *	Entry:			Nothing.
-*	Exit:			Returns the string value of description.
+*	Exit:			The results of the check
 *
 *************************************************************************/
 template <typename T, typename U>
@@ -265,9 +265,9 @@ bool Vertex<T,U>::IsEmpty()
 
 /*************************************************************************
 *
-*	Purpose:		Returns the description of the DEdge.
-*	Entry:			Nothing.
-*	Exit:			Returns the string value of description.
+*	Purpose:		Marks the vertex as being processed (by dijks).
+*	Entry:			Bool saying it is processed or not.
+*	Exit:			None
 *
 *************************************************************************/
 template <typename T, typename U>
@@ -278,9 +278,9 @@ void Vertex<T,U>::SetProcessed(bool proc)
 
 /*************************************************************************
 *
-*	Purpose:		Returns the description of the DEdge.
+*	Purpose:		Returns the processed status
 *	Entry:			Nothing.
-*	Exit:			Returns the string value of description.
+*	Exit:			Returns the result of the check
 *
 *************************************************************************/
 template <typename T, typename U>
@@ -291,9 +291,9 @@ bool Vertex<T,U>::GetProcessed()
 
 /*************************************************************************
 *
-*	Purpose:		Returns the description of the DEdge.
+*	Purpose:		Sets the iterator to the first edge
 *	Entry:			Nothing.
-*	Exit:			Returns the string value of description.
+*	Exit:			Nothing.
 *
 *************************************************************************/
 template <typename T, typename U>
@@ -306,9 +306,9 @@ void Vertex<T,U>::FirstEdge()
 
 /*************************************************************************
 *
-*	Purpose:		Returns the description of the DEdge.
+*	Purpose:		Returns the current edge the iterator is pointing to
 *	Entry:			Nothing.
-*	Exit:			Returns the string value of description.
+*	Exit:			Returns the current edge the iterator is pointing to
 *
 *************************************************************************/
 template <typename T, typename U>
@@ -319,9 +319,9 @@ DEdge<T,U>& Vertex<T,U>::GetCurrentEdge()
 
 /*************************************************************************
 *
-*	Purpose:		Returns the description of the DEdge.
+*	Purpose:		Moves the iterator to the next edge.
 *	Entry:			Nothing.
-*	Exit:			Returns the string value of description.
+*	Exit:			Nothing.
 *
 *************************************************************************/
 template <typename T, typename U>
@@ -347,9 +347,9 @@ void Vertex<T,U>::NextEdge()
 
 /*************************************************************************
 *
-*	Purpose:		Returns the description of the DEdge.
+*	Purpose:		Returns if the iterator has reached the end of the edges
 *	Entry:			Nothing.
-*	Exit:			Returns the string value of description.
+*	Exit:			Returns if the iterator has reached the end of the edges
 *
 *************************************************************************/
 template <typename T, typename U>

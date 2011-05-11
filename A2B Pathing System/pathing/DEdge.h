@@ -26,6 +26,8 @@
 *
 *************************************************************************/
 
+// A Map edge, links vertexes together
+
 #ifndef DEDGE_H
 #define DEDGE_H
 
