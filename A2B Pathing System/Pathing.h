@@ -8,7 +8,6 @@
 #if !defined(EA_D0407D07_6312_42a3_A1E3_5C5826C06F18__INCLUDED_)
 #define EA_D0407D07_6312_42a3_A1E3_5C5826C06F18__INCLUDED_
 
-#include "Image.h"
 #include "Robot.h"
 #include "Path.h"
 #include "ImageProcessor.h"

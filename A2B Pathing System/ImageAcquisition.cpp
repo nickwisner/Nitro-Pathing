@@ -8,26 +8,19 @@
 #include "ImageAcquisition.h"
 
 
-#include <string>
-using std::string;
-
-//int const WEBCAM_ID = -1;
+//#include <string>
+//using std::string;
 
 // ERRORS
 
 int const NO_WEBCAM = -1;
 
 
-ImageAcquisition::ImageAcquisition() : m_current_image(0)
+ImageAcquisition::ImageAcquisition()
 {
-	//m_capture.open( /*WEBCAM_ID*/ -1 );
 	m_capture = cvCaptureFromCAM(-1);
 
-	// doesn't work... try videoInput library?
-//	cvSetCaptureProperty( m_capture, CV_CAP_PROP_FRAME_WIDTH, 1280 );
-//	cvSetCaptureProperty( m_capture, CV_CAP_PROP_FRAME_HEIGHT, 720 );
-
-	if (!m_capture)///*!m_capture.isOpened()*/)
+	if (!m_capture)
 	{
 		throw NO_WEBCAM;
 	}
@@ -37,14 +30,16 @@ ImageAcquisition::ImageAcquisition() : m_current_image(0)
 ImageAcquisition::~ImageAcquisition()
 { }
 
-Image * ImageAcquisition::getImage()
+Mat ImageAcquisition::getImage()
 {
-	delete m_current_image;
+	/* Delete if this works
+	* //Mat frame;
+	*
+	* //frame = cvQueryFrame(m_capture);
+	* //m_current_image = frame ;
+	*/
 
-	Mat frame;
-	//m_capture >> frame;
-	frame = cvQueryFrame(m_capture);
-	m_current_image = new Image( frame );
+	m_current_image = cvQueryFrame(m_capture);
 
 	return m_current_image;
 }

@@ -5,10 +5,16 @@
 //  Original author: nagisa.day
 ///////////////////////////////////////////////////////////
 
-#if !defined(EA_98DE6B47_8533_4c9c_AE0F_D47013670227__INCLUDED_)
-#define EA_98DE6B47_8533_4c9c_AE0F_D47013670227__INCLUDED_
+#ifndef iIMAGEACQ_H
+#define iIMAGEACQ_H
 
-#include "Image.h"
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv\cvaux.h>
+#include <opencv\highgui.h>
+#include <opencv\cxcore.h>
+
+using namespace cv;
 
 class iImageAcquisition
 {
@@ -22,7 +28,7 @@ public:
 
 	}
 
-	virtual Image * getImage() =0;
+	virtual Mat getImage() = 0;
 
 };
-#endif // !defined(EA_98DE6B47_8533_4c9c_AE0F_D47013670227__INCLUDED_)
+#endif //iIMAGEACQ_H

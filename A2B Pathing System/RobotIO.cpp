@@ -7,8 +7,11 @@
 
 #include "RobotIO.h"
 #include <opencv2/highgui/highgui.hpp>
+using cv::waitKey;
+
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+
 using boost::asio::io_service;
 using boost::asio::serial_port_base;
 
@@ -116,9 +119,10 @@ void RobotIO::SendQueue()
 		try
 		{
 			sendCommand(m_msgQueue.front());
-		m_msgQueue.pop_front();
+			m_msgQueue.pop_front();
 
-		waitKey(100);
+			waitKey(100);
+
 		}catch(int e)
 		{
 			throw NO_CONNECTION;

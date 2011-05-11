@@ -84,7 +84,6 @@
     <ClCompile Include="A2BMessageBox.cpp" />
     <ClCompile Include="Edge.cpp" />
     <ClCompile Include="ErrorLog.cpp" />
-    <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageAcquisition.cpp" />
     <ClCompile Include="ImageProcessor.cpp" />
     <ClCompile Include="main.cpp" />
@@ -112,7 +111,6 @@
     <ClInclude Include="iDatabase.h" />
     <ClInclude Include="iGUI.h" />
     <ClInclude Include="iImageAcquisition.h" />
-    <ClInclude Include="Image.h" />
     <ClInclude Include="ImageAcquisition.h" />
     <ClInclude Include="ImageProcessor.h" />
     <ClInclude Include="iPathing.h" />

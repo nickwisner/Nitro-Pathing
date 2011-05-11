@@ -31,7 +31,6 @@ public:
 	virtual void startThreads() =0;
 	virtual bool update() =0;
 	virtual bool checkSavedQueries() = 0;
-	virtual Image * getEdgedImage() = 0;
 	virtual void saveQueriesToFile() = 0;
 	virtual void clearRobot(int space, bool * obstMap, Point robPos) = 0;
 
