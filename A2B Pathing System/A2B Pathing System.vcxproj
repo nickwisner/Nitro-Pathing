@@ -81,7 +81,6 @@
     <ClCompile Include="A2BControl.cpp" />
     <ClCompile Include="A2BDatabase.cpp" />
     <ClCompile Include="A2BGUI.cpp" />
-    <ClCompile Include="DummyRobIO.cpp" />
     <ClCompile Include="Edge.cpp" />
     <ClCompile Include="ErrorLog.cpp" />
     <ClCompile Include="ImageAcquisition.cpp" />
