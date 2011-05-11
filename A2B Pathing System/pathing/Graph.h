@@ -170,7 +170,11 @@ void Graph<T,U>::InsertVertex(T _data)
 {
 	present = false;
 		
-	for(travelVerts.First(); !travelVerts.IsDone() && present == false; travelVerts.MoveNext())
+	// changing this to a while loop 
+//	for(travelVerts.First(); !travelVerts.IsDone() && present == false; travelVerts.MoveNext())
+	travelVerts.First();
+
+	while( !travelVerts.IsDone() && present == false)
 	{
 		Vertex<T,U> temp = travelVerts.GetCurrent()->Data();
 
@@ -178,6 +182,8 @@ void Graph<T,U>::InsertVertex(T _data)
 		{
 			present = true;
 		}
+
+		travelVerts.MoveNext();
 	}
 	
 	if(present == false)
@@ -238,7 +244,7 @@ void Graph<T,U>::InsertEdge(T _from, T _to, int edgeId, int weight)
 
 /*************************************************************************
 *
-*	Purpose:		Removess the vertex from the graph.
+*	Purpose:		Removes the vertex from the graph.
 *	Entry:			Data to be removed.
 *	Exit:			Returns nothing. Throws an exception if the data is
 *					not present to be removed.
@@ -249,12 +255,16 @@ void Graph<T,U>::RemoveVertex(T _vertex)
 {
 	bool present = false;
 
-	for(travelVerts.First(); !travelVerts.IsDone() && present == false; travelVerts.MoveNext())
+	// changing this to a while loop from a for loop 05/10/11
+//	for(travelVerts.First(); !travelVerts.IsDone() && present == false; travelVerts.MoveNext())
+	travelVerts.First(); 
+
+	while(!travelVerts.IsDone() && present == false)
 	{
 		if(travelVerts.GetCurrent()->Data() == _vertex)
 		{
 			present = true;
-			while(!(travelVerts.GetCurrent()->Data().IsEmpty()))
+			while(!(travelVerts.GetCurrent()->Data().IsEmpty()))	// find the vertex
 			{
 				travelVerts.GetCurrent()->Data().FirstEdge();
 				travelVerts.GetCurrent()->Data().GetCurrentEdge().GetDest()->RemoveEdge(travelVerts.GetCurrent()->Data());
@@ -263,6 +273,8 @@ void Graph<T,U>::RemoveVertex(T _vertex)
 
 			vertices.Extract(travelVerts.GetCurrent()->Data());
 		}
+
+		travelVerts.MoveNext();
 	}
 	
 	if(present == true)

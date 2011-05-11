@@ -105,26 +105,26 @@ template <typename T>
 DoubleLinkedList<T>& DoubleLinkedList<T>::operator= 
 	(const DoubleLinkedList<T> &rhs)
 {
-	if(this != &rhs)
+	if(this != &rhs)	// not assigning self to self
 	{
-		if(rhs.head == 0 && rhs.tail == 0)
+		if(rhs.head == 0 && rhs.tail == 0)	// assigning an empty list
 		{
 			head = 0;
 			tail = 0;
 		}
 
-		else
+		else	// assigning a list with nodes
 		{
 			Node<T>* currentRhs = rhs.head;
 
+			// make a head and assign it the rhs' data
 			head = new Node<T>(currentRhs->Data());
-
 			Node<T>* current = head;
 			tail = head;
 
 			currentRhs = currentRhs->next;
 
-			while(currentRhs != 0)
+			while(currentRhs != 0)	// cycle the rest of the nodes in
 			{
 				Append(currentRhs->Data());
 				currentRhs = currentRhs->next;
@@ -173,19 +173,6 @@ void DoubleLinkedList<T>::PrintBackwards()
 	}
 }
 
-/*
-template <typename T>
-Node<T>* DoubleLinkedList<T>::getHead()
-{
-	return head;
-}
-
-template <typename T>
-Node<T>* DoubleLinkedList<T>::getTail()
-{
-	return tail;
-}
-*/
 
 /*************************************************************************
 *		End Mutators
@@ -222,6 +209,7 @@ void DoubleLinkedList<T>::Append(T _data)
 {
 	Node<T>* temp = new Node<T>(_data);
 
+	// empty list
 	if(tail == 0 && head == 0)
 	{
 		tail = temp;
@@ -247,6 +235,7 @@ void DoubleLinkedList<T>::Prepend(T _data)
 {
 	Node<T>* temp = new Node<T>(_data);
 
+	// empty list
 	if(head == 0 && tail == 0)
 	{
 		tail = temp;
@@ -313,6 +302,7 @@ void DoubleLinkedList<T>::Purge()
 {
 	Node<T>* trail = head;
 
+	// delete each node til we find the end
 	while(head != tail)
 	{
 		trail = head;
@@ -348,6 +338,7 @@ void DoubleLinkedList<T>::InsertBefore(T _data, T _find)
 		Node<T>* current = head;
 		Node<T>* temp = new Node<T>(_find);
 
+		// traverse the list until we find data
 		while(current != 0 && current->Data() != temp->Data())
 		{
 			current = current->next;
@@ -360,7 +351,7 @@ void DoubleLinkedList<T>::InsertBefore(T _data, T _find)
 		{
 			throw("Data not found. Aborting insertion.");
 		}
-		else
+		else	// insert it
 		{
 			Node<T>* insert = new Node<T>(_data);
 
@@ -402,6 +393,7 @@ void DoubleLinkedList<T>::InsertAfter(T _data, T _find)
 		Node<T>* current = head;
 		Node<T>* temp = new Node<T>(_find);
 
+		// traverse the list until we find data
 		while(current != 0 && current->Data() != temp->Data())
 		{
 			current = current->next;
@@ -414,7 +406,7 @@ void DoubleLinkedList<T>::InsertAfter(T _data, T _find)
 		{
 			throw("Data not found. Aborting insertion.");
 		}
-		else
+		else	// insert it
 		{
 			Node<T>* insert = new Node<T>(_data);
 
@@ -450,6 +442,7 @@ void DoubleLinkedList<T>::Extract(T _find)
 		Node<T>* current = head;
 		Node<T>* temp = new Node<T>(_find);
 
+		// traverse the list until we find data
 		while(current != 0 && current->Data() != temp->Data())
 		{
 			current = current->next;
@@ -462,13 +455,13 @@ void DoubleLinkedList<T>::Extract(T _find)
 		{
 			throw("Data not found. Aborting insertion.");
 		}
-		else if(current->next == 0 && current->prev == 0)
+		else if(current->next == 0 && current->prev == 0)	// only node in list
 		{
 			delete current;
 			head = 0;
 			tail = 0;
 		}
-		else
+		else	// multiple node list
 		{
 			if(current == head)
 			{

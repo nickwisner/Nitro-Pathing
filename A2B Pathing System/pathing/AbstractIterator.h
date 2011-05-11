@@ -2,6 +2,8 @@
 *
 *	PureVirtualClass:
 *		AbstractIterator
+*
+*	An Abstract class for a linked list iterator
 *	
 *	Constructors:
 *		None

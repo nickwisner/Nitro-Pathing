@@ -83,7 +83,7 @@ Node<T>& Node<T>::operator =(const Node<T> &rhs)
 {
 	if(this != &rhs)
 	{
-		if(&rhs == 0)
+		if(&rhs == 0)	// empty node
 		{
 			next = 0;
 			prev = 0;

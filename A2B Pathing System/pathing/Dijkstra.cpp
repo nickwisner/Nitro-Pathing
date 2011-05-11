@@ -1,5 +1,6 @@
 #include "Dijkstra.h"
 
+// Dijkstra's is a pathing algorithm that will look for a 
 
 /*************************************************************************
 *
@@ -56,21 +57,21 @@ Dijkstra& Dijkstra::operator=(const Dijkstra&rhs)
 
 /*************************************************************************
 *
-*	Purpose:		Starts the program.
-*	Entry:			Nothing.
-*	Exit:			Returns nothing.
+*	Purpose:		Starts the program.  Runs the pathing and returns the result
+*	Entry:			starting space and destination by its id.  Also a map of obstacles (true = there is an obstacle in that space)
+*	Exit:			A list of the spaces in order they should be traveled.  An empty list means no path was found.
 *
 *************************************************************************/
 vector<int> Dijkstra::Start(int startSpace, int destSpace, bool* obstacleMap)
 {
-	SetObstacles(obstacleMap);
+	SetObstacles(obstacleMap);	
 
 	return Travel(startSpace, destSpace);
 }
 
 /*************************************************************************
 *
-*	Purpose:		Builds the graph from the file.
+*	Purpose:		Builds the graph.  Empty (no obstacles)
 *	Entry:			Nothing.
 *	Exit:			Returns nothing. Builds the graph from the file.
 *
@@ -109,23 +110,21 @@ void Dijkstra::BuildMap()
 
 /*************************************************************************
 *
-*	Purpose:		Gets the users input for the cities to travel from and 
-*					to. Checks to make sure that the cities are in the list.
+*	Purpose:		Gets the users input for the spaces to travel from and 
+*					to. Checks to make sure that the spaces are in the list.
 *					Calls calculate.
 *	Entry:			Nothing.
 *	Exit:			Returns nothing. Catches the exceptions thrown if either
-*					city is not present.
+*					space is not present.
 *
 *************************************************************************/
 vector<int> Dijkstra::Travel(int from, int to)
 {
-//	system("CLS");
-
 	vector<int> travelPath;
 
 	bool present = true;
 
-	if(present == true)
+	if(present == true)	// should always be true.
 	{
 		// check if starting space is valid
 		try
@@ -139,7 +138,7 @@ vector<int> Dijkstra::Travel(int from, int to)
 		}
 
 
-		if(present == true)
+		if(present == true)	// if start space was found
 		{
 			// check if ending space is valid
 			try
@@ -154,9 +153,9 @@ vector<int> Dijkstra::Travel(int from, int to)
 		}
 	}
 
-	if(present == true)
+	if(present == true)	// if start and destination were found
 	{
-		travelPath = Calculate(_from, _to);
+		travelPath = Calculate(_from, _to);	// calculate the shortest path
 	}
 
 	return travelPath;
@@ -164,21 +163,19 @@ vector<int> Dijkstra::Travel(int from, int to)
 
 /*************************************************************************
 *
-*	Purpose:		Calculates the shortest DPath between two cities.
-*	Entry:			Requires the cities to be passed in.
+*	Purpose:		Calculates the shortest path between two spaces.
+*	Entry:			Requires the starting and ending spaces to be passed in.
 *	Exit:			Returns nothing. Builds the arrays that handle traveling
-*					along the shortest DPath.
+*					along the shortest path.
 *
 *************************************************************************/
 vector<int> Dijkstra::Calculate(Vertex<Space, DPath> *_from, Vertex<Space, DPath> *_to)
 {
-	distance = new int[size];
-	predecessor = new int[size];
-	travel = new int[size];
-	//travel2 = new int[size];
-	//travel3 = new bool[size];
+	distance = new int[size];	// the distance traveled
+	predecessor = new int[size];	// each spaces space that was traveled before this one
+	travel = new int[size];		// the path (will be in reverse at the end of this)
 	lookUpTable = new Vertex<Space, DPath>[size];
-	vector<int> travelPath;	// what spaces we are going through
+	vector<int> travelPath;	// what spaces we are going through (what will be returned back)
 
 	int i = 0;				//trash variable
 	int host = 0;			//the vertice that is being examined currently
@@ -188,17 +185,17 @@ vector<int> Dijkstra::Calculate(Vertex<Space, DPath> *_from, Vertex<Space, DPath
 	int orig = 0;			//location of the original vertex to start from
 	int current = 0;		//current location in the array
 
+	// initializes the data (invalidating it so we know which ones we haven't checked)
 	for(map.FirstVertex(); i < size; map.NextVertex())
 	{
 		distance[i] = -1;
 		predecessor[i] = -1;
 		travel[i] = -1;
-		//travel2[i] = -1;
-		//travel3[i] = false;
 		lookUpTable[i] = map.GetCurrentVertex();
 		i++;
 	}
 
+	// find which one is the starting space
 	while(lookUpTable[host].GetData() != _from->GetData())
 	{
 		host++;
@@ -206,6 +203,7 @@ vector<int> Dijkstra::Calculate(Vertex<Space, DPath> *_from, Vertex<Space, DPath
 
 	orig = host;
 
+	// find which one is the destination space
 	while(lookUpTable[dest].GetData() != _to->GetData())
 	{
 		dest++;
@@ -216,21 +214,27 @@ vector<int> Dijkstra::Calculate(Vertex<Space, DPath> *_from, Vertex<Space, DPath
 	// haven't looked through all possibilities
 	while(completed < size)
 	{
-		// for each DPath from the start
+		// for each path from the space we are looking at
 		for(lookUpTable[host].FirstEdge(); !lookUpTable[host].EdgeIsDone(); lookUpTable[host].NextEdge())
 		{
-			if(!(lookUpTable[host].GetCurrentEdge().GetDest()->GetData().IsObstacle()))	// current space from host does not have an obstacle
+				// current space from host does not have an obstacle
+			if(!(lookUpTable[host].GetCurrentEdge().GetDest()->GetData().IsObstacle()))
 			{
 				current = 0;
+
+				// find a path to the current space
 				while(lookUpTable[current].GetData() != lookUpTable[host].GetCurrentEdge().GetDest()->GetData())
 				{
 					current++;
 				}
+
+				// if we haven't looked at the current path or the distance to this path isn't more
 				if((distance[current] == -1) || (distance[current] > (lookUpTable[host].GetCurrentEdge().GetWeight() + dist)))
 				{
+					// if it is an obstacle
 					if(lookUpTable[host].GetCurrentEdge().GetDest()->GetData().IsObstacle())
 						distance[current] = 9999;	// don't want to travel through an obstacle (a longer distance than will want to travel)
-					else
+					else	// define this path with its distance
 						distance[current] = lookUpTable[host].GetCurrentEdge().GetWeight() + dist;
 					
 					predecessor[current] = host;
@@ -239,11 +243,13 @@ vector<int> Dijkstra::Calculate(Vertex<Space, DPath> *_from, Vertex<Space, DPath
 			}
 		}
 
+
 		lookUpTable[host].SetProcessed(true);
 		completed++;
 
 		for(i = 0; i < size; i++)
 		{
+			// find the next path to look at.
 			if((!lookUpTable[i].GetProcessed()) && distance[i] > 0)
 			{
 				host = i;
@@ -300,19 +306,19 @@ void Dijkstra::Display()
 
 /*************************************************************************
 *
-*	Purpose:		Prints the shortest route between two cities.
-*	Entry:			Requires the number of junctions and miles traveled to
+*	Purpose:		Prints the shortest route between two spaces.
+*	Entry:			Requires the number of junctions and distance traveled to
 *					be passed in.
-*	Exit:			Returns nothing. Displays the DPath, distance and time 
-*					to the screen.
+*	Exit:			Returns nothing. Displays the DPath
 *
 *************************************************************************/
-void Dijkstra::Print(int junctions, int miles)
+void Dijkstra::Print(int junctions, int distance)
 {
 //	system("CLS");
 	int junc = junctions;
 	junctions--;
 
+	// for all the junctions print them
 	while(junctions > 0)
 	{
 		cout << lookUpTable[travel[junctions]].GetData().GetId() << " -> " ;
@@ -332,17 +338,6 @@ void Dijkstra::Print(int junctions, int miles)
 		travel2[junctions] = lookUpTable[travel[junctions]].GetCurrentEdge().GetWeight();
 		junctions--;
 	}
-
-	//float time = 0;
-
-	//junc--;
-	//for(junc; junc > 0; junc--)
-	//{
-	//	float temp = 0;
-
-	//	time += temp;
-	//}
-
 }
 
 vector<int> Dijkstra::CompileRoute(int junctions)
