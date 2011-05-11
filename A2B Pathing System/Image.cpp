@@ -1,10 +1,12 @@
+//depricated
+
 ///////////////////////////////////////////////////////////
 //  Image.cpp
 //  Implementation of the Class Image
 //  Created on:      17-Apr-2011 5:13:34 PM
 //  Original author: peter.finn
 ///////////////////////////////////////////////////////////
-
+/*
 #include "Image.h"
 
 #include <opencv2/core/core.hpp>
@@ -66,3 +68,4 @@ Mat Image::mat() const
 //{
 //	m_image = m.clone();
 //}
+*/

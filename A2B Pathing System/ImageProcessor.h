@@ -25,7 +25,7 @@ class ImageProcessor
 public:
 	static Mat createEdgedImage(Mat * image);
 	static Point findRobot(Mat * room, Robot * bot);//(Image * image, Robot * robot);
-	static bool isRegionClear(Image & image, Point point, int robotwidth);
+	static bool isRegionClear(Mat & image, Point point, int robotwidth);
 	static void mapObstacles( Mat & image, bool * obstacleGrid );
 	static bool makeImageBorder(Mat* image);
 private:

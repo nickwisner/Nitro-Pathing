@@ -40,7 +40,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\OpenCV2.2\include;C:\OpenCV2.2\include\opencv;$(IncludePath)</IncludePath>
+    <IncludePath>Z:\Boost-Includes;C:\OpenCV2.2\include;C:\OpenCV2.2\include\opencv;$(IncludePath)</IncludePath>
     <LibraryPath>C:\OpenCV2.2\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -58,6 +58,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>C:\OpenCV2.2\lib\opencv_core220d.lib;C:\OpenCV2.2\lib\opencv_highgui220d.lib;C:\OpenCV2.2\lib\opencv_video220d.lib;C:\OpenCV2.2\lib\opencv_ml220d.lib;C:\OpenCV2.2\lib\opencv_legacy220d.lib;C:\OpenCV2.2\lib\opencv_imgproc220d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files\Microsoft Visual Studio 10.0\VC\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -84,7 +85,6 @@
     <ClCompile Include="A2BMessageBox.cpp" />
     <ClCompile Include="Edge.cpp" />
     <ClCompile Include="ErrorLog.cpp" />
-    <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageAcquisition.cpp" />
     <ClCompile Include="ImageProcessor.cpp" />
     <ClCompile Include="main.cpp" />
@@ -92,7 +92,7 @@
     <ClCompile Include="Path.cpp" />
     <ClCompile Include="Pathing.cpp" />
     <ClCompile Include="pathing\Dijkstra.cpp" />
-    <ClCompile Include="pathing\Path.cpp" />
+    <ClCompile Include="pathing\DPath.cpp" />
     <ClCompile Include="pathing\Space.cpp" />
     <ClCompile Include="PathVector.cpp" />
     <ClCompile Include="Robot.cpp" />
@@ -112,7 +112,6 @@
     <ClInclude Include="iDatabase.h" />
     <ClInclude Include="iGUI.h" />
     <ClInclude Include="iImageAcquisition.h" />
-    <ClInclude Include="Image.h" />
     <ClInclude Include="ImageAcquisition.h" />
     <ClInclude Include="ImageProcessor.h" />
     <ClInclude Include="iPathing.h" />

@@ -134,7 +134,7 @@ vector<int> Dijkstra::Travel(int from, int to)
 		}
 		catch(char *e)
 		{
-			cout << "Error: " << e << "\nStarting Space does not exist." << endl;
+			//cout << "Error: " << e << "\nStarting Space does not exist." << endl;
 			present = false;
 		}
 
@@ -148,7 +148,7 @@ vector<int> Dijkstra::Travel(int from, int to)
 			}
 			catch(char *e)
 			{
-				cout << "Error: " << e << "\nDestination does not exist." << endl;
+				//cout << "Error: " << e << "\nDestination does not exist." << endl;
 				present = false;
 			}
 		}
@@ -315,7 +315,7 @@ void Dijkstra::Print(int junctions, int miles)
 
 	while(junctions > 0)
 	{
-		cout << lookUpTable[travel[junctions]].GetData().GetId() << " -> " ;
+		//cout << lookUpTable[travel[junctions]].GetData().GetId() << " -> " ;
 
 		lookUpTable[travel[junctions]].FirstEdge();
 		Space temp = lookUpTable[travel[junctions - 1]].GetData();
@@ -326,8 +326,8 @@ void Dijkstra::Print(int junctions, int miles)
 			temp2 = lookUpTable[travel[junctions]].GetCurrentEdge().GetDest()->GetData();
 		}
 
-		cout << lookUpTable[travel[junctions]].GetCurrentEdge().GetId() << " -> "
-			 << lookUpTable[travel[junctions - 1]].GetData().GetId() << endl;
+		//cout << lookUpTable[travel[junctions]].GetCurrentEdge().GetId() << " -> "
+			// << lookUpTable[travel[junctions - 1]].GetData().GetId() << endl;
 
 		travel2[junctions] = lookUpTable[travel[junctions]].GetCurrentEdge().GetWeight();
 		junctions--;

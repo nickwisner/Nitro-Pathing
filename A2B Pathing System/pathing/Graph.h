@@ -395,7 +395,7 @@ void Graph<T,U>::BFT()
 		temp = queue.Front();
 		if(!temp->GetProcessed())
 		{
-			cout << temp->GetData().GetId() << endl;
+			//cout << temp->GetData().GetId() << endl;
 		}
 		queue.Dequeue();
 		temp->SetProcessed(true);
@@ -438,7 +438,7 @@ void Graph<T,U>::DFT()
 	while(!stack.isEmpty())
 	{
 		temp = stack.Peek();
-		cout << temp->GetData().GetData() << endl;
+		//cout << temp->GetData().GetData() << endl;
 		stack.Pop();
 		temp->SetProcessed(true);
 

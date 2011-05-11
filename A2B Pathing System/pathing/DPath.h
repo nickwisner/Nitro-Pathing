@@ -23,8 +23,8 @@
 *
 *************************************************************************/
 
-#ifndef PATH_H
-#define PATH_H
+#ifndef DPATH_H
+#define DPATH_H
 
 class DPath
 {
@@ -51,4 +51,4 @@ private:
 	int m_id;		//id of the DPath
 };
 
-#endif
+#endif //Dpath

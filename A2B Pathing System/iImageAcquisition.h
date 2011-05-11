@@ -9,6 +9,9 @@
 #define EA_98DE6B47_8533_4c9c_AE0F_D47013670227__INCLUDED_
 
 #include "Image.h"
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+using namespace cv;
 
 class iImageAcquisition
 {

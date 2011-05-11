@@ -6,7 +6,11 @@
 ///////////////////////////////////////////////////////////
 
 #include "RobotIO.h"
+
+#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
+using namespace cv;
+
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 using boost::asio::io_service;

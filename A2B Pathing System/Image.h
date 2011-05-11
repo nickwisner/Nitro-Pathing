@@ -1,10 +1,12 @@
+//Depricated
+
 ///////////////////////////////////////////////////////////
 //  Image.h
 //  Implementation of the Class Image
 //  Created on:      17-Apr-2011 5:13:33 PM
 //  Original author: peter.finn
 ///////////////////////////////////////////////////////////
-
+/*
 #if !defined(EA_4D292A95_A0F8_4e44_BD35_D182F809AE35__INCLUDED_)
 #define EA_4D292A95_A0F8_4e44_BD35_D182F809AE35__INCLUDED_
 
@@ -26,7 +28,7 @@ public:
 	Mat mat() const;
 
 	/*void setMat( CvMat &m);
-	void setMat( Mat &m);*/
+	void setMat( Mat &m);
 
 private:
 	Mat m_image;
@@ -35,3 +37,4 @@ private:
 };
 
 #endif // !defined(EA_4D292A95_A0F8_4e44_BD35_D182F809AE35__INCLUDED_)
+*/

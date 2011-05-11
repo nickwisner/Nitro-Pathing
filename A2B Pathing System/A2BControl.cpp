@@ -185,12 +185,10 @@ void A2BControl::startThreads()
 
 	try
 	{
-		m_imageacquisition = new ImageAcquisition(ROW_SIZE, COL_SIZE);
+		m_imageacquisition = new ImageAcquisition();
 
-		getImage();
-
-		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
-
+//		m_gui->drawImage( *(m_showPlainImage ? m_plainImage : m_edgedImage) );
+		m_gui->drawImage( (m_showPlainImage ? m_imageacquisition->getPlain() : m_imageacquisition->getPlain()));
 	}
 	catch(int e)
 	{

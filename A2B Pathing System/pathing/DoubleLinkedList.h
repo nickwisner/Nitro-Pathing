@@ -38,9 +38,9 @@
 #include "Node.h"
 #include "ListIterator.h"
 
-#include <iostream>
-using std::cout;
-using std::endl;
+//#include <iostream>
+//using std::cout;
+//using std::endl;
 
 template <typename T>
 class DoubleLinkedList

@@ -33,7 +33,7 @@ Point ImageProcessor::findRobot(Mat * room, Robot * robot)//(Image * image, Robo
 	Point robotPos;
 	
 	// because I changed the function params. Need robot wid/len, so.
-	Mat bot = robot->peekSymbol()->mat().clone();
+	Mat bot = robot->peekSymbol()->clone();
 	
 	Mat rtn((room->rows - bot.rows) + 1, (room->cols - bot.cols) + 1,DataType<float>::type); 
 	
