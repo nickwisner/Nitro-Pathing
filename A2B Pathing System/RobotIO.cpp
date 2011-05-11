@@ -39,7 +39,7 @@ RobotIO::~RobotIO()
 
 bool RobotIO::fillQueue(Path * Pathmsg)
 {
-	//itterates over the path vector and pulls the messages out, then pushs them onto themessage queue
+	//iterates over the path vector and pulls the messages out, then pushes them onto the message queue
 
 	//Pathmsg->popVector
 	int size = Pathmsg->getPathVSize();
@@ -51,7 +51,6 @@ bool RobotIO::fillQueue(Path * Pathmsg)
 		int cmdSize = v.getCommandSize();
 		for(int j = 0; j < cmdSize; j++)
 		{
-			//this pop might be a temp garbage.
 			m_msgQueue.push_back(v.popCommand());
 		}
 	}

@@ -11,10 +11,6 @@ const int ROW_SIZE = CAMERA_ROW_SIZE / GRID_SQUARE_SIZE;
 const int COL_SIZE = CAMERA_COL_SIZE / GRID_SQUARE_SIZE;
 const int BOARD_SIZE = ROW_SIZE * COL_SIZE;
 
-//this might be debugging
-const int ROBOT_PX_X = 288;	//108;
-const int ROBOT_PX_Y = 288;	//108;
-
 const string APPLICATION_NAME = "A2B Pathing System";
 
 class A2BUtilities

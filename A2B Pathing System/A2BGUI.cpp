@@ -109,21 +109,28 @@ void A2BGUI::drawPath(const vector<Point> & path, Mat * view)
 	}
 }
 
-
+// Not sure if we'll even use this. But it talks to m_database, saying
+// hey we're done, you can save off the mission to the DB now.
 void A2BGUI::endMission()
 {
+	// Not implemented yet
 }
 
+// We had a A2BMessageBox before which is why we have tests for it in Control
+// WinAPI MessageBox >>>> rolling your ugly own
+// This returns 1 (true) if Yes button clicked. 0 (false) if No. 0 if it was just an OK box.
 int A2BGUI::showError(const string & error, int type)
 {
-	return MessageBox(0, LPCSTR(error.c_str()), LPCSTR("A2B Pathing System Error"), type);
+	int response = MessageBox(0, LPCSTR(error.c_str()), LPCSTR("A2B Pathing System Error"), type);
+	return (response == IDYES ? 1 : 0);
 }
 
+// Puts a circle on Point c where the robot is thought to be.
 void A2BGUI::markRobot(Point c)
 {
 	int R = 10;
 	vector<int> RxV;
-	getCircularROI(R, RxV);
+	getCircularROI(R, RxV); // define circle
 
 	Mat_<Vec3b>& img = (Mat_<Vec3b>&)m_view; //3 channel pointer to image
     
@@ -131,13 +138,13 @@ void A2BGUI::markRobot(Point c)
 	{
 		int Rx = RxV[abs(dy)];
 		for( int dx = -Rx; dx <= Rx; dx++ )
-			img(c.y+dy, c.x+dx)[1] = 255;
+			img(c.y+dy, c.x+dx)[1] = 255;	// set this coloring in that pixel
 	}
-	
-	drawImage(m_view);
-	waitKey(1000);
+	drawImage(m_view);	// refresh
 }
 
+// Define the circle. RxV is a vector of ints where the width (x) of the circle from the origin
+// is saved off per [y]. This is taken from OpenCV's site.
 void A2BGUI::getCircularROI(int R, vector < int > & RxV)
 {
     RxV.resize(R+1);
@@ -145,7 +152,7 @@ void A2BGUI::getCircularROI(int R, vector < int > & RxV)
         RxV[y] = cvRound(sqrt((double)R*R - y*y));
 }
 
-
+// Sets the destination point, starts the pathing madness
 void A2BGUI::setDest(int x, int y)
 {
 	m_control->setDestination(Point(x,y));

@@ -28,5 +28,7 @@ private:
 	vector<PathVector> m_path;
 	vector<Point> m_pathPoints;
 };
+
+
 #endif
 

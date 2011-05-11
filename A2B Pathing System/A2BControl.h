@@ -5,8 +5,8 @@
 //  Original author: peter.finn
 ///////////////////////////////////////////////////////////
 
-#if !defined(EA_195E1D47_A88C_41f4_B5DE_CFA89E8B5E58__INCLUDED_)
-#define EA_195E1D47_A88C_41f4_B5DE_CFA89E8B5E58__INCLUDED_
+#ifndef A2BCONTROL_H
+#define A2BCONTROL_H
 
 #include <opencv2/imgproc/imgproc.hpp>
 using cv::Point;
@@ -42,8 +42,6 @@ public:
 
 	bool endMission(int error);
 	void endThreads();
-	void edgeImage();
-	bool sendCommand();
 	bool setDestination(Point dest);
 	void startThreads();
 	bool update();
@@ -64,11 +62,11 @@ private:
 	Mat m_plainImage; // The raw, unprocessed image of the floor. A "human" view of things.
 
 	Timer * m_tUpdatePath; // This timer goes off when it is time to update the path, the picture, etc.
-
 	bool * m_obstacleMap; // This bool array contains the place ment of open spaces and obsticle spaces. In terms of SPACE [ 8px X 8px ] 
 	
-	bool m_showPlainImage;
-	bool runPath();
+	bool m_showPlainImage; // whether to send plain image to GUI (true), or edged (false)
 
+	bool runPath();
+	bool sendCommand();
 };
-#endif // !defined(EA_195E1D47_A88C_41f4_B5DE_CFA89E8B5E58__INCLUDED_)
+#endif

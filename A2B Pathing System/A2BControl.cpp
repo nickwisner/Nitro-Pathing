@@ -13,7 +13,9 @@ A2BControl::A2BControl() :m_tUpdatePath(0), m_robotio(0), m_imageacquisition(0),
 {
 	m_gui = new A2BGUI;
 	m_gui->setControl(this);
+
 	m_obstacleMap = new bool[ROW_SIZE * COL_SIZE];
+	
 	m_pathing = new Pathing;
 	m_database = new A2BDatabase;
 	m_pathing->setRobot( (m_database->getRobot()) );
@@ -37,20 +39,9 @@ A2BControl::~A2BControl()
 	m_obstacleMap = 0;
 }
 
-bool A2BControl::checkSavedQueries()
-{
-	return false;
-}
-
-
-void A2BControl::edgeImage()
-{
-}
-
-
 /**
  * error = 0 if reach destination. Use this to end a mission whatever the reason;
- * updates database, etc
+ * this updates the database and so forth
  */
 bool A2BControl::endMission(int error)
 {
@@ -60,21 +51,43 @@ bool A2BControl::endMission(int error)
 
 void A2BControl::endThreads()
 {
+	// Not yet implemented. Once we have threads, we will kill
+	// the threads in here and Control's destructor will call this.
 }
 
 bool A2BControl::runPath()
 {
+	// Not yet implemented. This is where we say
+	// hey RobotIO, start sending those commands to the robot.
+	// and m_robotio sends the robot to the destination successfully and we
+	// return true instead of false.
 	return false;
 }
 
 
 void A2BControl::saveQueriesToFile()
 {
+	// Not yet implemented. This was supposed to be where
+	// queries that weren't saved to the database because there was some error
+	// get saved to a file so that they get saved somewhere
+	
+	// but this is not a high priority at all.
 }
 
 
+bool A2BControl::checkSavedQueries()
+{
+	// similar to above, it checks for previously saved queries in file
+	// and enters them to the database. or tries to again at least.
+
+	// also very low priority
+	return false;
+}
+
 bool A2BControl::sendCommand()
 {
+	// Not yet implemented. May or may not need this.
+	// planned for this to send the next command in robotio's queue, like a pop
 	return false;
 }
 
@@ -82,30 +95,30 @@ bool A2BControl::sendCommand()
 bool A2BControl::setDestination(Point dest)
 {
 	Point robPos;
-	bool robCheck = true;
-	int n = -1;
+	bool robot_found = false;
 	int spaceStart = 0;
 	int spaceDest = 0;
 
-	//change the first part setDestinatoin to be "findRobot"
-	do
+	//change the first part setDestination to be "findRobot"
+	for( int tries = 0; !robot_found; tries++ )
 	{
-		n++;
+		// Get and display the current image, since robot may have been moved.
 		getImage();
 		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
 	
+		// Find robot
 		robPos = ImageProcessor::findRobot(&(m_plainImage), m_pathing->getRobot());
+
+		// Define start and dest spaces, clear robot area of any notion of obstacles
 		spaceStart = A2BUtilities::pixelToSpaceId(robPos.x, robPos.y);
 		spaceDest = A2BUtilities::pixelToSpaceId( dest.x,dest.y);
 		clearRobot(spaceStart, m_obstacleMap, robPos);
+
 		m_gui->markRobot(robPos);
 
-		if(n < 5)
-			robCheck = !m_gui->showError("Is this the robot?",MB_YESNO);
-		else
-			return false;
-	}						 // keep looping if they answer no
-	while( robCheck );
+		// To do: exit after 5 unsuccessful tries be all "Hey buddy you have a problem go find the robot yourself"
+		robot_found = m_gui->showError("Is this the robot?",MB_YESNO);
+	}		// keep looping if they answer no
 
 	if( !m_pathing->makePath(spaceDest, spaceStart, m_obstacleMap) )
 	{
@@ -140,6 +153,7 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 	int bottomRightSpace = (robotCenter + (9*ROW_SIZE)) + 9;
 	int bottomLeftSpace = (robotCenter + (9*ROW_SIZE)) - 9;
 
+	// This actually puts a big white square over the image.
 	//m_gui->CoverRobot(Point(robPos.x - ROBOT_PX_X/2,robPos.y - ROBOT_PX_Y/2),Point(robPos.x + ROBOT_PX_X/2,robPos.y + ROBOT_PX_Y/2));
 
 
@@ -208,11 +222,10 @@ void A2BControl::startThreads()
 	{
 		// again, show error, quit out.
 		m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
-//		key = 'q';
+		key = 'q';
 
-		// Just kidding! for now, instead of quitting:
-		// DEBUG. Just to make the rest of it work. We often don't have robot running while deving
-		m_robotio = new DummyRobIO;
+		// Below is for DEBUG. Just to make the rest of it work since we often don't have robot running while deving
+//		m_robotio = new DummyRobIO;
 		
 		connection = false;
 	}
@@ -312,12 +325,16 @@ void A2BControl::startThreads()
 	}
 }
 
-
+// This will be the method that a thread will act on.
+// This will, on a timer:
+//		get image. if active, validate and draw path. display image.
 bool A2BControl::update()
 {
 	return false;
 }
 
+// Get images to save into our member Mats from image acquisition.
+// and also map obstacles
 void A2BControl::getImage()
 {
 	// getImage news the image, but it also deletes its current image which is same address as m_plainImage here
