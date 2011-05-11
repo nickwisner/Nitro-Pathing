@@ -104,7 +104,6 @@
     <ClInclude Include="A2BDatabase.h" />
     <ClInclude Include="A2BGUI.h" />
     <ClInclude Include="A2BUtilities.h" />
-    <ClInclude Include="DummyRobIO.h" />
     <ClInclude Include="Edge.h" />
     <ClInclude Include="ErrorLog.h" />
     <ClInclude Include="iControl.h" />
