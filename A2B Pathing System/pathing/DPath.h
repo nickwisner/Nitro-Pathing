@@ -23,8 +23,8 @@
 *
 *************************************************************************/
 
-#ifndef PATH_H
-#define PATH_H
+#ifndef DPATH_H
+#define DPATH_H
 
 class DPath
 {

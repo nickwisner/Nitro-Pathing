@@ -65,8 +65,11 @@ private:
 	// current pathing program
 	Dijkstra * m_dijk;
 
+	// turn the path points into pixel points and place in m_path
 	void translateToPath( vector<int> path);
-	vector<int> getPoints(const vector<int> & pathPoints);
+
+	// remove any unnecessary spaces in a space vector
+	vector<int> gutPoints(const vector<int> & pathPoints);
 };
 
 #endif

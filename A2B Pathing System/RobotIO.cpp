@@ -12,6 +12,7 @@ using cv::waitKey;
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 
+// used for the bluetooth connection
 using boost::asio::io_service;
 using boost::asio::serial_port_base;
 
@@ -26,44 +27,55 @@ void handle_write(const boost::system::error_code&, // error
 {
 }
 
-RobotIO::RobotIO() : m_robot(0), m_port(m_io, "COM4")
+// COM4 is hardcoded at this point only because we are only testing from one computer that uses it.
+// It will be changed later on
+RobotIO::RobotIO() : m_robot(0), m_port(m_io, "COM4")	// open the bluetooth connection
 {}
 
 RobotIO::~RobotIO()
 {
-	m_port.close();
+	m_port.close();	// close the bluetooth connection
 	delete m_robot;
 	m_robot = 0;
 }
 
-
+//iterates over the path vector and pulls the messages out, then pushs them onto the message queue
 bool RobotIO::fillQueue(Path * Pathmsg)
 {
-	//iterates over the path vector and pulls the messages out, then pushes them onto the message queue
+	bool filledQueue(true);	// the success of the method: were the commands able to be loaded?
 
-	//Pathmsg->popVector
+	// the number of vectors in the path
 	int size = Pathmsg->getPathVSize();
 
+	// for each pathing vector
 	for(int i = 0; i < size; i++)
 	{
+
 		PathVector v = Pathmsg->getPathVector(i);
 
+		// how many commands implement this vector 
+		// i.e. 3 spaces 90 degs left of the current direction would need 2 commands (left turn and move forward)
 		int cmdSize = v.getCommandSize();
+
+		// for each command in this vector
 		for(int j = 0; j < cmdSize; j++)
 		{
 			m_msgQueue.push_back(v.popCommand());
 		}
 	}
+
+	// no messages were put in queue? something must have happened...
 	if(m_msgQueue.empty())
 	{
 		return false;
 	}
-	return true;
+
+	return filledQueue;
 }
 
 
 int RobotIO::processRobotMessage(string msg){
-
+	// not implemented
 	return false;
 }
 
@@ -79,6 +91,7 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 	{
 		throw NO_CONNECTION;
 	}
+
 	m_port.set_option( asio_serial::baud_rate( 9600 ) ); 
 	m_port.set_option( asio_serial::flow_control( asio_serial::flow_control::none ) ); 
 	m_port.set_option( asio_serial::parity( asio_serial::parity::none ) ); 
@@ -88,12 +101,14 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 	std::string buff;	
 	for( int i = 0; i < cmd.getCycles(); i++ )
 	{
+		// load the robot command
 		buff.push_back(cmd.getCode());
 
 		// send it
 		boost::asio::async_write(m_port, boost::asio::buffer(buff), boost::bind(handle_write, boost::asio::placeholders::error,
 			  boost::asio::placeholders::bytes_transferred));
 
+		// pop the sent command off
 		buff.pop_back();
 	}
 	
@@ -135,17 +150,23 @@ bool RobotIO::openPort()
 {
 	if( !m_port.is_open() )
 	{
-		m_port.open("COM4");
+		// this hard code of COM4 is once again there... will be fixed to a global const soon and for release will most likely be in a config file
+		m_port.open("COM4");	// opens the bluetooth connection to the robot
+	
 		return true;
 	}
+
 	return false;
 }
+
 bool RobotIO::closePort()
 {
 	if( m_port.is_open() )
 	{
 		m_port.close();
+
 		return true;
 	}
+
 	return false;
 }

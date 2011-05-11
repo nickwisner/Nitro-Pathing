@@ -7,7 +7,7 @@
 
 #include "A2BControl.h"
 
-#include "DummyRobIO.h"
+#include "RobotIO.h"
 
 A2BControl::A2BControl() :m_tUpdatePath(0), m_robotio(0), m_imageacquisition(0), m_showPlainImage(true)
 {
@@ -224,8 +224,9 @@ void A2BControl::startThreads()
 		m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
 		key = 'q';
 
-		// Below is for DEBUG. Just to make the rest of it work since we often don't have robot running while deving
-//		m_robotio = new DummyRobIO;
+		// Just kidding! for now, instead of quitting:
+		// DEBUG. Just to make the rest of it work. We often don't have robot running while deving
+		m_robotio = new RobotIO;
 		
 		connection = false;
 	}

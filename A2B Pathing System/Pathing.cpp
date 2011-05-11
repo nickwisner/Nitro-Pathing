@@ -11,9 +11,7 @@
 
 Pathing::Pathing() : m_active(false), m_robot(0), m_path(0)
 {
-	m_robotpos.x = 9001;
-	m_robotpos.y = 9001;
-	m_dijk = new Dijkstra(ROW_SIZE, COL_SIZE);
+	m_dijk = new Dijkstra(ROW_SIZE, COL_SIZE);	// create our dijkstra map of a specified grid size
 }
 
 Pathing::~Pathing()
@@ -55,23 +53,30 @@ bool Pathing::isActive()
  */
 bool Pathing::makePath(int destSpace, int startSpace, bool * obstMap)
 {
+	// create the vector of path points using dijkstra's
 	vector<int> pathPoints = m_dijk->Start(startSpace, destSpace, obstMap);
 
+	// if we found a valid path
 	if(!pathPoints.empty())
 	{
-		pathPoints = getPoints(pathPoints);
+		// take out the extra points that are on the same vector
+		pathPoints = gutPoints(pathPoints);
 
+		// calculate the pixel location mapped to the grid points
 		translateToPath(pathPoints);
 
-		//if path is made
+		// the path is made so we are now actively pathing
 		m_active = true;
-		//else set it to false
-		return true;
 	}
-	return false;
+	else	// didn't find a valid path
+	{
+		m_active = false;
+	}
+
+	return m_active;
 }
 
-vector<int> Pathing::getPoints(const vector<int> &pathPoints)
+vector<int> Pathing::gutPoints(const vector<int> &pathPoints)
 {
 	int spaceDiff = pathPoints[1] - pathPoints[0];
 	vector<int> newPath;
@@ -79,6 +84,7 @@ vector<int> Pathing::getPoints(const vector<int> &pathPoints)
 	// starting point
 	newPath.push_back(pathPoints[0]);
 
+	// for each point, compare it with the direction the previous point was heading
 	for(int currPoint(1); currPoint < pathPoints.size(); currPoint++)
 	{
 		// going in a different direction
@@ -98,27 +104,26 @@ vector<int> Pathing::getPoints(const vector<int> &pathPoints)
 	return newPath;
 }
 
-/*RobotCommand Pathing::popCommand()
-{
-	;
-	return  RobotCommand(0,1);
-}*/
-
-
+// not implemented yet (this should be ready in beta)
 bool Pathing::repath()
 {
 	return false;
 }
+
+// define the robot we are using for the system
 bool Pathing::setRobot( Robot & domoarigato)
 {
 	m_robot = new Robot(domoarigato);
 	return true;
 }
+
+// getter for the robot used with the system
 Robot * Pathing::getRobot()
 {
 	return m_robot;
 }
 
+// getter for the robot's current pixel location
 Point Pathing::getRobotPosition()
 {
 	return m_robotpos;
@@ -128,10 +133,12 @@ Point Pathing::getRobotPosition()
  * This checks the coordinates in the path vs the coordinates in m_obstacles
  * (vector<Obstacle>)
  */
+// not implemented yet, just sending back dummy data
 bool Pathing::validatePath()
 {
 	return false;
 }
+
 
 void Pathing::translateToPath( vector<int> path)
 {
@@ -144,6 +151,7 @@ void Pathing::translateToPath( vector<int> path)
 		Edge e;
 		PathVector * temp;
 	
+	// enum will be useful here (implement later)
 	//assuming the robot is facing the top of the screen and that :
 		// 1 = robot facing top
 		// 2 = robot facing right
@@ -156,7 +164,7 @@ void Pathing::translateToPath( vector<int> path)
 		for(int i = 1; i < path.size(); i++)
 		{
 		
-			//the first is x the second is y
+			//the first param of Point is x the second param of Point is y
 			//the first is which column and the second is which row it is in
 		
 			//we dont delete this here because it should be deleted in path!!!

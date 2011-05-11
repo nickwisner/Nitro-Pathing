@@ -10,13 +10,6 @@
 
 Path::Path()
 {
-/*	m_pathPoints.push_back(Point(75,10));
-	m_pathPoints.push_back(Point(85,10));
-	m_pathPoints.push_back(Point(85,15));
-	m_pathPoints.push_back(Point(95,20));
-	m_pathPoints.push_back(Point(50,10));
-	m_pathPoints.push_back(Point(175,90));
-	m_pathPoints.push_back(Point(75,10));*/
 }
 
 
