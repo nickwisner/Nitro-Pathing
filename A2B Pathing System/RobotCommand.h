@@ -12,8 +12,8 @@
 #include <string>
 using std::string;
 
-class RobotCommand {
-
+class RobotCommand
+{
 public:
 	RobotCommand(char cmd, int cycles);
 	RobotCommand & operator=( const RobotCommand & cmd );

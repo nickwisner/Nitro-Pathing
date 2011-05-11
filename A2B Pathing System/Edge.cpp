@@ -7,7 +7,6 @@
 
 #include "Edge.h"
 
-
 Edge::Edge() : m_start(Point(0,0)), m_end(Point(0,0))
 { }
 
@@ -28,6 +27,11 @@ Edge & Edge::operator=( const Edge & cpy )
 	}
 	return *this;
 }
+
+Edge::~Edge()
+{ }
+
+// Setters
 void Edge::setStart(Point start)
 {
 	m_start = start;
@@ -37,9 +41,7 @@ void Edge::setEnd(Point end)
 	m_end = end;
 }
 
-Edge::~Edge()
-{ }
-
+// Getters
 Point Edge::getEnd()
 {
 	return  m_end;

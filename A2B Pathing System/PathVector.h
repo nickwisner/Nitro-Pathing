@@ -29,14 +29,13 @@ public:
 	PathVector & operator=(const PathVector & cpy);
 	virtual ~PathVector();
 
-	float getAngle();
+	// Getters
 	Edge getEdge();
+	
 	RobotCommand popCommand();
-
 	int getCommandSize();
 
 private:
-	float m_angle;
 	list<RobotCommand> m_commands; //used to be a vector
 	Edge m_edge;
 
@@ -44,7 +43,6 @@ private:
 	int translateBottom(Point start, Point end, int heading);
 	int translateRight(Point start, Point end, int heading);
 	int translateLeft(Point start, Point end, int heading);
-
 
 };
 #endif // !defined(EA_D8F473F6_2161_4aaa_A9F0_5C1F1D364CD8__INCLUDED_)
