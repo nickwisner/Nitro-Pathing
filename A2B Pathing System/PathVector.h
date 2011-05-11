@@ -73,7 +73,7 @@ class PathVector
 
 public:
 	PathVector();
-	PathVector( Edge e, int & heading = 1);
+	PathVector( Edge e, int & heading );
 	PathVector( const PathVector & cpy);
 	PathVector & operator=(const PathVector & cpy);
 	virtual ~PathVector();

@@ -59,7 +59,7 @@ bool Pathing::makePath(int destSpace, int startSpace, bool * obstMap)
 
 	if(!pathPoints.empty())
 	{
-		pathPoints = gutPoints(pathPoints);
+		pathPoints = getPoints(pathPoints);
 
 		translateToPath(pathPoints);
 
@@ -71,7 +71,7 @@ bool Pathing::makePath(int destSpace, int startSpace, bool * obstMap)
 	return false;
 }
 
-vector<int> Pathing::gutPoints(const vector<int> &pathPoints)
+vector<int> Pathing::getPoints(const vector<int> &pathPoints)
 {
 	int spaceDiff = pathPoints[1] - pathPoints[0];
 	vector<int> newPath;

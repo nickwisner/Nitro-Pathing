@@ -7,6 +7,8 @@
 
 #include "A2BControl.h"
 
+#include "DummyRobIO.h"
+
 A2BControl::A2BControl() :m_tUpdatePath(0), m_robotio(0), m_imageacquisition(0), m_showPlainImage(true)
 {
 	m_gui = new A2BGUI;
@@ -173,9 +175,12 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 }
 void A2BControl::startThreads()
 {
-
+	// getKey and all user interaction is what GUI should be handling.
+	// Obviously not implemented the way we want to. We are having some thread issues,
+	// since apparently OpenCV's camera cannot be in a different thread,
+	// but stuff will be threaded later unless we have to do another workaround
 	int key = 0;
-	// getKey stuff is what GUI should be handling; put in thread later
+	
 	bool connection = true;
 
 	try
@@ -185,7 +190,6 @@ void A2BControl::startThreads()
 		getImage();
 
 		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
-
 	}
 	catch(int e)
 	{
@@ -202,8 +206,14 @@ void A2BControl::startThreads()
 	}
 	catch(...)
 	{
+		// again, show error, quit out.
 		m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
-		key = 'q';
+//		key = 'q';
+
+		// Just kidding! for now, instead of quitting:
+		// DEBUG. Just to make the rest of it work. We often don't have robot running while deving
+		m_robotio = new DummyRobIO;
+		
 		connection = false;
 	}
 

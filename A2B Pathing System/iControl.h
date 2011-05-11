@@ -5,10 +5,11 @@
 //  Original author: nagisa.day
 ///////////////////////////////////////////////////////////
 
-#if !defined(EA_388686E3_240C_45dc_A048_14103D41A076__INCLUDED_)
-#define EA_388686E3_240C_45dc_A048_14103D41A076__INCLUDED_
+#ifndef ICONTROL_H
+#define ICONTROL_H
 
-#include "A2BDatabase.h"
+#include <opencv2/imgproc/imgproc.hpp>
+using cv::Point;
 
 class iControl
 {
@@ -21,7 +22,6 @@ public:
 	virtual ~iControl() {
 
 	}
-	A2BDatabase *m_A2BDatabase;
 
 	virtual bool endMission(int missionid) =0;
 	virtual void endThreads() =0;
@@ -35,4 +35,4 @@ public:
 	virtual void clearRobot(int space, bool * obstMap, Point robPos) = 0;
 
 };
-#endif // !defined(EA_388686E3_240C_45dc_A048_14103D41A076__INCLUDED_)
+#endif

@@ -28,6 +28,9 @@ PathVector::~PathVector()
 
 PathVector::PathVector( Edge e, int & heading) : m_edge(e)
 {
+	Point start = e.getStart(),
+		end = e.getEnd();
+
 	// 1 = robot facing top
 	// 2 = robot facing right
 	// 3 = robot facing bottom

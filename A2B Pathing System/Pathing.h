@@ -5,8 +5,8 @@
 //  Original author: peter.finn
 ///////////////////////////////////////////////////////////
 
-#if !defined(EA_D0407D07_6312_42a3_A1E3_5C5826C06F18__INCLUDED_)
-#define EA_D0407D07_6312_42a3_A1E3_5C5826C06F18__INCLUDED_
+#ifndef PATHING_H
+#define PATHING_H
 
 #include "Robot.h"
 #include "Path.h"
@@ -20,7 +20,7 @@ using cv::Point;
 #include <opencv2/highgui/highgui.hpp>
 #include "A2BUtilities.h"
 /**
- * This class contains all the functionanitly to create a path
+ * This class contains all the functionality to create a path
  */
 class Pathing : public iPathing
 {
@@ -65,12 +65,8 @@ private:
 	// current pathing program
 	Dijkstra * m_dijk;
 
-	// why is this commented out?
-	//Path * makePath(Point destination);
 	void translateToPath( vector<int> path);
-	vector<int> gutPoints(const vector<int> & pathPoints);
+	vector<int> getPoints(const vector<int> & pathPoints);
 };
 
-#endif // !defined(EA_D0407D07_6312_42a3_A1E3_5C5826C06F18__INCLUDED_)
-
-
+#endif

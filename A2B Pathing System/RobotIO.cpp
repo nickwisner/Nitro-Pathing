@@ -32,6 +32,8 @@ RobotIO::RobotIO() : m_robot(0), m_port(m_io, "COM4")
 RobotIO::~RobotIO()
 {
 	m_port.close();
+	delete m_robot;
+	m_robot = 0;
 }
 
 

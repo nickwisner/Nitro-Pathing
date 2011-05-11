@@ -5,8 +5,8 @@
 //  Original author: peter.finn
 ///////////////////////////////////////////////////////////
 
-#if !defined(EA_1A44B8B9_1523_46b5_AE1A_A23DE6022DB9__INCLUDED_)
-#define EA_1A44B8B9_1523_46b5_AE1A_A23DE6022DB9__INCLUDED_
+#ifndef ROBOTIO_H
+#define ROBOTIO_H
 
 #include "Robot.h"
 #include "iRobotIO.h"
@@ -15,10 +15,6 @@
 #include <boost/asio.hpp>
 using std::list;
 
-/**
- * fillQueue - take a path to fill the command queue. If queue isn't empty, empty
- * it first.
- */
 class RobotIO : public iRobotIO
 {
 
@@ -45,4 +41,4 @@ private:
 	int processRobotMessage(string msg);
 
 };
-#endif // !defined(EA_1A44B8B9_1523_46b5_AE1A_A23DE6022DB9__INCLUDED_)
+#endif

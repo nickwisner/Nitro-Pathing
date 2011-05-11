@@ -44,6 +44,18 @@ void A2BGUI::onMouse( int event, int x, int y, int, void * gui )
     }
 }
 
+/************************** A2BGUI::A2BGUI() **************************
+* The constructor. This initializes m_control to 0, and m_view to a
+* size, channel type, and color. m_view is initialized this way so
+* that if there are some sort of issues with getting an image from
+* the camera, m_view still has a set size and can be displayed in
+* the window without size weirdness. It should not even happen but
+* just to be safe.
+* 
+* Here the window is created using OpenCV's highgui. The window is
+* referenced by the title, m_window. The callback for the mouse
+* over this window is set to the static method, onMouse.
+**********************************************************************/
 A2BGUI::A2BGUI() : m_control(0), m_view(CAMERA_COL_SIZE, CAMERA_ROW_SIZE,CV_64FC3,Scalar(0,0,0))
 {
 	m_window = APPLICATION_NAME;
@@ -52,25 +64,43 @@ A2BGUI::A2BGUI() : m_control(0), m_view(CAMERA_COL_SIZE, CAMERA_ROW_SIZE,CV_64FC
 	setMouseCallback( m_window, onMouse, this );
 }
 
+// Our window is destroyed here.
+// Mat's destructor automatically calls .release() so m_view is good to go
 A2BGUI::~A2BGUI()
 {
 	cvDestroyAllWindows();
 }
 
+// Set control pointer.
 void A2BGUI::setControl(iControl * ctrl)
 {
 	m_control = ctrl;
 }
 
+// Displays image in window
+// ***** Perhaps it would work better with drawPath and markRobot if we
+// split this into maybe setImage(Mat) and refresh(). Change later? *****
 void A2BGUI::drawImage(Mat img)
 {
-	m_view.release();
+	m_view.release();	// for every clone, should call release()
 	m_view = img.clone();
 	
 	imshow(m_window, m_view);
 }
 
-
+/************************** A2BGUI::drawPath **************************
+* Takes a path, which is a vector of points. You would get this
+* from the Path object's getPathPoints.
+* Takes a Mat *, the image to draw to. Presumably you would call
+* this method right before calling drawImage to display the same
+* Mat to the window. This might be changed if drawImage is split.
+* If we drawImage before and after drawing the path, there will be
+* flicker.
+* 
+* Since path is a vector of points, this will "connect the dots"
+* with lines. The Scalar is the color; should probably make that a
+* const up at the top somewhere for easy changing.
+**********************************************************************/
 void A2BGUI::drawPath(const vector<Point> & path, Mat * view)
 {
 	for(int i = 1; i < path.size();i++)

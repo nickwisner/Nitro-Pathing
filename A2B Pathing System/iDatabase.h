@@ -5,8 +5,8 @@
 //  Original author: nagisa.day
 ///////////////////////////////////////////////////////////
 
-#ifndef iDATABASE_H
-#define DATABASE_H
+#ifndef IDATABASE_H
+#define IDATABASE_H
 
 #include <opencv2/imgproc/imgproc.hpp>
 using cv::Point;
