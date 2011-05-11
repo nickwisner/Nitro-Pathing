@@ -40,7 +40,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\OpenCV2.2\include;C:\OpenCV2.2\include\opencv;$(IncludePath)</IncludePath>
+    <IncludePath>Z:\Boost-Includes;C:\OpenCV2.2\include;C:\OpenCV2.2\include\opencv;$(IncludePath)</IncludePath>
     <LibraryPath>C:\OpenCV2.2\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

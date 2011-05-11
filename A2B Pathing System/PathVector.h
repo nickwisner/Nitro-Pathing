@@ -5,8 +5,10 @@
 //  Original author: peter.finn
 ///////////////////////////////////////////////////////////
 
-#if !defined(EA_D8F473F6_2161_4aaa_A9F0_5C1F1D364CD8__INCLUDED_)
-#define EA_D8F473F6_2161_4aaa_A9F0_5C1F1D364CD8__INCLUDED_
+//#if !defined(EA_D8F473F6_2161_4aaa_A9F0_5C1F1D364CD8__INCLUDED_)
+//#define EA_D8F473F6_2161_4aaa_A9F0_5C1F1D364CD8__INCLUDED_
+#ifndef __PATH_VECTOR
+#define __PATH_VECTOR
 
 #include "Edge.h"
 #include "RobotCommand.h"
