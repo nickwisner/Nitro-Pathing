@@ -56,7 +56,7 @@ void A2BDatabase::error(ErrorLog err)
 
 Robot A2BDatabase::getRobot()
 {
-	return Robot(9600, 1, 50, 75, Image(cv::imread("true_robot.png")));
+	return Robot(9600, 1, 50, 75, cv::imread("true_robot.png"));
 }
 
 

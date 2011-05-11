@@ -7,7 +7,7 @@
 
 #include "A2BControl.h"
 
-A2BControl::A2BControl() :m_plainImage(0),m_edgedImage(0),m_tUpdatePath(0), m_robotio(0), m_imageacquisition(0), m_showPlainImage(true)
+A2BControl::A2BControl() :m_tUpdatePath(0), m_robotio(0), m_imageacquisition(0), m_showPlainImage(true)
 {
 	m_gui = new A2BGUI;
 	m_gui->setControl(this);
@@ -60,13 +60,6 @@ void A2BControl::endThreads()
 {
 }
 
-
-Image * A2BControl::getEdgedImage()
-{
-	return m_edgedImage;
-}
-
-
 bool A2BControl::runPath()
 {
 	return false;
@@ -97,9 +90,9 @@ bool A2BControl::setDestination(Point dest)
 	{
 		n++;
 		getImage();
-		m_gui->drawImage( (m_showPlainImage ? m_plainImage->mat() : m_edgedImage->mat()) );
+		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
 	
-		robPos = ImageProcessor::findRobot(&(m_plainImage->mat()), m_pathing->getRobot());
+		robPos = ImageProcessor::findRobot(&(m_plainImage), m_pathing->getRobot());
 		spaceStart = A2BUtilities::pixelToSpaceId(robPos.x, robPos.y);
 		spaceDest = A2BUtilities::pixelToSpaceId( dest.x,dest.y);
 		clearRobot(spaceStart, m_obstacleMap, robPos);
@@ -132,7 +125,9 @@ bool A2BControl::setDestination(Point dest)
 	return true;
 }
 
-#include <fstream>
+//For DEBUGGING///////////
+//#include <fstream>
+//////////////////////////
 void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 {
 	//this is assuming that the robot is 11.25 cells long and wide. We will around it to 12 cells.
@@ -160,7 +155,7 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 	}
 
 	/* DEBUG: saving the grid in ascii format to out.txt for funs */
-	std::ofstream file("out.txt", std::ios::app);
+	/*std::ofstream file("out.txt", std::ios::app);
 	if( file.is_open() )
 	{
 		for( int i = 0; i < COL_SIZE; i++ )
@@ -174,7 +169,7 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 		file << '\n';
 
 		file.close();
-	}
+	}*/
 }
 void A2BControl::startThreads()
 {
@@ -189,7 +184,7 @@ void A2BControl::startThreads()
 
 		getImage();
 
-		m_gui->drawImage( (m_showPlainImage ? m_plainImage->mat() : m_edgedImage->mat()) );
+		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
 
 	}
 	catch(int e)
@@ -221,9 +216,9 @@ void A2BControl::startThreads()
 		getImage();
 		if(m_pathing->isActive())
 		{
-			m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage->mat());
+			m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage);
 		}
-		m_gui->drawImage( (m_showPlainImage ? m_plainImage->mat() : m_edgedImage->mat()) );
+		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
 		
 		key = waitKey(500); // Get key input from user, poll every 500 ms
 
@@ -276,18 +271,6 @@ void A2BControl::startThreads()
 				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
 			}
 			break;
-
-			// PathVector tests
-		case 'i':
-			createTestVector();
-			break;
-		case 'o':
-			makeTestVector2();
-			break;
-		case 'p':
-			makeTestVector3();
-			break;
-
 			// This will connect or disconnect the port!
 		case 'c':
 			if(connection)
@@ -330,9 +313,7 @@ void A2BControl::getImage()
 	// getImage news the image, but it also deletes its current image which is same address as m_plainImage here
 	m_plainImage = m_imageacquisition->getImage();
 	
-	delete m_edgedImage; // createEdgedImage news the image but has no image to delete so we do it here
-	m_edgedImage = ImageProcessor::createEdgedImage(m_plainImage);
+	m_edgedImage = ImageProcessor::createEdgedImage(&m_plainImage);
 
-	ImageProcessor::mapObstacles(*m_edgedImage, m_obstacleMap);
-//	ImageProcessor::makeImageBorder(&(m_plainImage->mat()));
+	ImageProcessor::mapObstacles(m_edgedImage, m_obstacleMap);
 }

@@ -8,7 +8,7 @@
 #include "Robot.h"
 
 
-Robot::Robot(int brate, int distance_per_cycle, int len, int wid, Image &symbol)
+Robot::Robot(int brate, int distance_per_cycle, int len, int wid, Mat &symbol)
 	: m_baudrate(brate), m_distancepercycle(distance_per_cycle), m_length(len), m_width(wid), m_symbol(symbol)
 { }
 
@@ -25,7 +25,7 @@ Robot & Robot::operator=( const Robot & cpy)
 		this->m_distancepercycle = cpy.m_distancepercycle;
 		this->m_length = cpy.m_length;
 		this->m_width = cpy.m_width;
-		this->m_symbol = Image(cpy.m_symbol.mat());
+		this->m_symbol = cpy.m_symbol;
 	}
 	return *this;
 }
@@ -51,9 +51,9 @@ int Robot::length()
 }
 
 
-Image * Robot::peekSymbol()
+Mat Robot::peekSymbol()
 {
-	return &m_symbol;
+	return m_symbol;
 }
 
 
