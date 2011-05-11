@@ -178,7 +178,8 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 }
 void A2BControl::startThreads()
 {
-
+	Mat plain;
+	Mat edged;
 	int key = 0;
 	// getKey stuff is what GUI should be handling; put in thread later
 	bool connection = true;
@@ -188,7 +189,9 @@ void A2BControl::startThreads()
 		m_imageacquisition = new ImageAcquisition();
 
 //		m_gui->drawImage( *(m_showPlainImage ? m_plainImage : m_edgedImage) );
-		m_gui->drawImage( (m_showPlainImage ? m_imageacquisition->getPlain() : m_imageacquisition->getPlain()));
+		plain = m_imageacquisition->getPlain();
+		edged = m_imageacquisition->getEdge();
+		m_gui->drawImage( (m_showPlainImage ? plain : edged));
 	}
 	catch(int e)
 	{
@@ -216,12 +219,14 @@ void A2BControl::startThreads()
 	while(key != 'q')
 	{
 		// Update window
-		getImage();
+		//getImage();
 		if(m_pathing->isActive())
 		{
 			m_gui->drawPath(m_pathing->getPath()->getPathPoints(), m_plainImage);
 		}
-		m_gui->drawImage( (m_showPlainImage ? *m_plainImage : *m_edgedImage) );
+		plain = m_imageacquisition->getPlain();
+		edged = m_imageacquisition->getEdge();
+		m_gui->drawImage( (m_showPlainImage ? plain : edged));
 		
 		key = waitKey(500); // Get key input from user, poll every 500 ms
 
