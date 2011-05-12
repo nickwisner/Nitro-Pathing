@@ -18,16 +18,21 @@ int const NO_WEBCAM = -1;
 
 ImageAcquisition::ImageAcquisition()
 {
+//	VideoCapture m_cap(0);
 	m_capture = cvCaptureFromCAM(-1);
 
 	if (!m_capture)
 	{
 		throw NO_WEBCAM;
 	}
+	//if(!m_cap.isOpened());
+	//{
+	//	throw NO_WEBCAM;
+	//}
 	
 	m_obstMap = new bool[ROW_SIZE * COL_SIZE];
 	
-	m_plainCur = cvQueryFrame(m_capture);
+	/*m_cap >>*/ m_plainCur = cvQueryFrame(m_capture);
 
 	m_edgeCur = Mat(ImageProcessor::createEdgedImage(&m_plainCur).clone());
 
@@ -47,49 +52,63 @@ void ImageAcquisition::getImages()
 {
 	while(1)
 	{
-		boost::this_thread::disable_interruption di;
+		//boost::this_thread::disable_interruption di;
 		// getImage news the image, but it also deletes its current image which is same address as m_plainImage here
-		m_plainLock.lock();
-		m_plainCur = Mat(cvQueryFrame(m_capture)).clone();
+		//m_plainLock.lock();
+		while(!m_plainLock.try_lock())
+			boost::this_thread::yield();
+		/*m_cap >>*/ m_plainCur = Mat(cvQueryFrame(m_capture)).clone();
 		m_plainLock.unlock();
 
-		m_edgeLock.lock();
+		while(!m_edgeLock.try_lock())
+			boost::this_thread::yield();
+		//m_edgeLock.lock();
 		 // createEdgedImage news the image but has no image to delete so we do it here
 		m_edgeCur = Mat(ImageProcessor::createEdgedImage(&m_plainCur).clone());
 		m_edgeLock.unlock();
 
-		m_obstLock.lock();
+
+		while(!m_obstLock.try_lock())
+			boost::this_thread::yield();
+		//m_obstLock.lock();
 		ImageProcessor::mapObstacles(m_edgeCur, m_obstMap);
 		m_obstLock.unlock();
 		
-		boost::this_thread::restore_interruption ri(di);
+		//boost::this_thread::restore_interruption ri(di);
 
 		boost::this_thread::sleep(boost::posix_time::milliseconds(500));
 	}
 }
 Mat ImageAcquisition::getPlain()
 {
-	m_plainLock.lock();
+	while(!m_plainLock.try_lock())
+		boost::this_thread::yield();
+
+	//m_plainLock.lock();
 	Mat t = m_plainCur.clone();
 	m_plainLock.unlock();
 	return t;
 }
 Mat ImageAcquisition::getEdge()
 {
-	m_edgeLock.lock();
+	while(!m_edgeLock.try_lock())
+		boost::this_thread::yield();
+	//m_edgeLock.lock();
 	Mat t = m_edgeCur.clone();
 	m_edgeLock.unlock();
 	return t;
 }
 bool* ImageAcquisition::getObstMap()
 {//this is sad-face
-
-	m_obstLock.lock();
+	while(!m_obstLock.try_lock())
+		boost::this_thread::yield();
+	//m_obstLock.lock();
 	bool * tmp = new bool[ROW_SIZE * COL_SIZE];
 	memcpy(tmp, m_obstMap, sizeof(bool)* (ROW_SIZE*COL_SIZE));
 	m_obstLock.unlock();
 	return tmp;
 }
+//DEPRICATED
 Mat ImageAcquisition::getImage()
 {
     m_plainCur = Mat(cvQueryFrame(m_capture));

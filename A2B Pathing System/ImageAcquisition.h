@@ -37,6 +37,8 @@ public:
 	Mat getImage();
 private:
 	//VideoCapture m_capture;
+	VideoCapture m_cap;
+
 	Mat m_plainCur;
 	Mat m_edgeCur;
 	bool * m_obstMap;
