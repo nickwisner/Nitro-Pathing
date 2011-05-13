@@ -52,7 +52,6 @@ public:
 	bool checkSavedQueries();
 	Mat * getEdgedImage(); //needed?
 	void saveQueriesToFile();
-	void getImage();
 	void clearRobot(int space, bool * obstMap, Point robPos);
 
 

@@ -70,6 +70,7 @@ void A2BGUI::drawPath(const vector<Point> & path, Mat * view)
 	{
 		line(*view, path[i-1], path[i], Scalar(25,83,255),2,7);
 	}
+	waitKey(1000);
 }
 
 

@@ -30,9 +30,6 @@ public:
 	virtual Mat getEdge() = 0;
 	virtual bool* getObstMap() = 0;
 
-	//depricated!
-	virtual Mat getImage() = 0;
-
 
 };
 #endif // !defined(EA_98DE6B47_8533_4c9c_AE0F_D47013670227__INCLUDED_)

@@ -33,8 +33,7 @@ public:
 	Mat getPlain();
 	Mat getEdge();
 	bool* getObstMap();
-	//depricated!
-	Mat getImage();
+
 private:
 	//VideoCapture m_capture;
 	VideoCapture m_cap;

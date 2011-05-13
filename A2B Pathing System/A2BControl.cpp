@@ -115,15 +115,15 @@ bool A2BControl::setDestination(Point dest)
 		m_gui->markRobot(robPos);
 
 		if(n < 5)
-			robCheck = !m_gui->showError("Is this the robot?",BOX_YESNO);
+			robCheck = !m_gui->showError("Is this the robot?",MB_YESNO);
 		else
 			return false;
 	}						 // keep looping if they answer no
-	while( !robCheck );
+	while( robCheck );
 
 	if( !m_pathing->makePath(spaceDest, spaceStart, m_obstacleMap) )
 	{
-		m_gui->showError("Cannot create a path to indicated destination.",BOX_OK);
+		m_gui->showError("Cannot create a path to indicated destination.",MB_OK);
 	}
 	else
 	{
@@ -228,13 +228,14 @@ void A2BControl::startThreads()
 	while(key != 'q')
 	{
 		// Update window
-		//getImage();
+		//getImage();		
+		plain = m_imageacquisition->getPlain();
+		edged = m_imageacquisition->getEdge();
 		if(m_pathing->isActive())
 		{
 			m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage);
 		}
-		plain = m_imageacquisition->getPlain();
-		edged = m_imageacquisition->getEdge();
+
 		m_gui->drawImage( (m_showPlainImage ? plain : edged));
 		
 		key = waitKey(500); // Get key input from user, poll every 500 ms
@@ -323,17 +324,4 @@ void A2BControl::startThreads()
 bool A2BControl::update()
 {
 	return false;
-}
-
-//depricated n shit.
-void A2BControl::getImage()
-{
-	// getImage news the image, but it also deletes its current image which is same address as m_plainImage here
-	m_plainImage = m_imageacquisition->getImage();
-	
-	//delete m_edgedImage; // createEdgedImage news the image but has no image to delete so we do it here
-	m_edgedImage = ImageProcessor::createEdgedImage(&m_plainImage);
-
-	ImageProcessor::mapObstacles(m_edgedImage, m_obstacleMap);
-//	ImageProcessor::makeImageBorder(&(m_plainImage->mat()));
 }

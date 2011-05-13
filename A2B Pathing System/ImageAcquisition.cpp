@@ -110,10 +110,3 @@ bool* ImageAcquisition::getObstMap()
 	m_obstLock.unlock();
 	return tmp;
 }
-//DEPRICATED
-Mat ImageAcquisition::getImage()
-{
-    m_plainCur = Mat(cvQueryFrame(m_capture));
-
-    return m_plainCur.clone();
-}
