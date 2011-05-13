@@ -13,7 +13,7 @@ using namespace cv;
 #include <string>
 using std::string;
 
-
+#include "A2BUtilities.h"
 
 #include "RobotIO.h"
 // not part of the class because onMouse needs to be not a member, or static
@@ -77,19 +77,15 @@ void A2BGUI::endMission()
 {
 }
 
+// We had a A2BMessageBox before which is why we have tests for it in Control
+// WinAPI MessageBox >>>> rolling your ugly own
+// This returns 1 (true) if Yes button clicked. 0 (false) if No. 0 if it was just an OK box.
 int A2BGUI::showError(const string & error, int type)
 {
-	A2BMessageBox errBox(m_window, m_view, error, type);
-	return errBox.getButtonPress();
+	int response = MessageBox(0, LPCSTR(error.c_str()), LPCSTR("A2B Pathing System Error"), type);
+	return (response == IDYES ? 1 : 0);
 }
 
-//probably for debugging, might feature.
-void A2BGUI::CoverRobot(Point topLeft, Point bottomRight)
-{
-	rectangle(m_view, topLeft, bottomRight, Scalar(255,255,255),CV_FILLED);
-	drawImage(m_view);
-	waitKey(5000);
-}
 void A2BGUI::markRobot(Point c)
 {
 	//Point center(c.x,c.y);
@@ -120,13 +116,6 @@ void A2BGUI::getCircularROI(int R, vector < int > & RxV)
     for( int y = 0; y <= R; y++ )
         RxV[y] = cvRound(sqrt((double)R*R - y*y));
 }
-
-bool A2BGUI::toggleImage()
-{
-	m_showEdged = (m_showEdged ? false : true);
-	return m_showEdged;
-}
-
 
 void A2BGUI::setDest(int x, int y)
 {

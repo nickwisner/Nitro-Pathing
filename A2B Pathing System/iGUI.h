@@ -41,8 +41,6 @@ public:
 	virtual void markRobot(Point point) =0;
 	virtual void setDest(int x, int y) =0;
 	virtual int showError(const string & error, int type = BOX_OK) =0;
-	virtual bool toggleImage() =0;
-	virtual void CoverRobot(Point topLeft, Point bottomRight) = 0;
 
 };
 #endif // !defined(EA_D23F979E_9CF4_4917_B058_F363BBC68D7E__INCLUDED_)

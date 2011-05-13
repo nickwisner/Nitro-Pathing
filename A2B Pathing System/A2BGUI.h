@@ -11,7 +11,7 @@
 #include "iControl.h"
 #include "iGUI.h"
 
-#include "A2BMessageBox.h"
+#include <Windows.h>
 
 #include <string>
 using std::string;
@@ -33,11 +33,8 @@ public:
 	int showError(const string & error, int type = BOX_OK);
 	void markRobot(Point point);
 
-	// We don't use this...! Easier to do in Control, not GUI. what do?
-	bool toggleImage();
 
 	void setDest(int x, int y);
-	void CoverRobot(Point topLeft, Point bottomRight);
 private:
 	iControl * m_control;
 	string m_window;

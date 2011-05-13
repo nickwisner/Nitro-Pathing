@@ -119,7 +119,7 @@ bool A2BControl::setDestination(Point dest)
 		else
 			return false;
 	}						 // keep looping if they answer no
-	while( robCheck );
+	while( !robCheck );
 
 	if( !m_pathing->makePath(spaceDest, spaceStart, m_obstacleMap) )
 	{
