@@ -14,14 +14,10 @@ class iControl
 {
 
 public:
-	iControl() {
-
-	}
-
 	virtual ~iControl() {
 
 	}
-	A2BDatabase *m_A2BDatabase;
+
 	virtual Mat * getEdgedImage() = 0;
 	virtual bool endMission(int missionid) = 0;
 	virtual void endThreads() =0;

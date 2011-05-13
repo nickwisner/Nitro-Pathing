@@ -7,7 +7,7 @@
 
 #include "A2BControl.h"
 
-A2BControl::A2BControl() :m_plainImage(0),m_edgedImage(0),m_tUpdatePath(0), m_robotio(0), m_imageacquisition(0), m_showPlainImage(true)
+A2BControl::A2BControl() :m_tUpdatePath(0), m_robotio(0), m_imageacquisition(0), m_showPlainImage(true), m_obstacleMap(0)
 {
 	m_gui = new A2BGUI;
 	m_gui->setControl(this);
@@ -31,6 +31,7 @@ A2BControl::~A2BControl()
 	m_imageacquisition = 0;
 	m_robotio = 0;
 
+	//probably need to do this again
 //	delete [] m_obstacleMap;
 	//m_obstacleMap = 0;
 }
@@ -63,7 +64,7 @@ void A2BControl::endThreads()
 
 Mat * A2BControl::getEdgedImage()
 {
-	return m_edgedImage;
+	return &m_edgedImage;
 }
 
 
@@ -96,10 +97,18 @@ bool A2BControl::setDestination(Point dest)
 	do
 	{
 		n++;
-		getImage();
-		m_gui->drawImage( (m_showPlainImage ? *m_plainImage : *m_edgedImage) );
+		//getImage();
+		if(m_obstacleMap != 0)
+			delete [] m_obstacleMap;
+
+		m_obstacleMap = m_imageacquisition->getObstMap();
+		m_edgedImage = m_imageacquisition->getEdge();
+		m_plainImage = m_imageacquisition->getPlain();
+
+
+		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
 	
-		robPos = ImageProcessor::findRobot((m_plainImage), m_pathing->getRobot());
+		robPos = ImageProcessor::findRobot((&m_plainImage), m_pathing->getRobot());
 		spaceStart = A2BUtilities::pixelToSpaceId(robPos.x, robPos.y);
 		spaceDest = A2BUtilities::pixelToSpaceId( dest.x,dest.y);
 		clearRobot(spaceStart, m_obstacleMap, robPos);
@@ -222,7 +231,7 @@ void A2BControl::startThreads()
 		//getImage();
 		if(m_pathing->isActive())
 		{
-			m_gui->drawPath(m_pathing->getPath()->getPathPoints(), m_plainImage);
+			m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage);
 		}
 		plain = m_imageacquisition->getPlain();
 		edged = m_imageacquisition->getEdge();
@@ -320,11 +329,11 @@ bool A2BControl::update()
 void A2BControl::getImage()
 {
 	// getImage news the image, but it also deletes its current image which is same address as m_plainImage here
-	m_plainImage = &(m_imageacquisition->getImage());
+	m_plainImage = m_imageacquisition->getImage();
 	
-	delete m_edgedImage; // createEdgedImage news the image but has no image to delete so we do it here
-	m_edgedImage = &(ImageProcessor::createEdgedImage(m_plainImage));
+	//delete m_edgedImage; // createEdgedImage news the image but has no image to delete so we do it here
+	m_edgedImage = ImageProcessor::createEdgedImage(&m_plainImage);
 
-	ImageProcessor::mapObstacles(*m_edgedImage, m_obstacleMap);
+	ImageProcessor::mapObstacles(m_edgedImage, m_obstacleMap);
 //	ImageProcessor::makeImageBorder(&(m_plainImage->mat()));
 }

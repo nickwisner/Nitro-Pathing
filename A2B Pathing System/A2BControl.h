@@ -63,8 +63,8 @@ private:
 	iRobotIO * m_robotio; // Interface through which we can send the path to queue commands, and tell when to send commands out to the robot.
 	iDatabase * m_database; //Interface to update database through (missions, errors)
 	
-	Mat * m_edgedImage; // Holds the image of the room with edge detecting effects on it.
-	Mat * m_plainImage; // The raw, unprocessed image of the floor. A "human" view of things.
+	Mat m_edgedImage; // Holds the image of the room with edge detecting effects on it.
+	Mat m_plainImage; // The raw, unprocessed image of the floor. A "human" view of things.
 
 	Timer * m_tUpdatePath; // This timer goes off when it is time to update the path, the picture, etc.
 

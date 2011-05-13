@@ -27,7 +27,7 @@ void handle_write(const boost::system::error_code&, // error
 {
 }
 
-RobotIO::RobotIO() : m_robot(0), m_port(m_io, "COM7")
+RobotIO::RobotIO() : m_robot(0), m_port(m_io, "COM4")
 {
 }
 
@@ -135,7 +135,7 @@ bool RobotIO::openPort()
 {
 	if( !m_port.is_open() )
 	{
-		m_port.open("COM7");
+		m_port.open("COM4");
 		return true;
 	}
 	return false;
