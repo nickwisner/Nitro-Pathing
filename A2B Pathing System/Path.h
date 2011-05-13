@@ -1,5 +1,5 @@
-#ifndef PATH_H
-#define PATH_H
+#ifndef AAAAAAAA_H// PATH_H
+#define AAAAAAAA_H// Path_H
 
 #include <opencv2/imgproc/imgproc.hpp>
 using cv::Point;
