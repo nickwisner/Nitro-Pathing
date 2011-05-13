@@ -14,8 +14,8 @@ A2BControl::A2BControl() :m_tUpdatePath(0), m_robotio(0), m_imageacquisition(0),
 	m_gui = new A2BGUI;
 	m_gui->setControl(this);
 
-	m_obstacleMap = new bool[ROW_SIZE * COL_SIZE];
-	
+	//m_obstacleMap = new bool[ROW_SIZE * COL_SIZE];
+	m_obstacleMap = 0;
 	m_pathing = new Pathing;
 	m_database = new A2BDatabase;
 	m_pathing->setRobot( (m_database->getRobot()) );
@@ -95,30 +95,37 @@ bool A2BControl::sendCommand()
 bool A2BControl::setDestination(Point dest)
 {
 	Point robPos;
-	bool robot_found = false;
+	bool robCheck = true;
+	int n = -1;
 	int spaceStart = 0;
 	int spaceDest = 0;
 
-	//change the first part setDestination to be "findRobot"
-	for( int tries = 0; !robot_found; tries++ )
+	//change the first part setDestinatoin to be "findRobot"
+	do
 	{
-		// Get and display the current image, since robot may have been moved.
-		getImage();
-		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
-	
-		// Find robot
-		robPos = ImageProcessor::findRobot(&(m_plainImage), m_pathing->getRobot());
+		n++;
+		//getImage();
+		if(m_obstacleMap != 0)
+			delete [] m_obstacleMap;
 
-		// Define start and dest spaces, clear robot area of any notion of obstacles
+		m_obstacleMap = m_imageacquisition->getObstMap();
+		m_edgedImage = m_imageacquisition->getEdge();
+		m_plainImage = m_imageacquisition->getPlain();
+
+
+		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
+		robPos = ImageProcessor::findRobot((&m_plainImage), m_pathing->getRobot());
 		spaceStart = A2BUtilities::pixelToSpaceId(robPos.x, robPos.y);
 		spaceDest = A2BUtilities::pixelToSpaceId( dest.x,dest.y);
 		clearRobot(spaceStart, m_obstacleMap, robPos);
-
 		m_gui->markRobot(robPos);
 
-		// To do: exit after 5 unsuccessful tries be all "Hey buddy you have a problem go find the robot yourself"
-		robot_found = m_gui->showError("Is this the robot?",MB_YESNO);
-	}		// keep looping if they answer no
+		if(n < 5)
+			robCheck = !m_gui->showError("Is this the robot?",MB_YESNO);
+		else
+			return false;
+	} // keep looping if they answer no
+	while( robCheck );
 
 	if( !m_pathing->makePath(spaceDest, spaceStart, m_obstacleMap) )
 	{
@@ -139,6 +146,7 @@ bool A2BControl::setDestination(Point dest)
 	}
 	return true;
 }
+
 
 //For DEBUGGING///////////
 //#include <fstream>
@@ -201,7 +209,8 @@ void A2BControl::startThreads()
 	{
 		m_imageacquisition = new ImageAcquisition;
 
-		getImage();
+		m_plainImage = m_imageacquisition->getPlain();
+		m_edgedImage = m_imageacquisition->getEdge();
 
 		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
 	}
@@ -236,7 +245,8 @@ void A2BControl::startThreads()
 	while(key != 'q')
 	{
 		// Update window
-		getImage();
+		m_plainImage = m_imageacquisition->getPlain();
+		m_edgedImage = m_imageacquisition->getEdge();
 		if(m_pathing->isActive())
 		{
 			m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage);
@@ -331,16 +341,4 @@ void A2BControl::startThreads()
 bool A2BControl::update()
 {
 	return false;
-}
-
-// Get images to save into our member Mats from image acquisition.
-// and also map obstacles
-void A2BControl::getImage()
-{
-	// getImage news the image, but it also deletes its current image which is same address as m_plainImage here
-	m_plainImage = m_imageacquisition->getImage();
-	
-	m_edgedImage = ImageProcessor::createEdgedImage(&m_plainImage);
-
-	ImageProcessor::mapObstacles(m_edgedImage, m_obstacleMap);
 }

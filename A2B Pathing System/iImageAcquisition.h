@@ -28,7 +28,9 @@ public:
 
 	}
 
-	virtual Mat getImage() = 0;
+	virtual Mat getPlain() = 0;
+	virtual Mat getEdge() = 0;
+	virtual bool* getObstMap() = 0;
 
 };
 #endif //iIMAGEACQ_H

@@ -61,8 +61,6 @@ public:
 	//Saves the queries off to a flat file
 		//Not implimented
 	void saveQueriesToFile();
-	//gets the image from the camera and then also makes a edge image and a bool obsticle map
-	void getImage();
 	//sets all of the false (obsticles) on the bool array for where the robot is
 		//AKA makes the robot no longer a obsticle in the bool array
 	void clearRobot(int space, bool * obstMap, Point robPos);
