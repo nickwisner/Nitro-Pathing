@@ -103,19 +103,30 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 	m_port.set_option( asio_serial::character_size( 8 ) ); 
 	
 	std::string buff;	
-	for( int i = 0; i < cmd.getCycles(); i++ )
+	char * cyclesBuff = 0;
+	int cycleLeng = 0;
+	for(int i = cmd.getCycles(); i > 0;cycleLeng++)
 	{
-		// load the robot command
-		buff.push_back(cmd.getCode());
-
-		// send it
-		boost::asio::async_write(m_port, boost::asio::buffer(buff), boost::bind(handle_write, boost::asio::placeholders::error,
-			  boost::asio::placeholders::bytes_transferred));
-
-		// pop the sent command off
-		buff.pop_back();
+		i = i/10;
 	}
-	
+	cyclesBuff = new char[cycleLeng+1];
+
+	// load the robot command
+	buff[0] = '*'; //The starting handshake is a *
+	buff.push_back(cmd.getCode()); //Next the robot expects a 'f','b','l','r' command
+	itoa(cmd.getCycles(),cyclesBuff,10); //This converts the intager for how many miliseconds the robot should move into a stirng
+	buff += cyclesBuff; //the string is then appended onto the buffer to be send to the robot
+	buff[buff.length()] = '*'; //Because itoa give us a null terminated string we need to write over that null with a * so the robot knows when the command is over 
+
+	// send it
+	boost::asio::async_write(m_port, boost::asio::buffer(buff), boost::bind(handle_write, boost::asio::placeholders::error,
+			boost::asio::placeholders::bytes_transferred));
+
+	// pop the sent command off
+	buff.pop_back();
+
+	delete []cyclesBuff;
+
 	return true;
 }
 

@@ -138,12 +138,16 @@ bool A2BControl::setDestination(Point dest)
 		// this is only for the alpha release... will be replaced by startmission message being sent
 		try
 		{
+			//this should call a method to send the data and listen data coming in aseconisly
 			m_robotio->SendQueue();
 		}catch(int e)
 		{
 			m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
 		}
 	}
+
+	//create a thread to handle updata.
+	m_updatePath = boost::thread(bind(&update, this));
 	return true;
 }
 
@@ -340,5 +344,17 @@ void A2BControl::startThreads()
 //		get image. if active, validate and draw path. display image.
 bool A2BControl::update()
 {
-	return false;
+	//for debugging only
+	int i = 0;
+	bool cnt = m_pathing->isActive();
+	while(cnt)
+	{
+		i++;
+		//get new image, edged image and obstacle array
+
+		//run the map over it
+
+		//if a obstacle happends then return false.
+	}
+	return true;
 }

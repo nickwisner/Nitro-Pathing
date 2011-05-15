@@ -18,41 +18,42 @@ int const NO_WEBCAM = -1;
 
 ImageAcquisition::ImageAcquisition()
 {
-// VideoCapture m_cap(0);
-m_capture = cvCaptureFromCAM(-1);
+	// VideoCapture m_cap(0);
+	m_capture = cvCaptureFromCAM(-1);
 
-if (!m_capture)
-{
-throw NO_WEBCAM;
-}
-//if(!m_cap.isOpened());
-//{
-// throw NO_WEBCAM;
-//}
-m_obstMap = new bool[ROW_SIZE * COL_SIZE];
-/*m_cap >>*/ m_plainCur = cvQueryFrame(m_capture);
+	if (!m_capture)
+	{
+		throw NO_WEBCAM;
+	}
+	//if(!m_cap.isOpened());
+	//{
+	// throw NO_WEBCAM;
+	//}
+	m_obstMap = new bool[ROW_SIZE * COL_SIZE];
+	/*m_cap >>*/ m_plainCur = cvQueryFrame(m_capture);
 
-m_edgeCur = Mat(ImageProcessor::createEdgedImage(&m_plainCur).clone());
+	m_edgeCur = Mat(ImageProcessor::createEdgedImage(&m_plainCur).clone());
 
-ImageProcessor::mapObstacles(m_edgeCur, m_obstMap);
+	ImageProcessor::mapObstacles(m_edgeCur, m_obstMap);
 
-m_imageUpdate = boost::thread(bind(&ImageAcquisition::getImages, this));
+	m_imageUpdate = boost::thread(bind(&ImageAcquisition::getImages, this));
 
 }
 
 ImageAcquisition::~ImageAcquisition()
 {
-m_imageUpdate.interrupt();
-m_imageUpdate.join();
-delete [] m_obstMap;
+	m_imageUpdate.interrupt();
+	m_imageUpdate.join();
+	delete [] m_obstMap;
 }
 void ImageAcquisition::getImages()
 {
 	Mat temp;
 	while(1)
 	{
+		boost::this_thread::disable_interruption di;
 		temp = Mat(cvQueryFrame(m_capture)).clone();
-		//boost::this_thread::disable_interruption di;
+		//
 		// getImage news the image, but it also deletes its current image which is same address as m_plainImage here
 		m_plainLock.lock();
 		//while(!m_plainLock.try_lock())
@@ -73,9 +74,9 @@ void ImageAcquisition::getImages()
 		m_obstLock.lock();
 		ImageProcessor::mapObstacles(m_edgeCur, m_obstMap);
 		m_obstLock.unlock();
-		//boost::this_thread::restore_interruption ri(di);
+		boost::this_thread::restore_interruption ri(di);
 
-		boost::this_thread::sleep(boost::posix_time::milliseconds(500));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 	}
 }
 Mat ImageAcquisition::getPlain()

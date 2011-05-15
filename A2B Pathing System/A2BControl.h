@@ -76,6 +76,12 @@ private:
 	Mat m_plainImage; // The raw, unprocessed image of the floor. A "human" view of things.
 
 	Timer * m_tUpdatePath; // This timer goes off when it is time to update the path, the picture, etc.
+	
+	//Dont know if we need a mutex
+//	boost::mutex m_obstLock;
+
+	boost::thread m_updatePath;
+	
 	bool * m_obstacleMap; // This bool array contains the place ment of open spaces and obsticle spaces. In terms of SPACE [ 8px X 8px ] 
 	
 	bool m_showPlainImage; // whether to send plain image to GUI (true), or edged (false)
