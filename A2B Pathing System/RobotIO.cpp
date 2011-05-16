@@ -183,7 +183,17 @@ bool RobotIO::closePort()
 	return false;
 }
 
-void transmitStart()
+void RobotIO::transmitStart()
+{
+	m_cmdSend = boost::thread(bind(&sendNextMessage, this));
+	m_cmdRecieve = boost::thread(bind(&receiveMessage, this));
+}
+
+void RobotIO::receiveMessage()
+{
+}
+
+void RobotIO::sendNextMessage()
 {
 
 }
