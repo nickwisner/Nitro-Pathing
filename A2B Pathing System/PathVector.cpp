@@ -101,11 +101,11 @@ int PathVector::translateUp(Point start, Point end)
 			//move forward
 
 		//DEBUG_TURN is only to be used until we can have the robot take multiple parameters
-		m_commands.push_back(RobotCommand('l',DEBUG_TURN));
-		//m_commands.push_back(*(new RobotCommand('l',NINETY_DEGREES))); 
+		//m_commands.push_back(RobotCommand('l',DEBUG_TURN));
+		m_commands.push_back(*(new RobotCommand('l',NINETY_DEGREES))); 
 
-		m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
-		//m_commands.push_back( *(new RobotCommand('f',((start.x - end.x)*SPACE_TO_MILLISECONDS)))); 
+		//m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		m_commands.push_back( *(new RobotCommand('f',((start.x - end.x)*SPACE_TO_MILLISECONDS)))); 
 
 		heading = 4;
 	}else if(start.x < end.x)
@@ -113,11 +113,11 @@ int PathVector::translateUp(Point start, Point end)
 		//move right
 			//turn right
 			//move forward
-		m_commands.push_back(RobotCommand('r',DEBUG_TURN));
-		//m_commands.push_back(RobotCommand('r',NINETY_DEGREES)));
+		//m_commands.push_back(RobotCommand('r',DEBUG_TURN));
+		m_commands.push_back(RobotCommand('r',NINETY_DEGREES));
 		
-		m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
-		//m_commands.push_back( RobotCommand('f',((end.x - start.x)*SPACE_TO_MILLISECONDS)))); 
+		//m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		m_commands.push_back( RobotCommand('f',((end.x - start.x)*SPACE_TO_MILLISECONDS))); 
 
 
 		heading = 2;
@@ -125,14 +125,14 @@ int PathVector::translateUp(Point start, Point end)
 	{
 		//move forward		
 
-		m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
-		//m_commands.push_back( RobotCommand('f',((start.y - end.y)*SPACE_TO_MILLISECONDS))));
+		//m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		m_commands.push_back( RobotCommand('f',((start.y - end.y)*SPACE_TO_MILLISECONDS)));
 		
 	}else if(start.y < end.y)
 	{
 		//move backward
-		m_commands.push_back( RobotCommand('b',DEBUG_MOVE));
-		//m_commands.push_back( RobotCommand('b',((end.y - start.y)*SPACE_TO_MILLISECONDS))));
+		//m_commands.push_back( RobotCommand('b',DEBUG_MOVE));
+		m_commands.push_back( RobotCommand('b',((end.y - start.y)*SPACE_TO_MILLISECONDS)));
 		
 	}else
 	{ /*Might be empty*/}
@@ -168,39 +168,39 @@ int PathVector::translateRight(Point start, Point end)
 	{
 
 		//backward
-		m_commands.push_back( RobotCommand('b',DEBUG_MOVE));
-		//m_commands.push_back( RobotCommand('b',((end.x - start.x)*SPACE_TO_MILLISECONDS))));		
+		//m_commands.push_back( RobotCommand('b',DEBUG_MOVE));
+		m_commands.push_back( RobotCommand('b',((end.x - start.x)*SPACE_TO_MILLISECONDS)));		
 			
 	}else if(start.x < end.x)
 	{
 
 		//forward
-		m_commands.push_back(RobotCommand('f',DEBUG_MOVE));
-		//m_commands.push_back(RobotCommand('f',((end.x - start.x)*SPACE_TO_MILLISECONDS)))); 
+		//m_commands.push_back(RobotCommand('f',DEBUG_MOVE));
+		m_commands.push_back(RobotCommand('f',((end.x - start.x)*SPACE_TO_MILLISECONDS))); 
 		
 	}else if(start.y > end.y)
 	{
 		//move left
 			//turn left
 			//move forward
-		m_commands.push_back( RobotCommand('l',DEBUG_TURN));
-		//m_commands.push_back( RobotCommand('l',NINETY_DEGREES))); //90 is wrong but whatever the time to turn 90 degrees is correct
+		//m_commands.push_back( RobotCommand('l',DEBUG_TURN));
+		m_commands.push_back( RobotCommand('l',NINETY_DEGREES)); //90 is wrong but whatever the time to turn 90 degrees is correct
 
 		//forward
-		m_commands.push_back(RobotCommand('f',DEBUG_MOVE));
-		//m_commands.push_back(RobotCommand('f',((start.y - end.y)*SPACE_TO_MILLISECONDS)))); 
+		//m_commands.push_back(RobotCommand('f',DEBUG_MOVE));
+		m_commands.push_back(RobotCommand('f',((start.y - end.y)*SPACE_TO_MILLISECONDS))); 
 		heading = 1;
 	}else if(start.y < end.y)
 	{
 		//move right
 			//turn right
 			//move forward
-		m_commands.push_back( RobotCommand('r',DEBUG_TURN));
-		//m_commands.push_back( RobotCommand('r',NINETY_DEGREES)));
+		//m_commands.push_back( RobotCommand('r',DEBUG_TURN));
+		m_commands.push_back( RobotCommand('r',NINETY_DEGREES));
 		
 		//forward
-		m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
-		//m_commands.push_back( RobotCommand('f',((end.y - start.y)*SPACE_TO_MILLISECONDS))));
+		//m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		m_commands.push_back( RobotCommand('f',((end.y - start.y)*SPACE_TO_MILLISECONDS)));
 
 		heading = 3;
 	}else
@@ -236,12 +236,12 @@ int PathVector::translateBottom(Point start, Point end)
 		//move right
 			//turn right
 			//move forward
-		m_commands.push_back(RobotCommand('r',DEBUG_TURN));
-		//m_commands.push_back(RobotCommand('r',NINETY_DEGREES)));
+		//m_commands.push_back(RobotCommand('r',DEBUG_TURN));
+		m_commands.push_back(RobotCommand('r',NINETY_DEGREES));
 	
 		//forward
-		m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
-		//m_commands.push_back( RobotCommand('f',((start.x - end.x)*SPACE_TO_MILLISECONDS))));
+		//m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		m_commands.push_back( RobotCommand('f',((start.x - end.x)*SPACE_TO_MILLISECONDS)));
 
 		
 		heading = 2;
@@ -251,25 +251,26 @@ int PathVector::translateBottom(Point start, Point end)
 		//move left
 			//turn left
 			//move forward
-		m_commands.push_back(RobotCommand('l',DEBUG_TURN));
-		//m_commands.push_back(RobotCommand('l',NINETY_DEGREES))); 
+		//m_commands.push_back(RobotCommand('l',DEBUG_TURN));
+		m_commands.push_back(RobotCommand('l',NINETY_DEGREES)); 
 
 		//forward
-		m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
-		//m_commands.push_back( RobotCommand('f',((end.x - start.x)*SPACE_TO_MILLISECONDS)))); 
+		//m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		m_commands.push_back( RobotCommand('f',((end.x - start.x)*SPACE_TO_MILLISECONDS))); 
 		
 		heading = 4;
 	}else if(start.y > end.y)
 	{
 		//move backward
-		m_commands.push_back( RobotCommand('b',DEBUG_MOVE));
-		//m_commands.push_back( RobotCommand('b',((start.y - end.y)*SPACE_TO_MILLISECONDS))));
+		//m_commands.push_back( RobotCommand('b',DEBUG_MOVE));
+		m_commands.push_back( RobotCommand('b',((start.y - end.y)*SPACE_TO_MILLISECONDS)));
 	
 	}else if(start.y < end.y)
 	{
 
 		//move forward
-		m_commands.push_back(RobotCommand('f',DEBUG_MOVE));//););//((end.y - start.y)*SPACE_TO_MILLISECONDS))));
+		//m_commands.push_back(RobotCommand('f',DEBUG_MOVE));//););
+		m_commands.push_back(RobotCommand('f',((end.y - start.y)*SPACE_TO_MILLISECONDS)));
 
 	}else
 	{ /*Might be empty*/}
@@ -304,8 +305,8 @@ int PathVector::translateLeft(Point start, Point end)
 		diff = start.x - end.x;
 
 		//move backward
-		m_commands.push_back( RobotCommand('b', DEBUG_MOVE));
-		//m_commands.push_back( RobotCommand('b',((start.x - end.x)*SPACE_TO_MILLISECONDS))));
+		//m_commands.push_back( RobotCommand('b', DEBUG_MOVE));
+		m_commands.push_back( RobotCommand('b',((start.x - end.x)*SPACE_TO_MILLISECONDS)));
 
 	}else if(start.x < end.x)
 	{
@@ -313,8 +314,8 @@ int PathVector::translateLeft(Point start, Point end)
 		diff = end.x - start.x;
 
 		//move forward
-		m_commands.push_back(RobotCommand('f',DEBUG_MOVE));
-		//m_commands.push_back(RobotCommand('f',((end.x - start.x)*SPACE_TO_MILLISECONDS))));
+		//m_commands.push_back(RobotCommand('f',DEBUG_MOVE));
+		m_commands.push_back(RobotCommand('f',((end.x - start.x)*SPACE_TO_MILLISECONDS)));
 
 
 	}else if(start.y > end.y)
@@ -322,13 +323,13 @@ int PathVector::translateLeft(Point start, Point end)
 		//move right
 			//turn right
 			//move forward
-		m_commands.push_back(RobotCommand('r',DEBUG_TURN));
-		//m_commands.push_back(RobotCommand('r',NINETY_DEGREES)));
+		//m_commands.push_back(RobotCommand('r',DEBUG_TURN));
+		m_commands.push_back(RobotCommand('r',NINETY_DEGREES));
 		
 
 		//move forward
-		m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
-		//m_commands.push_back( RobotCommand('f',((start.y - end.y)*SPACE_TO_MILLISECONDS))));
+		//m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		m_commands.push_back( RobotCommand('f',((start.y - end.y)*SPACE_TO_MILLISECONDS)));
 
 		
 		heading = 1;
@@ -338,12 +339,12 @@ int PathVector::translateLeft(Point start, Point end)
 		//move left
 			//turn left
 			//move forward
-		m_commands.push_back(RobotCommand('l',DEBUG_TURN));
-		//m_commands.push_back(RobotCommand('l',NINETY_DEGREES)));
+		//m_commands.push_back(RobotCommand('l',DEBUG_TURN));
+		m_commands.push_back(RobotCommand('l',NINETY_DEGREES));
 
 		//move forward
-		m_commands.push_back(RobotCommand('f',DEBUG_MOVE));
-		//m_commands.push_back(RobotCommand('f',((end.y - start.y)*SPACE_TO_MILLISECONDS)))); 
+		//m_commands.push_back(RobotCommand('f',DEBUG_MOVE));
+		m_commands.push_back(RobotCommand('f',((end.y - start.y)*SPACE_TO_MILLISECONDS))); 
 		
 		heading = 2;
 	}else
