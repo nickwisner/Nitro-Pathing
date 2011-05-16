@@ -13,6 +13,7 @@
 
 #include <list>
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
 using std::list;
 
 class RobotIO : public iRobotIO
@@ -40,11 +41,12 @@ public:
 	void startMission();
 	
 	void endMission();
-//	void transmitEnd();
 
 private:
 	//Hold all of the commands to complete the path
 	list<RobotCommand> m_msgQueue;
+
+	RobotCommand m_curCommand;
 	//A pointer to the robot so aquire its baudrate and other usefull information
 	Robot * m_robot;
 
@@ -61,6 +63,11 @@ private:
 	bool sendCommand(RobotCommand cmd);
 	//Gets called when the robot has send us a message
 	void receiveMessage();
+//	void transmitEnd();
+
+	
+	boost::mutex m_curCommandLock;
+
 	boost::thread m_cmdSend;
 	boost::thread m_cmdRecieve;
 };

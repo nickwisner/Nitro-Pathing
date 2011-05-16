@@ -29,7 +29,7 @@ void handle_write(const boost::system::error_code&, // error
 
 // COM4 is hardcoded at this point only because we are only testing from one computer that uses it.
 // It will be changed later on
-RobotIO::RobotIO() : m_robot(0), m_port(m_io, "COM4")	// open the bluetooth connection
+RobotIO::RobotIO() : m_robot(0), m_curCommand(0,0), m_port(m_io, "COM4")	// open the bluetooth connection
 {}
 
 RobotIO::~RobotIO()
@@ -181,4 +181,9 @@ bool RobotIO::closePort()
 	}
 
 	return false;
+}
+
+void transmitStart()
+{
+
 }
