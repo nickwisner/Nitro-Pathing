@@ -25,10 +25,6 @@ public:
 
 	//Takes a Path object and iterates over the whole path taking out the robot commands as it goes
 	bool fillQueue(Path * Pathmsg);
-	//Gets called when the robot has send us a message
-	void receiveMessage();
-	//Sends a command that is passed into the object
-	bool sendCommand(RobotCommand cmd); // later make private //maybe in beta
 	//Makes a deep copy of the robot object that is passed in and sets it to m_robot
 	void setRobot(Robot & rob);
 	//Sends the whole queue of commands to the robot. 
@@ -38,6 +34,13 @@ public:
 	bool openPort();
 	//Tries to close the port if it is open
 	bool closePort(); 
+
+	void transmitStart();
+
+	void startMission();
+	
+	void endMission();
+//	void transmitEnd();
 
 private:
 	//Hold all of the commands to complete the path
@@ -53,5 +56,12 @@ private:
 	//takes a string that is the message the robot send us and then returns a int code telling the sytem what to do next
 	int processRobotMessage(string msg);
 
+	void sendNextMessage();
+	//Sends a command that is passed into the object
+	bool sendCommand(RobotCommand cmd);
+	//Gets called when the robot has send us a message
+	void receiveMessage();
+	boost::thread m_cmdSend;
+	boost::thread m_cmdRecieve;
 };
 #endif

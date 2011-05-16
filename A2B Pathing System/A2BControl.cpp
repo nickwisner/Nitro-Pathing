@@ -135,6 +135,9 @@ bool A2BControl::setDestination(Point dest)
 	{
 		m_robotio->fillQueue(m_pathing->getPath());
 
+
+		//here we should prime the robotio pump. 
+
 		// this is only for the alpha release... will be replaced by startmission message being sent
 		try
 		{
