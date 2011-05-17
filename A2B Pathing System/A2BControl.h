@@ -53,7 +53,7 @@ public:
 	void startThreads();
 	//Will update the image and check the path
 		//Not implimented
-	bool update();
+	void update();
 	
 	//checks to see if there are any save queueres
 		//Not implimented

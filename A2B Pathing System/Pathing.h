@@ -32,6 +32,7 @@ public:
 	bool deletePath();
 	Path * getPath();
 	bool isActive();
+	void setActive(bool act);
 	bool repath();
 	bool makePath( int destSpace, int startSpace, bool * obstMap);
 	bool validatePath(bool * obstMap);

@@ -75,21 +75,15 @@ bool RobotIO::fillQueue(Path * Pathmsg)
 		return false;
 	}
 
+	transmitStart();
+
 	return true;
 }
-
-//Should get a string from receiveMessage then process it. Returning a int telling the system what it should do based of the integer.
-int RobotIO::processRobotMessage(string msg)
-{
-	// not implemented
-	return false;
-}
-
 
 //Takes a robot command object and then sends the char and integer to the robot.
 	//With how it is currently implemented it just sends the char to the robot for the number of cycles we have.
 	//This will hopefully be changed in beta
-bool RobotIO::sendCommand(RobotCommand cmd)
+void RobotIO::sendCommand(RobotCommand cmd)
 {
 	//Checks if the connection is still open. If not will throw a exception.
 	if( !m_port.is_open() )
@@ -100,12 +94,18 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 	if(cmd.getCode() == 's')
 	{
 		sendPriorityCommand(cmd);
+		m_cmdQueueLock.lock();
+		m_msgQueue.push_front(RobotCommand('a', 0));
+		m_cmdQueueLock.lock();
+		return;
 	}else if(cmd.getCode() == 'a')
 	{
 		sendPriorityCommand(cmd);
+		return;
 	}else if(cmd.getCode() == 'z')
 	{
 		sendPriorityCommand(cmd);
+		return;
 	}
 	//Everytime we send a message we reset the options, just in case.
 	m_port.set_option( asio_serial::baud_rate( 9600 ) ); 
@@ -138,8 +138,6 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 	buff.pop_back();
 
 	delete []cyclesBuff;
-
-	return true;
 }
 
 //Makes a deep copy of what is passed in and sets that to the m_robot datamember
@@ -211,6 +209,10 @@ void RobotIO::sendNextMessage()
 {
 	while(m_robotReply) //Set m_robotReply to 0 once we want to stop transmition
 	{
+		if(m_robotReply == 'F' || m_robotReply == 'f')
+		{
+			sendCommand(m_curCommand);
+		}
 		if(m_robotReply == 'A' || m_robotReply == 'a')
 		{
 			if(!m_msgQueue.empty()) //if this is empty it means we have sent a start missoin and a end mission command

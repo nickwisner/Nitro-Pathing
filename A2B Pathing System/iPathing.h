@@ -26,11 +26,12 @@ public:
 
 	virtual bool deletePath() = 0;
 	virtual bool makePath( int destSpace, int startSpace, bool * obstMap) = 0;
-	virtual Path * getPath() =0;
-	virtual bool isActive() =0;
-	virtual bool repath() =0;
-	virtual bool validatePath(bool * obstMap) =0;
-	virtual Point getRobotPosition() =0;
+	virtual Path * getPath() = 0;
+	virtual bool isActive() = 0;
+	virtual void setActive(bool act) = 0;
+	virtual bool repath() = 0;
+	virtual bool validatePath(bool * obstMap) = 0;
+	virtual Point getRobotPosition() = 0;
 	virtual bool setRobot( Robot & domoarigato) = 0;
 	virtual	Robot * getRobot() = 0;
 };

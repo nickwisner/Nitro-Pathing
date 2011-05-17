@@ -54,12 +54,9 @@ class RobotIO : public iRobotIO
 		//A boost object required to do serial port communication
 		boost::asio::serial_port m_port;
 
-		//takes a string that is the message the robot send us and then returns a int code telling the sytem what to do next
-		int processRobotMessage(string msg);
-
 		void sendNextMessage();
 		//Sends a command that is passed into the object
-		bool sendCommand(RobotCommand cmd);
+		void sendCommand(RobotCommand cmd);
 		//Gets called when the robot has send us a message
 		void receiveMessage();
 		//void transmitEnd();

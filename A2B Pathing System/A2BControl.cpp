@@ -100,6 +100,7 @@ bool A2BControl::setDestination(Point dest)
 	int spaceStart = 0;
 	int spaceDest = 0;
 
+	boost::this_thread::disable_interruption di;
 	//change the first part setDestinatoin to be "findRobot"
 	do
 	{
@@ -108,16 +109,18 @@ bool A2BControl::setDestination(Point dest)
 		if(m_obstacleMap != 0)
 			delete [] m_obstacleMap;
 
+
 		m_obstacleMap = m_imageacquisition->getObstMap();
 		m_edgedImage = m_imageacquisition->getEdge();
 		m_plainImage = m_imageacquisition->getPlain();
 
-
-		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
 		robPos = ImageProcessor::findRobot((&m_plainImage), m_pathing->getRobot());
+
 		spaceStart = A2BUtilities::pixelToSpaceId(robPos.x, robPos.y);
 		spaceDest = A2BUtilities::pixelToSpaceId( dest.x,dest.y);
+		
 		clearRobot(spaceStart, m_obstacleMap, robPos);
+		
 		m_gui->markRobot(robPos);
 
 		if(n < 5)
@@ -126,6 +129,8 @@ bool A2BControl::setDestination(Point dest)
 			return false;
 	} // keep looping if they answer no
 	while( robCheck );
+	
+	boost::this_thread::restore_interruption ri(di);
 
 	if( !m_pathing->makePath(spaceDest, spaceStart, m_obstacleMap) )
 	{
@@ -135,16 +140,9 @@ bool A2BControl::setDestination(Point dest)
 	{
 		m_robotio->fillQueue(m_pathing->getPath());
 	}
-
-	//create a thread to handle updata.
-	m_updatePath = boost::thread(boost::bind(&A2BControl::update, this));
 	return true;
 }
 
-
-//For DEBUGGING///////////
-//#include <fstream>
-//////////////////////////
 void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 {
 	//this is assuming that the robot is 11.25 cells long and wide. We will around it to 12 cells.
@@ -189,7 +187,7 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 		file.close();
 	}*/
 }
-void A2BControl::startThreads()
+void A2BControl::startThreads() //change name!
 {
 	// getKey and all user interaction is what GUI should be handling.
 	// Obviously not implemented the way we want to. We are having some thread issues,
@@ -227,93 +225,78 @@ void A2BControl::startThreads()
 		m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
 		key = 'q';
 
-		// Below is for DEBUG. Just to make the rest of it work since we often don't have robot running while deving
-//		m_robotio = new DummyRobIO;
-
 		connection = false;
 	}
 
-	// Number of cycles to send to robot for manual move demo
-	int cycles = 2;
+	//create a thread to handle updata.
+	m_updatePath = boost::thread(boost::bind(&A2BControl::update, this));
 
 	while(key != 'q')
 	{
-		// Update window
-		m_plainImage = m_imageacquisition->getPlain();
-		m_edgedImage = m_imageacquisition->getEdge();
-		if(m_pathing->isActive())
-		{
-			m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage);
-		}
-		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
-		
 		key = waitKey(500); // Get key input from user, poll every 500 ms
 
 		switch(key)
 		{
 			// Manual move forward
-		//case 'f':
-		//	try
-		//	{
-		//		m_robotio->sendCommand(RobotCommand('f', cycles));
-		//	}
-		//	catch(int e)
-		//	{
-		//		m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
-		//	}
-		//	break;
+		case 'f':
+			if(!m_pathing->isActive())
+			{
+				try
+				{
+				//	m_robotio->sendCommand(RobotCommand('f', cycles));
+				}
+				catch(int e)
+				{
+					m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+				}
+			}
+			break;
 
 		//	// Manual turn left
-		//case 'l':
-		//	try
-		//	{
-		//		m_robotio->sendCommand(RobotCommand('l', cycles));
-		//	}
-		//	catch(int e)
-		//	{
-		//		m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
-		//	}
-		//	break;
+		case 'l':
+			if(!m_pathing->isActive())
+			{
+				try
+				{
+					//m_robotio->sendCommand(RobotCommand('l', cycles));
+				}
+				catch(int e)
+				{
+					m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+				}
+			}
+			break;
 
 		//	// Manual turn right
-		//case 'r':
-		//	try
-		//	{
-		//		m_robotio->sendCommand(RobotCommand('r', cycles));
-		//	}
-		//	catch(int e)
-		//	{
-		//		m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
-		//	}
-		//	break;
+		case 'r':
+			if(!m_pathing->isActive())
+			{
+				try
+				{
+					//m_robotio->sendCommand(RobotCommand('r', cycles));
+				}
+				catch(int e)
+				{
+					m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+				}
+			}
+			break;
 
 		//	// Manual move backwards
-		//case 'b':
-		//	try
-		//	{
-		//		m_robotio->sendCommand(RobotCommand('b', cycles));
-		//	}
-		//	catch(int e)
-		//	{
-		//		m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
-		//	}
-		//	break;
-		//	// This will connect or disconnect the port!
-		/*case 'c':
-			if(connection)
-				m_robotio->closePort();
-			else
-				m_robotio->openPort();
-			
-			connection = (connection) ? false : true;
+		case 'b':
+			if(!m_pathing->isActive())
+			{
+				try
+				{
+					//m_robotio->sendCommand(RobotCommand('b', cycles));
+				}
+				catch(int e)
+				{
+					m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+				}
+			}
 			break;
 
-		*/	// Test OK message box
-		case 'e':
-			m_gui->showError("This is a substantial error. Please regard.", MB_OK);
-			break;
-		
-			// Test YES/NO message box
 		case 'z':
 			if(m_gui->showError("Would you like to continue?", MB_YESNO))
 				m_gui->showError("Coolio",MB_OK);
@@ -332,15 +315,13 @@ void A2BControl::startThreads()
 // This will be the method that a thread will act on.
 // This will, on a timer:
 //		get image. if active, validate and draw path. display image.
-bool A2BControl::update()
+void A2BControl::update()
 {
 	//for debugging only
-	int i = 0;
-	bool cnt = m_pathing->isActive();
 	bool travle = true;
-	while(cnt)
+	bool cnt = true;
+	while(1)
 	{
-		i++;
 		//get new image, edged image and obstacle array
 		boost::this_thread::disable_interruption di;
 		m_edgedImage = m_imageacquisition->getEdge();
@@ -348,29 +329,31 @@ bool A2BControl::update()
 		m_obstacleMap = m_imageacquisition->getObstMap();
 		boost::this_thread::restore_interruption ri(di);
 
-		//run the map over it
-		travle = m_pathing->validatePath(m_obstacleMap);
+		if(m_pathing->isActive())
+		{
+			//run the map over it
+			travle = m_pathing->validatePath(m_obstacleMap);
 
-		//if a obstacle happends then return false.
-		if(!travle)
-		{
-			//the path is broken repath!
-			//shut down the drawing of the map.
-			m_robotio->eStop();
-			cnt = m_pathing->repath();
-			//m_pathing->setActive(cnt);
-		}else
-		{
-			if(m_showPlainImage)
+			//if a obstacle happends then return false.
+			if(!travle)
 			{
-				m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage);
-				m_gui->drawImage(m_plainImage);
+				//the path is broken repath!
+				//shut down the drawing of the map.
+				m_robotio->eStop();
+				cnt = m_pathing->repath();
+				m_pathing->setActive(cnt);
 			}else
 			{
-				m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_edgedImage);
-				m_gui->drawImage(m_edgedImage);
+				if(m_showPlainImage)
+				{
+					m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage);
+					m_gui->drawImage(m_plainImage);
+				}else
+				{
+					m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_edgedImage);
+					m_gui->drawImage(m_edgedImage);
+				}
 			}
 		}
 	}
-	return cnt;
 }

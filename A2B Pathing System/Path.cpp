@@ -45,13 +45,13 @@ void Path::addVector(PathVector vector)
 }
 
 PathVector Path::getPathVector(int i)
-{
+{//niether is this i think
 	return m_path[i];
 
 }
 PathVector Path::popVector()
 {
-	//this this is not used
+	//this is not used
 	PathVector p;
 	return p;
 }

@@ -46,7 +46,10 @@ bool Pathing::isActive()
 {
 	return m_active;
 }
-
+void Pathing::setActive(bool act)
+{
+	m_active = act;
+}
 
 /**		CALL INTO DIJKSTRA HERE! *************
  * Generates the path using given coordinates 
@@ -135,7 +138,6 @@ Point Pathing::getRobotPosition()
  * This checks the coordinates in the path vs the coordinates in m_obstacles
  * (vector<Obstacle>)
  */
-// not implemented yet, just sending back dummy data
 bool Pathing::validatePath(bool * obstMap)
 {
 	bool travelabel = true;
