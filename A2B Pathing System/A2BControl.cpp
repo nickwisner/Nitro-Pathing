@@ -358,7 +358,19 @@ bool A2BControl::update()
 			//shut down the drawing of the map.
 			m_robotio->eStop();
 			cnt = m_pathing->repath();
+			//m_pathing->setActive(cnt);
+		}else
+		{
+			if(m_showPlainImage)
+			{
+				m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage);
+				m_gui->drawImage(m_plainImage);
+			}else
+			{
+				m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_edgedImage);
+				m_gui->drawImage(m_edgedImage);
+			}
 		}
 	}
-	return true;
+	return cnt;
 }
