@@ -9,7 +9,7 @@
 
 #include "RobotIO.h"
 
-A2BControl::A2BControl() :m_tUpdatePath(0), m_robotio(0), m_imageacquisition(0), m_showPlainImage(true)
+A2BControl::A2BControl() : m_robotio(0), m_imageacquisition(0), m_showPlainImage(true)
 {
 	m_gui = new A2BGUI;
 	m_gui->setControl(this);
@@ -134,23 +134,10 @@ bool A2BControl::setDestination(Point dest)
 	else
 	{
 		m_robotio->fillQueue(m_pathing->getPath());
-
-
-		//here we should prime the robotio pump. 
-
-		// this is only for the alpha release... will be replaced by startmission message being sent
-		try
-		{
-			//this should call a method to send the data and listen data coming in aseconisly
-			m_robotio->SendQueue();
-		}catch(int e)
-		{
-			m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
-		}
 	}
 
 	//create a thread to handle updata.
-	m_updatePath = boost::thread(bind(&update, this));
+	m_updatePath = boost::thread(boost::bind(&A2BControl::update, this));
 	return true;
 }
 
@@ -265,54 +252,54 @@ void A2BControl::startThreads()
 		switch(key)
 		{
 			// Manual move forward
-		case 'f':
-			try
-			{
-				m_robotio->sendCommand(RobotCommand('f', cycles));
-			}
-			catch(int e)
-			{
-				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
-			}
-			break;
+		//case 'f':
+		//	try
+		//	{
+		//		m_robotio->sendCommand(RobotCommand('f', cycles));
+		//	}
+		//	catch(int e)
+		//	{
+		//		m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+		//	}
+		//	break;
 
-			// Manual turn left
-		case 'l':
-			try
-			{
-				m_robotio->sendCommand(RobotCommand('l', cycles));
-			}
-			catch(int e)
-			{
-				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
-			}
-			break;
+		//	// Manual turn left
+		//case 'l':
+		//	try
+		//	{
+		//		m_robotio->sendCommand(RobotCommand('l', cycles));
+		//	}
+		//	catch(int e)
+		//	{
+		//		m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+		//	}
+		//	break;
 
-			// Manual turn right
-		case 'r':
-			try
-			{
-				m_robotio->sendCommand(RobotCommand('r', cycles));
-			}
-			catch(int e)
-			{
-				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
-			}
-			break;
+		//	// Manual turn right
+		//case 'r':
+		//	try
+		//	{
+		//		m_robotio->sendCommand(RobotCommand('r', cycles));
+		//	}
+		//	catch(int e)
+		//	{
+		//		m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+		//	}
+		//	break;
 
-			// Manual move backwards
-		case 'b':
-			try
-			{
-				m_robotio->sendCommand(RobotCommand('b', cycles));
-			}
-			catch(int e)
-			{
-				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
-			}
-			break;
-			// This will connect or disconnect the port!
-		case 'c':
+		//	// Manual move backwards
+		//case 'b':
+		//	try
+		//	{
+		//		m_robotio->sendCommand(RobotCommand('b', cycles));
+		//	}
+		//	catch(int e)
+		//	{
+		//		m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+		//	}
+		//	break;
+		//	// This will connect or disconnect the port!
+		/*case 'c':
 			if(connection)
 				m_robotio->closePort();
 			else
@@ -321,7 +308,7 @@ void A2BControl::startThreads()
 			connection = (connection) ? false : true;
 			break;
 
-			// Test OK message box
+		*/	// Test OK message box
 		case 'e':
 			m_gui->showError("This is a substantial error. Please regard.", MB_OK);
 			break;
@@ -350,14 +337,28 @@ bool A2BControl::update()
 	//for debugging only
 	int i = 0;
 	bool cnt = m_pathing->isActive();
+	bool travle = true;
 	while(cnt)
 	{
 		i++;
 		//get new image, edged image and obstacle array
+		boost::this_thread::disable_interruption di;
+		m_edgedImage = m_imageacquisition->getEdge();
+		m_plainImage = m_imageacquisition->getPlain();
+		m_obstacleMap = m_imageacquisition->getObstMap();
+		boost::this_thread::restore_interruption ri(di);
 
 		//run the map over it
+		travle = m_pathing->validatePath(m_obstacleMap);
 
 		//if a obstacle happends then return false.
+		if(!travle)
+		{
+			//the path is broken repath!
+			//shut down the drawing of the map.
+			m_robotio->eStop();
+			cnt = m_pathing->repath();
+		}
 	}
 	return true;
 }

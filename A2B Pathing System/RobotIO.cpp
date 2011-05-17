@@ -6,11 +6,12 @@
 ///////////////////////////////////////////////////////////
 
 #include "RobotIO.h"
+
+#include "PathVector.h"
+#include "RobotCommand.h"
+
 #include <opencv2/highgui/highgui.hpp>
 using cv::waitKey;
-
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
 
 // used for the bluetooth connection
 using boost::asio::io_service;
@@ -26,10 +27,14 @@ void handle_write(const boost::system::error_code&, // error
 	size_t ) // bytes transferred
 {
 }
+void handle_read(const boost::system::error_code&, // error
+	size_t ) // bytes transferred
+{
+}
 
 // COM4 is hardcoded at this point only because we are only testing from one computer that uses it.
 // It will be changed later on
-RobotIO::RobotIO() : m_robot(0), m_curCommand(0,0), m_port(m_io, "COM4")	// open the bluetooth connection
+RobotIO::RobotIO() : m_robotReply('A'), m_robot(0), m_curCommand(0,0), m_port(m_io, "COM4")	// open the bluetooth connection
 {}
 
 RobotIO::~RobotIO()
@@ -70,19 +75,16 @@ bool RobotIO::fillQueue(Path * Pathmsg)
 		return false;
 	}
 
-	return filledQueue;
+	return true;
 }
 
 //Should get a string from receiveMessage then process it. Returning a int telling the system what it should do based of the integer.
-int RobotIO::processRobotMessage(string msg){
+int RobotIO::processRobotMessage(string msg)
+{
 	// not implemented
 	return false;
 }
 
-//Should be called to get the whole message the robot is sending
-void RobotIO::receiveMessage(){
-	// not implemented
-}
 
 //Takes a robot command object and then sends the char and integer to the robot.
 	//With how it is currently implemented it just sends the char to the robot for the number of cycles we have.
@@ -95,6 +97,16 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 		throw NO_CONNECTION;
 	}
 
+	if(cmd.getCode() == 's')
+	{
+		sendPriorityCommand(cmd);
+	}else if(cmd.getCode() == 'a')
+	{
+		sendPriorityCommand(cmd);
+	}else if(cmd.getCode() == 'z')
+	{
+		sendPriorityCommand(cmd);
+	}
 	//Everytime we send a message we reset the options, just in case.
 	m_port.set_option( asio_serial::baud_rate( 9600 ) ); 
 	m_port.set_option( asio_serial::flow_control( asio_serial::flow_control::none ) ); 
@@ -114,12 +126,12 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 	// load the robot command
 	buff[0] = '*'; //The starting handshake is a *
 	buff.push_back(cmd.getCode()); //Next the robot expects a 'f','b','l','r' command
-	itoa(cmd.getCycles(),cyclesBuff,10); //This converts the intager for how many miliseconds the robot should move into a stirng
+	_itoa(cmd.getCycles(),cyclesBuff,10); //This converts the intager for how many miliseconds the robot should move into a stirng
 	buff += cyclesBuff; //the string is then appended onto the buffer to be send to the robot
 	buff[buff.length()] = '*'; //Because itoa give us a null terminated string we need to write over that null with a * so the robot knows when the command is over 
 
 	// send it
-	boost::asio::async_write(m_port, boost::asio::buffer(buff), boost::bind(handle_write, boost::asio::placeholders::error,
+	boost::asio::async_write(m_port, boost::asio::buffer(buff),  boost::bind(handle_write, boost::asio::placeholders::error,
 			boost::asio::placeholders::bytes_transferred));
 
 	// pop the sent command off
@@ -134,26 +146,6 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 void RobotIO::setRobot(Robot & rob)
 {
 	m_robot = new Robot(rob);
-}
-
-// only here for alpha release
-// sends the entire command queue to robot
-void RobotIO::SendQueue()
-{
-	while(m_msgQueue.size())
-	{
-		try
-		{
-			sendCommand(m_msgQueue.front());
-			m_msgQueue.pop_front();
-
-			waitKey(100);
-
-		}catch(int e)
-		{
-			throw NO_CONNECTION;
-		}
-	}
 }
 
 //attemps to open the com port. Should have error handing in here.
@@ -185,15 +177,108 @@ bool RobotIO::closePort()
 
 void RobotIO::transmitStart()
 {
-	m_cmdSend = boost::thread(bind(&sendNextMessage, this));
-	m_cmdRecieve = boost::thread(bind(&receiveMessage, this));
+	m_cmdSend = boost::thread(boost::bind(&RobotIO::sendNextMessage, this));
+	m_cmdRecieve = boost::thread(boost::bind(&RobotIO::receiveMessage, this));
 }
 
+//Should be called to get the whole message the robot is sending
 void RobotIO::receiveMessage()
 {
+	std::string buff;;
+	while(1)
+	{
+		while(!m_recieveMsg)
+		{
+			boost::this_thread::yield();	
+		}
+
+		boost::asio::async_write(m_port, boost::asio::buffer(buff),  boost::bind(handle_read, boost::asio::placeholders::error,
+		boost::asio::placeholders::bytes_transferred));
+
+		m_robotReplyLock.lock();
+		m_robotReply = buff[0];
+		m_robotReplyLock.unlock();
+	
+		buff.clear();
+
+		m_recieveMsgLock.lock();
+		m_recieveMsg = false;
+		m_recieveMsgLock.unlock();
+	}
 }
 
 void RobotIO::sendNextMessage()
 {
+	while(m_robotReply) //Set m_robotReply to 0 once we want to stop transmition
+	{
+		if(m_robotReply == 'A' || m_robotReply == 'a')
+		{
+			if(!m_msgQueue.empty()) //if this is empty it means we have sent a start missoin and a end mission command
+			{
+				boost::this_thread::disable_interruption di;
+				m_curCommandLock.lock();
+				m_cmdQueueLock.lock();
+				m_curCommand = m_msgQueue.front();
+				m_msgQueue.pop_front();
+				m_cmdQueueLock.unlock();
+				m_curCommandLock.unlock();
 
+				sendCommand(m_curCommand);
+
+				m_robotReplyLock.lock();
+				m_robotReply = 1;
+				m_robotReplyLock.unlock();
+
+				m_recieveMsgLock.lock();
+				m_recieveMsg = true;
+				m_recieveMsgLock.unlock();
+
+				boost::this_thread::restore_interruption ri(di);
+			}
+		}
+	}
+}
+bool RobotIO::sendPriorityCommand(RobotCommand cmd)
+{
+	//Everytime we send a message we reset the options, just in case.
+	m_port.set_option( asio_serial::baud_rate( 9600 ) ); 
+	m_port.set_option( asio_serial::flow_control( asio_serial::flow_control::none ) ); 
+	m_port.set_option( asio_serial::parity( asio_serial::parity::none ) ); 
+	m_port.set_option( asio_serial::stop_bits( asio_serial::stop_bits::one ) ); 
+	m_port.set_option( asio_serial::character_size( 8 ) ); 
+	
+	std::string buff;	
+
+	// load the robot command
+	buff = cmd.getCode();
+
+	// send it
+	boost::asio::async_write(m_port, boost::asio::buffer(buff),  boost::bind(handle_write, boost::asio::placeholders::error,
+			boost::asio::placeholders::bytes_transferred));
+
+	// pop the sent command off
+	buff.pop_back();
+}
+void RobotIO::startMission()
+{
+	m_curCommandLock.lock();
+	m_curCommand = RobotCommand('z', 0);
+	m_curCommandLock.unlock();
+}	
+void RobotIO::endMission()
+{
+	m_curCommandLock.lock();
+	m_curCommand = RobotCommand('a', 0);
+	m_curCommandLock.unlock();
+}
+void RobotIO::eStop()
+{
+	boost::this_thread::disable_interruption di;
+	m_curCommandLock.lock();
+	m_curCommand = RobotCommand('s', 0);
+	m_curCommandLock.unlock();
+	m_cmdQueueLock.lock();
+	m_msgQueue.clear();
+	m_cmdQueueLock.unlock();
+	boost::this_thread::restore_interruption ri(di);
 }

@@ -12,63 +12,78 @@
 #include "iRobotIO.h"
 
 #include <list>
-#include <boost/asio.hpp>
-#include <boost/thread.hpp>
 using std::list;
+
+#include <boost/asio.hpp>
+#include <boost/bind.hpp>
+#include <boost/thread.hpp>
 
 class RobotIO : public iRobotIO
 {
 
-public:
-	RobotIO();
-	virtual ~RobotIO();
+	public:
+		RobotIO();
+		virtual ~RobotIO();
 
 
-	//Takes a Path object and iterates over the whole path taking out the robot commands as it goes
-	bool fillQueue(Path * Pathmsg);
-	//Makes a deep copy of the robot object that is passed in and sets it to m_robot
-	void setRobot(Robot & rob);
-	//Sends the whole queue of commands to the robot. 
-		//In beta will be implemented that we will not send a message until the robot has send us a command back.	
-	void SendQueue();
-	//Trys to open the port if it is closed
-	bool openPort();
-	//Tries to close the port if it is open
-	bool closePort(); 
+		//Takes a Path object and iterates over the whole path taking out the robot commands as it goes
+		bool fillQueue(Path * Pathmsg);
+		//Makes a deep copy of the robot object that is passed in and sets it to m_robot
+		void setRobot(Robot & rob);
+		//Trys to open the port if it is closed
+		bool openPort();
+		//Tries to close the port if it is open
+		bool closePort(); 
 
-	void transmitStart();
-
-	void startMission();
+		void transmitStart();
 	
-	void endMission();
+		void endMission();
 
-private:
-	//Hold all of the commands to complete the path
-	list<RobotCommand> m_msgQueue;
+		void eStop();
 
-	RobotCommand m_curCommand;
-	//A pointer to the robot so aquire its baudrate and other usefull information
-	Robot * m_robot;
-
-	//A boost object required to open communication with the robot
-	boost::asio::io_service m_io;
-	//A boost object required to do serial port communication
-	boost::asio::serial_port m_port;
-
-	//takes a string that is the message the robot send us and then returns a int code telling the sytem what to do next
-	int processRobotMessage(string msg);
-
-	void sendNextMessage();
-	//Sends a command that is passed into the object
-	bool sendCommand(RobotCommand cmd);
-	//Gets called when the robot has send us a message
-	void receiveMessage();
-//	void transmitEnd();
+	private:
+		//Hold all of the commands to complete the path
+		list<RobotCommand> m_msgQueue;
 
 	
-	boost::mutex m_curCommandLock;
+		//A pointer to the robot so aquire its baudrate and other usefull information
+		Robot * m_robot;
 
-	boost::thread m_cmdSend;
-	boost::thread m_cmdRecieve;
+		//A boost object required to open communication with the robot
+		boost::asio::io_service m_io;
+		//A boost object required to do serial port communication
+		boost::asio::serial_port m_port;
+
+		//takes a string that is the message the robot send us and then returns a int code telling the sytem what to do next
+		int processRobotMessage(string msg);
+
+		void sendNextMessage();
+		//Sends a command that is passed into the object
+		bool sendCommand(RobotCommand cmd);
+		//Gets called when the robot has send us a message
+		void receiveMessage();
+		//void transmitEnd();
+		
+		void startMission();
+		bool RobotIO::sendPriorityCommand(RobotCommand cmd);
+	//These data members and some of the functions that use
+	//them should be put into a RobotComm class. Where RobotIO
+	//Sets m_currCommand inside of RobotComm. But for now just
+	//have them inside of RobotIO
+
+		boost::mutex m_robotReplyLock;
+		char m_robotReply;
+	
+		RobotCommand m_curCommand;
+	
+		boost::mutex m_curCommandLock;
+		boost::mutex m_cmdQueueLock;
+		boost::thread m_cmdSend;
+
+		boost::thread m_cmdRecieve;
+
+		boost::mutex m_recieveMsgLock;
+		bool m_recieveMsg;
+
 };
 #endif

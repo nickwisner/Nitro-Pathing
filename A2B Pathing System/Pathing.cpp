@@ -54,16 +54,17 @@ bool Pathing::isActive()
 bool Pathing::makePath(int destSpace, int startSpace, bool * obstMap)
 {
 	// create the vector of path points using dijkstra's
-	vector<int> pathPoints = m_dijk->Start(startSpace, destSpace, obstMap);
+	m_pathPoints = m_dijk->Start(startSpace, destSpace, obstMap);
 
 	// if we found a valid path
-	if(!pathPoints.empty())
+	if(!m_pathPoints.empty())
 	{
+		vector<int> gutPoitns;
 		// take out the extra points that are on the same vector
-		pathPoints = gutPoints(pathPoints);
+		gutPoitns = gutPoints(m_pathPoints);
 
 		// calculate the pixel location mapped to the grid points
-		translateToPath(pathPoints);
+		translateToPath(gutPoitns);
 
 		// the path is made so we are now actively pathing
 		m_active = true;
@@ -135,9 +136,19 @@ Point Pathing::getRobotPosition()
  * (vector<Obstacle>)
  */
 // not implemented yet, just sending back dummy data
-bool Pathing::validatePath()
+bool Pathing::validatePath(bool * obstMap)
 {
-	return false;
+	bool travelabel = true;
+	for(int i = 0; i < m_pathPoints.size(); i++)
+	{
+		if(obstMap[m_pathPoints[i]] == true)//true means its a obstacle
+		{
+			//the path is blocked
+			travelabel = false;
+			i = m_pathPoints.size() + 1;
+		}
+	}
+	return travelabel;
 }
 
 //takes a vector of ints, which represent the spaces [16x16 pixle squares] on the image, and then converts them into robot commands

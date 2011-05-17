@@ -7,7 +7,7 @@
 
 #include "PathVector.h"
 
-const float INCH_TO_SPACE = .53; //in 1 foot there is 100 pixels.
+const double INCH_TO_SPACE = .53; //in 1 foot there is 100 pixels.
 const int INCH_TO_SEC = 6;//inches //in 1 second we move .5 of a foot
 
 //This might be wrong!

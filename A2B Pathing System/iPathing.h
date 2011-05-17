@@ -5,9 +5,10 @@
 //  Original author: nagisa.day
 ///////////////////////////////////////////////////////////
 
-#if !defined(EA_5BBF50E8_6523_4062_9757_3EA4DDC611B0__INCLUDED_)
-#define EA_5BBF50E8_6523_4062_9757_3EA4DDC611B0__INCLUDED_
-
+//#if !defined(EA_5BBF50E8_6523_4062_9757_3EA4DDC611B0__INCLUDED_)
+//#define EA_5BBF50E8_6523_4062_9757_3EA4DDC611B0__INCLUDED_
+#ifndef IPATHING_H
+#define IPATHING_H
 /**
  * This interface is the abstract base class that Pathing inherits from
  */
@@ -28,12 +29,9 @@ public:
 	virtual Path * getPath() =0;
 	virtual bool isActive() =0;
 	virtual bool repath() =0;
-	virtual bool validatePath() =0;
+	virtual bool validatePath(bool * obstMap) =0;
 	virtual Point getRobotPosition() =0;
 	virtual bool setRobot( Robot & domoarigato) = 0;
 	virtual	Robot * getRobot() = 0;
-
-private:
-	//virtual void translateToPath( vector<int> path) = 0;
 };
 #endif // !defined(EA_FECC720C_4C4F_43ca_A3DA_E4888F8279E3__INCLUDED_)

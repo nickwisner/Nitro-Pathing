@@ -34,7 +34,7 @@ public:
 	bool isActive();
 	bool repath();
 	bool makePath( int destSpace, int startSpace, bool * obstMap);
-	bool validatePath();
+	bool validatePath(bool * obstMap);
 	Point getRobotPosition();
 	
 	bool setRobot(Robot & domoarigato);
@@ -64,7 +64,9 @@ private:
 
 	// current pathing program
 	Dijkstra * m_dijk;
-
+	
+	vector<int> m_pathPoints;
+	
 	// turn the path points into pixel points and place in m_path
 	void translateToPath( vector<int> path);
 

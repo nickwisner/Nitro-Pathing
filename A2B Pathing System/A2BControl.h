@@ -13,11 +13,11 @@ using cv::Point;
 using cv::Mat;
 
 #include <opencv2/highgui/highgui.hpp>
-#include "RobotIO.h"
+
+#include "iRobotIO.h"
 #include "iPathing.h"
 #include "iImageAcquisition.h"
 #include "iDatabase.h"
-#include "Timer.h"
 #include "iGUI.h"
 #include "iControl.h"
 #include "ImageProcessor.h"
@@ -75,7 +75,7 @@ private:
 	Mat m_edgedImage; // Holds the image of the room with edge detecting effects on it.
 	Mat m_plainImage; // The raw, unprocessed image of the floor. A "human" view of things.
 
-	Timer * m_tUpdatePath; // This timer goes off when it is time to update the path, the picture, etc.
+	//Timer * m_tUpdatePath; // This timer goes off when it is time to update the path, the picture, etc.
 	
 	//Dont know if we need a mutex
 //	boost::mutex m_obstLock;
