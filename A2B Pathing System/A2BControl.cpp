@@ -86,9 +86,16 @@ bool A2BControl::checkSavedQueries()
 
 void A2BControl::sendCommand(RobotCommand r)
 {
-	// Not yet implemented. May or may not need this.
-	// planned for this to send the next command in robotio's queue, like a pop
-	m_robotio->sendCommand(r);
+	if(r.getCode() == 'z')
+	{
+		m_robotio->sendPriorityCommand(r);
+	}else if(r.getCode() == 'a')
+	{
+		m_robotio->sendPriorityCommand(r);
+	}else
+	{
+		m_robotio->sendCommand(r);
+	}
 }
 
 
@@ -233,6 +240,7 @@ void A2BControl::startThreads() //change name!
 
 	while(key != 'q')
 	{
+		key = 0;
 		key = waitKey(500); // Get key input from user, poll every 500 ms
 
 		switch(key)
@@ -244,12 +252,18 @@ void A2BControl::startThreads() //change name!
 				m_robotio->eStop();
 			}
 			// Manual move forward
-		case 'f':
-			if(m_pathing->isActive())
+		/*case 'f':
+			if(!m_pathing->isActive())
 			{
 				try
 				{
+					boost::this_thread::disable_interruption di;
+					sendCommand(RobotCommand('z', 0));
+					waitKey(10);
 					sendCommand(RobotCommand('f', 1000));
+					waitKey(10000);
+					sendCommand(RobotCommand('a', 0));
+					boost::this_thread::restore_interruption ri(di);
 				}
 				catch(int e)
 				{
@@ -260,11 +274,17 @@ void A2BControl::startThreads() //change name!
 
 		//	// Manual turn left
 		case 'l':
-			if(m_pathing->isActive())
+			if(!m_pathing->isActive())
 			{
 				try
 				{
+					boost::this_thread::disable_interruption di;
+					sendCommand(RobotCommand('z', 0));
+					waitKey(10);
 					sendCommand(RobotCommand('l', 1000));
+					waitKey(10000);
+					sendCommand(RobotCommand('a', 0));
+					boost::this_thread::restore_interruption ri(di);
 				}
 				catch(int e)
 				{
@@ -275,11 +295,17 @@ void A2BControl::startThreads() //change name!
 
 		//	// Manual turn right
 		case 'r':
-			if(m_pathing->isActive())
+			if(!m_pathing->isActive())
 			{
 				try
 				{
+					boost::this_thread::disable_interruption di;
+					sendCommand(RobotCommand('z', 0));
+					waitKey(10);
 					sendCommand(RobotCommand('r', 1000));
+					waitKey(10000);
+					sendCommand(RobotCommand('a', 0));
+					boost::this_thread::restore_interruption ri(di);
 				}
 				catch(int e)
 				{
@@ -290,18 +316,24 @@ void A2BControl::startThreads() //change name!
 
 		//	// Manual move backwards
 		case 'b':
-			if(m_pathing->isActive())
+			if(!m_pathing->isActive())
 			{
 				try
 				{
-					sendCommand(RobotCommand('b', 1000));
+					boost::this_thread::disable_interruption di;
+					sendCommand(RobotCommand('z', 0));
+					waitKey(10);
+					sendCommand(RobotCommand('b', 10000));
+					waitKey(10000);
+					sendCommand(RobotCommand('a', 0));
+					boost::this_thread::restore_interruption ri(di);
 				}
 				catch(int e)
 				{
 					m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
 				}
 			}
-			break;
+			break;*/
 
 		case 'z':
 			if(m_gui->showError("Would you like to continue?", MB_YESNO))

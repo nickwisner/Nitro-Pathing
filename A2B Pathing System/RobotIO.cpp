@@ -122,18 +122,19 @@ void RobotIO::sendCommand(RobotCommand cmd)
 	cyclesBuff = new char[cycleLeng+1];
 
 	// load the robot command
-	buff[0] = '*'; //The starting handshake is a *
+	buff.push_back('*'); //The starting handshake is a *
 	buff.push_back(cmd.getCode()); //Next the robot expects a 'f','b','l','r' command
 	_itoa(cmd.getCycles(),cyclesBuff,10); //This converts the intager for how many miliseconds the robot should move into a stirng
 	buff += cyclesBuff; //the string is then appended onto the buffer to be send to the robot
-	buff[buff.length()] = '*'; //Because itoa give us a null terminated string we need to write over that null with a * so the robot knows when the command is over 
+	buff.push_back('*'); //Because itoa give us a null terminated string we need to write over that null with a * so the robot knows when the command is over 
 
 	// send it
-	boost::asio::async_write(m_port, boost::asio::buffer(buff),  boost::bind(handle_write, boost::asio::placeholders::error,
-			boost::asio::placeholders::bytes_transferred));
-
-	// pop the sent command off
-	buff.pop_back();
+	//boost::asio::write(m_port, boost::asio::buffer(buff),  boost::bind(handle_write, boost::asio::placeholders::error,
+	//		boost::asio::placeholders::bytes_transferred));
+	m_port.write_some(boost::asio::buffer(buff));
+//	boost::asio::write(m_port, boost::asio::buffer(buff));
+	//boost::asio::async_write(m_port, boost::asio::buffer(buff),  boost::bind(handle_write, boost::asio::placeholders::error,
+	//		boost::asio::placeholders::bytes_transferred));
 
 	delete []cyclesBuff;
 }
@@ -271,11 +272,11 @@ void RobotIO::sendPriorityCommand(RobotCommand cmd)
 	buff = cmd.getCode();
 
 	// send it
-	boost::asio::async_write(m_port, boost::asio::buffer(buff),  boost::bind(handle_write, boost::asio::placeholders::error,
-			boost::asio::placeholders::bytes_transferred));
-
-	// pop the sent command off
-	buff.pop_back();
+	
+	m_port.write_some(boost::asio::buffer(buff));
+//	boost::asio::write(m_port, boost::asio::buffer(buff));
+	//boost::asio::async_write(m_port, boost::asio::buffer(buff),  boost::bind(handle_write, boost::asio::placeholders::error,
+	//		boost::asio::placeholders::bytes_transferred));
 }
 void RobotIO::startMission()
 {
