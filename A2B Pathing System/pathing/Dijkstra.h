@@ -56,7 +56,7 @@ class Dijkstra
 {
 public:
 	//default constructor
-	Dijkstra(int rowSize, int colSize);
+	Dijkstra(int rowSize, int colSize, int travelerWidth = 0);
 	//destructor
 	~Dijkstra();
 	//copy constructor
@@ -71,33 +71,43 @@ public:
 	
 private:
 	//calculates the shortest DPath
-	vector<int> Calculate(Vertex<Space, DPath> *_from, Vertex<Space, DPath> *_to);
+	vector<int> Calculate(int _from, int _to);
 	//handles the users input and delegates calculation
 	vector<int> Travel(int startSpace, int destSpace);
 	//displays bft for debugging purposes
 	void Display();
-	//displays the route to travel
-	void Print(int junctions, int miles);
 	// creates the list of points on the route
 	vector<int> CompileRoute(int junctions);
 	// sets the obstacles with a bool array
 	void SetObstacles(bool* obstacleMap);
 
+	// sees if the traveler has room to move to the left
+	bool IsValidWestMove(int fromSpace);
+	// sees if the traveler has room to move to the right
+	bool IsValidEastMove(int fromSpace);
+	// sees if the travler has room to move up
+	bool IsValidNorthMove(int fromSpace);
+	// sees if the traveler has room to move down
+	bool IsValidSouthMove(int fromSpace);
+	// checks if is in the leftmost column
+	bool IsWestmost(int space);
+	// checks if is in the rightmost column
+	bool IsEastmost(int space);
+	// checks if is in the topmost row
+	bool IsNorthmost(int space);
+	// checks if is in the bottommost row
+	bool IsSouthmost(int space);
+
 	int m_rowSize;
 	int m_colSize;
-	int m_boardSize;
-	Graph<Space, DPath> map;
-	int size;			//number of cities in the map
+	int m_gridSize;
+	int m_travelerWidth; // used to see how big of path is needed to fit through
+	bool* m_obstacleMap;	// holds the obstacle map
 	int *distance;		//distance array
 	int *predecessor;	//predecessor array
-	int *travel;		//array that stores the route
-	int *travel2;		//stores the distances between the cities on the route
-	bool *travel3;		//stores true if the highway is a freeway between the
-						//cities
-	Vertex<Space, DPath> *lookUpTable;	//lookup table for the graph cities
+	vector<int> m_travelRoute;	// stores the route's spaces in order
+	bool* m_spaceProcessed; // array that shows if space has been touched by the pathing algorithm
 
-	Vertex<Space, DPath> *_from;	//city to travel from
-	Vertex<Space, DPath> *_to;		//city to travel to
 };
 
 #endif
