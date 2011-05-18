@@ -37,5 +37,7 @@ public:
 	virtual void endMission() = 0;
 
 	virtual void eStop() = 0;
+	//Sends a command that is passed into the object
+	virtual void sendCommand(RobotCommand cmd) = 0;
 };
 #endif

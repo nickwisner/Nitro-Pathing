@@ -84,16 +84,17 @@ bool A2BControl::checkSavedQueries()
 	return false;
 }
 
-bool A2BControl::sendCommand()
+void A2BControl::sendCommand(RobotCommand r)
 {
 	// Not yet implemented. May or may not need this.
 	// planned for this to send the next command in robotio's queue, like a pop
-	return false;
+	m_robotio->sendCommand(r);
 }
 
 
 bool A2BControl::setDestination(Point dest)
 {
+	bool pathMade = true;
 	Point robPos;
 	bool robCheck = true;
 	int n = -1;
@@ -135,12 +136,13 @@ bool A2BControl::setDestination(Point dest)
 	if( !m_pathing->makePath(spaceDest, spaceStart, m_obstacleMap) )
 	{
 		m_gui->showError("Cannot create a path to indicated destination.",MB_OK);
+		pathMade = false;
 	}
 	else
 	{
 		m_robotio->fillQueue(m_pathing->getPath());
 	}
-	return true;
+	return pathMade;
 }
 
 void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
@@ -243,7 +245,7 @@ void A2BControl::startThreads() //change name!
 			{
 				try
 				{
-				//	m_robotio->sendCommand(RobotCommand('f', cycles));
+					sendCommand(RobotCommand('f', 1000));
 				}
 				catch(int e)
 				{
@@ -258,7 +260,7 @@ void A2BControl::startThreads() //change name!
 			{
 				try
 				{
-					//m_robotio->sendCommand(RobotCommand('l', cycles));
+					sendCommand(RobotCommand('l', 1000));
 				}
 				catch(int e)
 				{
@@ -273,7 +275,7 @@ void A2BControl::startThreads() //change name!
 			{
 				try
 				{
-					//m_robotio->sendCommand(RobotCommand('r', cycles));
+					sendCommand(RobotCommand('r', 1000));
 				}
 				catch(int e)
 				{
@@ -288,7 +290,7 @@ void A2BControl::startThreads() //change name!
 			{
 				try
 				{
-					//m_robotio->sendCommand(RobotCommand('b', cycles));
+					sendCommand(RobotCommand('b', 1000));
 				}
 				catch(int e)
 				{

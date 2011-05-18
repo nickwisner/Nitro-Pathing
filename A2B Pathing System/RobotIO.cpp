@@ -240,7 +240,7 @@ void RobotIO::sendNextMessage()
 		}
 	}
 }
-bool RobotIO::sendPriorityCommand(RobotCommand cmd)
+void RobotIO::sendPriorityCommand(RobotCommand cmd)
 {
 	//Everytime we send a message we reset the options, just in case.
 	m_port.set_option( asio_serial::baud_rate( 9600 ) ); 

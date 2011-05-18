@@ -40,7 +40,8 @@ class RobotIO : public iRobotIO
 		void endMission();
 
 		void eStop();
-
+		//Sends a command that is passed into the object
+		void sendCommand(RobotCommand cmd);
 	private:
 		//Hold all of the commands to complete the path
 		list<RobotCommand> m_msgQueue;
@@ -55,14 +56,12 @@ class RobotIO : public iRobotIO
 		boost::asio::serial_port m_port;
 
 		void sendNextMessage();
-		//Sends a command that is passed into the object
-		void sendCommand(RobotCommand cmd);
 		//Gets called when the robot has send us a message
 		void receiveMessage();
 		//void transmitEnd();
 		
 		void startMission();
-		bool RobotIO::sendPriorityCommand(RobotCommand cmd);
+		void sendPriorityCommand(RobotCommand cmd);
 	//These data members and some of the functions that use
 	//them should be put into a RobotComm class. Where RobotIO
 	//Sets m_currCommand inside of RobotComm. But for now just
