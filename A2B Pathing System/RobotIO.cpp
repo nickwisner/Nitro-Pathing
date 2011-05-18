@@ -252,7 +252,8 @@ void RobotIO::sendNextMessage()
 	}
 
 	m_cmdRecieve.interrupt();
-	m_cmdSend.detach();
+	m_cmdRecieve.join();
+	m_cmdSend.join();
 
 }
 void RobotIO::sendPriorityCommand(RobotCommand cmd)

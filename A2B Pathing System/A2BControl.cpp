@@ -238,14 +238,14 @@ void A2BControl::startThreads() //change name!
 		switch(key)
 		{
 		case 's':
-			if(!m_pathing->isActive())
+			if(m_pathing->isActive())
 			{
 				//this should also empty the queue and stop the mission probably
 				m_robotio->eStop();
 			}
 			// Manual move forward
 		case 'f':
-			if(!m_pathing->isActive())
+			if(m_pathing->isActive())
 			{
 				try
 				{
@@ -260,7 +260,7 @@ void A2BControl::startThreads() //change name!
 
 		//	// Manual turn left
 		case 'l':
-			if(!m_pathing->isActive())
+			if(m_pathing->isActive())
 			{
 				try
 				{
@@ -275,7 +275,7 @@ void A2BControl::startThreads() //change name!
 
 		//	// Manual turn right
 		case 'r':
-			if(!m_pathing->isActive())
+			if(m_pathing->isActive())
 			{
 				try
 				{
@@ -290,7 +290,7 @@ void A2BControl::startThreads() //change name!
 
 		//	// Manual move backwards
 		case 'b':
-			if(!m_pathing->isActive())
+			if(m_pathing->isActive())
 			{
 				try
 				{
@@ -372,6 +372,15 @@ void A2BControl::update()
 					m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_edgedImage);
 					m_gui->drawImage(m_edgedImage);
 				}
+			}
+		}else
+		{
+			if(m_showPlainImage)
+			{
+				m_gui->drawImage(m_plainImage);
+			}else
+			{
+				m_gui->drawImage(m_edgedImage);
 			}
 		}
 	}
