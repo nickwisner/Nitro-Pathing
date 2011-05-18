@@ -91,16 +91,14 @@ void RobotIO::sendCommand(RobotCommand cmd)
 		throw NO_CONNECTION;
 	}
 
-	if(cmd.getCode() == 's')
+	if(m_curCommand.getCode() == 's')
 	{
 		sendPriorityCommand(cmd);
-		m_cmdQueueLock.lock();
-		m_msgQueue.push_front(RobotCommand('a', 0));
-		m_cmdQueueLock.lock();
 		return;
 	}else if(cmd.getCode() == 'a')
 	{
 		sendPriorityCommand(cmd);
+		m_robotReply = 0;
 		return;
 	}else if(cmd.getCode() == 'z')
 	{
@@ -193,9 +191,20 @@ void RobotIO::receiveMessage()
 		boost::asio::async_write(m_port, boost::asio::buffer(buff),  boost::bind(handle_read, boost::asio::placeholders::error,
 		boost::asio::placeholders::bytes_transferred));
 
-		m_robotReplyLock.lock();
-		m_robotReply = buff[0];
-		m_robotReplyLock.unlock();
+		if(m_robotReply == 0)
+		{
+			if(buff[0] == 'F')
+			{
+				m_robotReplyLock.lock();
+				m_robotReply = buff[0];
+				m_robotReplyLock.unlock();	
+			}
+		}else
+		{
+			m_robotReplyLock.lock();
+			m_robotReply = buff[0];
+			m_robotReplyLock.unlock();	
+		}
 	
 		buff.clear();
 
@@ -207,25 +216,24 @@ void RobotIO::receiveMessage()
 
 void RobotIO::sendNextMessage()
 {
+	RobotCommand nextMessage;
 	while(m_robotReply) //Set m_robotReply to 0 once we want to stop transmition
 	{
 		if(m_robotReply == 'F' || m_robotReply == 'f')
 		{
-			sendCommand(m_curCommand);
+			sendCommand(nextMessage);
 		}
 		if(m_robotReply == 'A' || m_robotReply == 'a')
 		{
+			//boost::this_thread::disable_interruption di;
 			if(!m_msgQueue.empty()) //if this is empty it means we have sent a start missoin and a end mission command
-			{
-				boost::this_thread::disable_interruption di;
-				m_curCommandLock.lock();
+			{	
 				m_cmdQueueLock.lock();
-				m_curCommand = m_msgQueue.front();
+				nextMessage = m_msgQueue.front();
 				m_msgQueue.pop_front();
 				m_cmdQueueLock.unlock();
-				m_curCommandLock.unlock();
 
-				sendCommand(m_curCommand);
+				sendCommand(nextMessage);
 
 				m_robotReplyLock.lock();
 				m_robotReply = 1;
@@ -234,11 +242,18 @@ void RobotIO::sendNextMessage()
 				m_recieveMsgLock.lock();
 				m_recieveMsg = true;
 				m_recieveMsgLock.unlock();
-
-				boost::this_thread::restore_interruption ri(di);
 			}
+			//boost::this_thread::restore_interruption ri(di);
+		}
+		while(m_recieveMsg)
+		{
+			boost::this_thread::yield();
 		}
 	}
+
+	m_cmdRecieve.interrupt();
+	m_cmdSend.detach();
+
 }
 void RobotIO::sendPriorityCommand(RobotCommand cmd)
 {
@@ -263,24 +278,33 @@ void RobotIO::sendPriorityCommand(RobotCommand cmd)
 }
 void RobotIO::startMission()
 {
-	m_curCommandLock.lock();
-	m_curCommand = RobotCommand('z', 0);
-	m_curCommandLock.unlock();
+	m_cmdQueueLock.lock();
+	m_msgQueue.clear();
+	m_msgQueue.push_front(RobotCommand('z', 0));
+	m_cmdQueueLock.unlock();
 }	
 void RobotIO::endMission()
 {
-	m_curCommandLock.lock();
-	m_curCommand = RobotCommand('a', 0);
-	m_curCommandLock.unlock();
+	m_cmdQueueLock.lock();
+	m_msgQueue.clear();
+	m_msgQueue.push_front(RobotCommand('a', 0));
+	m_cmdQueueLock.unlock();
+
+	//end the communication!
 }
 void RobotIO::eStop()
 {
-	boost::this_thread::disable_interruption di;
-	m_curCommandLock.lock();
-	m_curCommand = RobotCommand('s', 0);
-	m_curCommandLock.unlock();
+	//Might want to do a try_lock and if it fails then restore_interruptes and yield
+	//boost::this_thread::disable_interruption di;
+	RobotCommand stopCmd('s', 0);
 	m_cmdQueueLock.lock();
 	m_msgQueue.clear();
 	m_cmdQueueLock.unlock();
-	boost::this_thread::restore_interruption ri(di);
+	
+	m_curCommandLock.lock();
+	m_curCommand = stopCmd;
+	m_curCommandLock.unlock();
+
+
+	//boost::this_thread::restore_interruption ri(di);
 }

@@ -74,8 +74,8 @@ class RobotIO : public iRobotIO
 	
 		boost::mutex m_curCommandLock;
 		boost::mutex m_cmdQueueLock;
-		boost::thread m_cmdSend;
 
+		boost::thread m_cmdSend;
 		boost::thread m_cmdRecieve;
 
 		boost::mutex m_recieveMsgLock;

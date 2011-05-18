@@ -1,5 +1,7 @@
 #include "RobotCommand.h"
 
+RobotCommand::RobotCommand():m_code(0), m_cycles(0)
+{	}
 RobotCommand::RobotCommand(char cmd, int cycles) : m_code(cmd), m_cycles(cycles)
 { }
 

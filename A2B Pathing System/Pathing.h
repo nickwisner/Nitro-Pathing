@@ -29,12 +29,12 @@ public:
 	Pathing();
 	~Pathing();
 
-	bool deletePath();
+	void deletePath();
 	Path * getPath();
 	bool isActive();
 	void setActive(bool act);
-	bool repath();
-	bool makePath( int destSpace, int startSpace, bool * obstMap);
+	bool repath(int robotPos, bool * obstMap);
+	bool makePath( Point destPoint, int startSpace, bool * obstMap);
 	bool validatePath(bool * obstMap);
 	Point getRobotPosition();
 	

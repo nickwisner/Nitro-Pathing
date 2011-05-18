@@ -41,7 +41,7 @@ public:
 	virtual ~A2BControl();
 	
 	//Ends the mission with a pass or fail code entered in
-	bool endMission(int error);
+	void endMission(int error);
 	//joins all threads and ends them
 		//Not implemented
 	void endThreads();

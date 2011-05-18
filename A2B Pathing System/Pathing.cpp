@@ -24,12 +24,24 @@ Pathing::~Pathing()
 /**
  * Deletes the current path and sets the path pointer to null.
  */
-bool Pathing::deletePath(){
-
-	return false;
+void Pathing::deletePath()
+{
+	m_pathPoints.clear();
+	m_robotpos = Point(0,0);
+	m_destination.x = 0; m_destination.y = 0;
+	if(m_path != 0)
+		delete m_path;
 }
+// This does not need to clear the message queue because eStop already does that
+bool Pathing::repath(int robotPos, bool * obstMap)
+{
+	bool repathSuccess = true;
+	Point tempDest = m_destination;
 
-
+	deletePath();
+	repathSuccess = makePath(tempDest, robotPos, obstMap);
+	return repathSuccess;
+}
 /**
  * Returns the path pointer
  */
@@ -54,8 +66,11 @@ void Pathing::setActive(bool act)
 /**		CALL INTO DIJKSTRA HERE! *************
  * Generates the path using given coordinates 
  */
-bool Pathing::makePath(int destSpace, int startSpace, bool * obstMap)
+bool Pathing::makePath(Point destPoint, int startSpace, bool * obstMap)
 {
+	int destSpace = 0;
+	m_destination = destPoint;
+	destSpace = A2BUtilities::pixelToSpaceId(destPoint.x,destPoint.y);
 	// create the vector of path points using dijkstra's
 	m_pathPoints = m_dijk->Start(startSpace, destSpace, obstMap);
 
@@ -107,12 +122,6 @@ vector<int> Pathing::gutPoints(const vector<int> &pathPoints)
 	newPath.push_back(pathPoints[pathPoints.size()-1]);
 
 	return newPath;
-}
-
-// not implemented yet (this should be ready in beta)
-bool Pathing::repath()
-{
-	return false;
 }
 
 // define the robot we are using for the system

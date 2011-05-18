@@ -43,9 +43,9 @@ A2BControl::~A2BControl()
  * error = 0 if reach destination. Use this to end a mission whatever the reason;
  * this updates the database and so forth
  */
-bool A2BControl::endMission(int error)
+void A2BControl::endMission(int error)
 {
-	return false;
+	m_robotio->endMission();	
 }
 
 
@@ -99,7 +99,6 @@ bool A2BControl::setDestination(Point dest)
 	bool robCheck = true;
 	int n = -1;
 	int spaceStart = 0;
-	int spaceDest = 0;
 
 	boost::this_thread::disable_interruption di;
 	//change the first part setDestinatoin to be "findRobot"
@@ -118,7 +117,6 @@ bool A2BControl::setDestination(Point dest)
 		robPos = ImageProcessor::findRobot((&m_plainImage), m_pathing->getRobot());
 
 		spaceStart = A2BUtilities::pixelToSpaceId(robPos.x, robPos.y);
-		spaceDest = A2BUtilities::pixelToSpaceId( dest.x,dest.y);
 		
 		clearRobot(spaceStart, m_obstacleMap, robPos);
 		
@@ -133,7 +131,7 @@ bool A2BControl::setDestination(Point dest)
 	
 	boost::this_thread::restore_interruption ri(di);
 
-	if( !m_pathing->makePath(spaceDest, spaceStart, m_obstacleMap) )
+	if( !m_pathing->makePath(dest, spaceStart, m_obstacleMap) )
 	{
 		m_gui->showError("Cannot create a path to indicated destination.",MB_OK);
 		pathMade = false;
@@ -239,6 +237,12 @@ void A2BControl::startThreads() //change name!
 
 		switch(key)
 		{
+		case 's':
+			if(!m_pathing->isActive())
+			{
+				//this should also empty the queue and stop the mission probably
+				m_robotio->eStop();
+			}
 			// Manual move forward
 		case 'f':
 			if(!m_pathing->isActive())
@@ -339,11 +343,24 @@ void A2BControl::update()
 			//if a obstacle happends then return false.
 			if(!travle)
 			{
+				Point robotPlace(0,0);
+				int robotSpace = 0;
 				//the path is broken repath!
 				//shut down the drawing of the map.
 				m_robotio->eStop();
-				cnt = m_pathing->repath();
+				
+				robotPlace = ImageProcessor::findRobot(&m_plainImage, m_pathing->getRobot());
+				robotSpace = A2BUtilities::pixelToSpaceId(robotPlace.x, robotPlace.y);
+				
+				cnt = m_pathing->repath(robotSpace, m_obstacleMap);
 				m_pathing->setActive(cnt);
+
+				
+				if(!cnt)
+				{
+					endMission(0); //assuming 0 is a failed to path end mission
+				}
+
 			}else
 			{
 				if(m_showPlainImage)
