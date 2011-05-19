@@ -38,7 +38,7 @@ public:
 	bool openPort();
 	//Tries to close the port if it is open
 	bool closePort(); 
-
+	void sendPriorityCommand(RobotCommand cmd);
 private:
 	//Hold all of the commands to complete the path
 	list<RobotCommand> m_msgQueue;

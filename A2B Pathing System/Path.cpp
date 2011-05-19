@@ -16,10 +16,8 @@ Path::Path()
 
 Path::~Path()
 {
-	for(int i = 0; i < this->m_path.size(); i++)
-	{
-		delete &m_path[i];
-	}
+	m_path.clear();
+	m_pathPoints.clear();
 }
 
 int Path::getPathVSize()

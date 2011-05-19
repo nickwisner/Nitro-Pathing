@@ -51,5 +51,8 @@ public:
 	virtual void setDest(int x, int y) =0;
 	virtual int showError(const string & error, int type = MB_OK) =0;
 
+	//rmv later
+	virtual void CoverRobot(Point a, Point b) = 0;
+
 };
 #endif

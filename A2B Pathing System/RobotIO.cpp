@@ -30,10 +30,13 @@ void handle_write(const boost::system::error_code&, // error
 // COM4 is hardcoded at this point only because we are only testing from one computer that uses it.
 // It will be changed later on
 RobotIO::RobotIO() : m_robot(0), m_port(m_io, "COM4")	// open the bluetooth connection
-{}
+{
+	sendPriorityCommand(RobotCommand('z', 0));
+}
 
 RobotIO::~RobotIO()
 {
+	sendPriorityCommand(RobotCommand('a',0));
 	m_port.close();	// close the bluetooth connection
 	delete m_robot;
 	m_robot = 0;
@@ -112,18 +115,21 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 	cyclesBuff = new char[cycleLeng+1];
 
 	// load the robot command
-	buff[0] = '*'; //The starting handshake is a *
+	buff.push_back('*'); //The starting handshake is a *
 	buff.push_back(cmd.getCode()); //Next the robot expects a 'f','b','l','r' command
 	itoa(cmd.getCycles(),cyclesBuff,10); //This converts the intager for how many miliseconds the robot should move into a stirng
 	buff += cyclesBuff; //the string is then appended onto the buffer to be send to the robot
-	buff[buff.length()] = '*'; //Because itoa give us a null terminated string we need to write over that null with a * so the robot knows when the command is over 
+	buff.push_back('*'); //Because itoa give us a null terminated string we need to write over that null with a * so the robot knows when the command is over 
 
 	// send it
-	boost::asio::async_write(m_port, boost::asio::buffer(buff), boost::bind(handle_write, boost::asio::placeholders::error,
-			boost::asio::placeholders::bytes_transferred));
-
+//	boost::asio::async_write(m_port, boost::asio::buffer(buff), boost::bind(handle_write, boost::asio::placeholders::error,
+	//		boost::asio::placeholders::bytes_transferred));
+	m_port.write_some(boost::asio::buffer(buff));
 	// pop the sent command off
-	buff.pop_back();
+
+	waitKey(1000);
+
+	//buff.pop_back();
 
 	delete []cyclesBuff;
 
@@ -181,4 +187,26 @@ bool RobotIO::closePort()
 	}
 
 	return false;
+}
+
+void RobotIO::sendPriorityCommand(RobotCommand cmd)
+{
+	//Everytime we send a message we reset the options, just in case.
+	m_port.set_option( asio_serial::baud_rate( 9600 ) ); 
+	m_port.set_option( asio_serial::flow_control( asio_serial::flow_control::none ) ); 
+	m_port.set_option( asio_serial::parity( asio_serial::parity::none ) ); 
+	m_port.set_option( asio_serial::stop_bits( asio_serial::stop_bits::one ) ); 
+	m_port.set_option( asio_serial::character_size( 8 ) ); 
+
+	std::string buff;	
+
+	// load the robot command
+	buff = cmd.getCode();
+
+	// send it
+	boost::asio::async_write(m_port, boost::asio::buffer(buff),  boost::bind(handle_write, boost::asio::placeholders::error,
+			boost::asio::placeholders::bytes_transferred));
+
+	// pop the sent command off
+	buff.pop_back();
 }

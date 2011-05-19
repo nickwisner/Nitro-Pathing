@@ -157,3 +157,10 @@ void A2BGUI::setDest(int x, int y)
 {
 	m_control->setDestination(Point(x,y));
 }
+
+void A2BGUI::CoverRobot(Point a, Point b)
+{
+	cv::rectangle(m_view, a, b, Scalar(100,100,100),1,0);
+	drawImage(m_view);	// refresh
+	waitKey(100);
+}

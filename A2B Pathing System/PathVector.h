@@ -89,6 +89,8 @@ private:
 	//The starting and ending point in pixels that represent where the robot will start and where it should end
 	Edge m_edge;
 
+	int findTravelTime(float diff);
+
 	//These four functions take the starting and ending place in pixles and pushes a robot command 
 	//(that will get the robot from the starting place to the ending place) into the list of robot commands/
 	int translateUp(Point start, Point end);

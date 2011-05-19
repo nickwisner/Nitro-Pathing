@@ -127,6 +127,8 @@ bool A2BControl::setDestination(Point dest)
 	} // keep looping if they answer no
 	while( robCheck );
 
+
+
 	if( !m_pathing->makePath(spaceDest, spaceStart, m_obstacleMap) )
 	{
 		m_gui->showError("Cannot create a path to indicated destination.",MB_OK);
@@ -147,34 +149,48 @@ bool A2BControl::setDestination(Point dest)
 	}
 
 	//create a thread to handle updata.
-	m_updatePath = boost::thread(bind(&update, this));
+//	m_updatePath = boost::thread(bind(&update, this));
 	return true;
 }
 
+#include <fstream>
 
-//For DEBUGGING///////////
-//#include <fstream>
-//////////////////////////
 void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 {
+		/* DEBUG: saving the grid in ascii format to out.txt for funs */
+	std::ofstream file("out.txt", std::ios::app);
+	if( file.is_open() )
+	{
+	file << "NOT YET CLEARED ROBOT\n";
+		for( int i = 0; i < COL_SIZE; i++ )
+		{
+			for( int j = 0; j < ROW_SIZE; j++ )
+			{
+				file << (obstMap[i*ROW_SIZE + j] ? '`' : 'X');
+			}
+			file << '\n';
+		}
+		file << '\n';
+
+	}
+
 	//this is assuming that the robot is 11.25 cells long and wide. We will around it to 12 cells.
 	//this is also assuming that the int passed in is the center cell of the robot.
 
-	int topLeftSpace = (robotCenter - (9*ROW_SIZE)) - 9;
-	int topRightSpace = (robotCenter - (9*ROW_SIZE)) + 9;
-	int bottomRightSpace = (robotCenter + (9*ROW_SIZE)) + 9;
-	int bottomLeftSpace = (robotCenter + (9*ROW_SIZE)) - 9;
+	int topLeftSpace = (robotCenter - ((ROBOT_SIZE_SPACE/2)*ROW_SIZE)) - (ROBOT_SIZE_SPACE/2);
+	int topRightSpace = (robotCenter - ((ROBOT_SIZE_SPACE/2)*ROW_SIZE)) + (ROBOT_SIZE_SPACE/2);
+	int bottomRightSpace = (robotCenter + ((ROBOT_SIZE_SPACE/2)*ROW_SIZE)) + (ROBOT_SIZE_SPACE/2);
+	int bottomLeftSpace = (robotCenter + ((ROBOT_SIZE_SPACE/2)*ROW_SIZE)) - (ROBOT_SIZE_SPACE/2);
 
 	// This actually puts a big white square over the image.
-	//m_gui->CoverRobot(Point(robPos.x - ROBOT_PX_X/2,robPos.y - ROBOT_PX_Y/2),Point(robPos.x + ROBOT_PX_X/2,robPos.y + ROBOT_PX_Y/2));
+	m_gui->CoverRobot(Point(robPos.x - ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE),robPos.y - ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE)),Point(robPos.x + ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE),robPos.y + ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE)));
 
-
-	for(int i = topRightSpace; i <= bottomRightSpace;)
+	for(int i = topRightSpace-2; i <= bottomRightSpace;)
 	{
-		for(int x = topLeftSpace; x <= topRightSpace; x++)
+		for(int x = topLeftSpace-2; x <= topRightSpace; x++)
 		{
 			obstMap[x] = false;
-			//the true is to set the space to not be a obstacle!
+			//the false is to set the space to not be an obstacle!
 		}
 		i += ROW_SIZE;
 		//changing these should be fine BECAUSE i = topRightSpace only at the start.
@@ -183,9 +199,9 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 	}
 
 	/* DEBUG: saving the grid in ascii format to out.txt for funs */
-	/*std::ofstream file("out.txt", std::ios::app);
 	if( file.is_open() )
 	{
+	file << "CLEARED ROBOT\n";
 		for( int i = 0; i < COL_SIZE; i++ )
 		{
 			for( int j = 0; j < ROW_SIZE; j++ )
@@ -197,7 +213,7 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 		file << '\n';
 
 		file.close();
-	}*/
+	}
 }
 void A2BControl::startThreads()
 {

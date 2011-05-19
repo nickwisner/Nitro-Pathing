@@ -38,6 +38,8 @@ public:
 	//Called when user indicates a destination point. Sends point to Control.
 	void setDest(int x, int y);
 
+	//rmv later
+	void CoverRobot(Point a, Point b);
 private:
 	iControl * m_control;	// pointer to Control, used for setDest, etc
 	string m_window;		// name of the window, also used to reference window

@@ -7,11 +7,11 @@
 
 
 #include "Pathing.h"
+#include "A2BUtilities.h"
 
-
-Pathing::Pathing() : m_active(false), m_robot(0), m_path(0)
+Pathing::Pathing() : m_active(false), m_robot(0), m_path(0), m_heading(1)
 {
-	m_dijk = new Dijkstra(ROW_SIZE, COL_SIZE);	// create our dijkstra map of a specified grid size
+	m_dijk = new Dijkstra(ROW_SIZE, COL_SIZE, ROBOT_SIZE_SPACE);	// create our dijkstra map of a specified grid size
 }
 
 Pathing::~Pathing()
@@ -53,6 +53,7 @@ bool Pathing::isActive()
  */
 bool Pathing::makePath(int destSpace, int startSpace, bool * obstMap)
 {
+
 	// create the vector of path points using dijkstra's
 	vector<int> pathPoints = m_dijk->Start(startSpace, destSpace, obstMap);
 
@@ -159,7 +160,7 @@ void Pathing::translateToPath( vector<int> path)
 		// 3 = robot facing bottom
 		// 4 = robot facing left
 
-		int tempHeading = 1;
+		//int tempHeading = 1;
 		//from the points to a bunch of pathvectors
 
 		for(int i = 1; i < path.size(); i++)
@@ -171,9 +172,13 @@ void Pathing::translateToPath( vector<int> path)
 			//we dont delete this here because it should be deleted in path!!!
 			//cuz they both have the same pointer
 			//i-1 is the starting place and i is the end of the edge
-			temp = new PathVector(Edge(Point((path[i-1]%ROW_SIZE)*GRID_SQUARE_SIZE, (path[i-1]/ROW_SIZE)*GRID_SQUARE_SIZE), Point((path[i]%ROW_SIZE)*GRID_SQUARE_SIZE, (path[i]/ROW_SIZE)*GRID_SQUARE_SIZE)), tempHeading);
-			m_path->addVector(*temp);	
+	//		temp = new PathVector(Edge(Point((path[i-1]%ROW_SIZE)*PIXELS_PER_SQUARE, (path[i-1]/ROW_SIZE)*PIXELS_PER_SQUARE), Point((path[i]%ROW_SIZE)*PIXELS_PER_SQUARE, (path[i]/ROW_SIZE)*PIXELS_PER_SQUARE)), tempHeading);
+			m_path->addVector(PathVector(Edge(Point((path[i-1]%ROW_SIZE)*PIXELS_PER_SQUARE, (path[i-1]/ROW_SIZE)*PIXELS_PER_SQUARE), Point((path[i]%ROW_SIZE)*PIXELS_PER_SQUARE, (path[i]/ROW_SIZE)*PIXELS_PER_SQUARE)), m_heading));	
 		}
 	}
 }
 
+int Pathing::getHeading()
+{
+	return m_heading;
+}

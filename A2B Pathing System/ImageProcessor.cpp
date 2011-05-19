@@ -69,7 +69,7 @@ void ImageProcessor::mapObstacles( Mat & image, bool * obstacleGrid )
 		for( int colid = 0; colid < ROW_SIZE; colid++ )
 		{
 			// the little square from the image that defines 1 "space" or cell of the big image
-			square = img(Rect(colid*GRID_SQUARE_SIZE, rowid*GRID_SQUARE_SIZE, GRID_SQUARE_SIZE, GRID_SQUARE_SIZE));
+			square = img(Rect(colid*PIXELS_PER_SQUARE, rowid*PIXELS_PER_SQUARE, PIXELS_PER_SQUARE, PIXELS_PER_SQUARE));
 
 			// set false if no obstacles there (all white).
 			// so if anything in the little square is black, there's the edge of an obstacle.

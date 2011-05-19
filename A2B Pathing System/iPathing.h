@@ -32,6 +32,7 @@ public:
 	virtual Point getRobotPosition() =0;
 	virtual bool setRobot( Robot & domoarigato) = 0;
 	virtual	Robot * getRobot() = 0;
+	virtual int getHeading() = 0;
 
 private:
 	//virtual void translateToPath( vector<int> path) = 0;
