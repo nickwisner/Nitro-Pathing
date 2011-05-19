@@ -94,6 +94,7 @@ bool A2BControl::sendCommand()
 
 bool A2BControl::setDestination(Point dest)
 {
+	bool * tmp = new bool[ROW_SIZE * COL_SIZE];
 	Point robPos;
 	bool robCheck = true;
 	int n = -1;
@@ -105,20 +106,27 @@ bool A2BControl::setDestination(Point dest)
 	{
 		n++;
 		//getImage();
-		if(m_obstacleMap != 0)
-			delete [] m_obstacleMap;
+		//m_obstacleMap = m_imageacquisition->getObstMap();
+		//m_edgedImage = m_imageacquisition->getEdge();
+		//m_plainImage = m_imageacquisition->getPlain();
 
-		m_obstacleMap = m_imageacquisition->getObstMap();
-		m_edgedImage = m_imageacquisition->getEdge();
-		m_plainImage = m_imageacquisition->getPlain();
+		m_obstLock.lock();
+		memcpy(tmp, m_obstacleMap, sizeof(bool)* (ROW_SIZE*COL_SIZE));
+		m_obstLock.unlock();
+		//m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
 
-
-		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
+		//might want to put this in a temp variable (this being m_plainImage)
+		m_plainLock.lock();
 		robPos = ImageProcessor::findRobot((&m_plainImage), m_pathing->getRobot());
+		m_plainLock.unlock();
+		
 		spaceStart = A2BUtilities::pixelToSpaceId(robPos.x, robPos.y);
 		spaceDest = A2BUtilities::pixelToSpaceId( dest.x,dest.y);
-		clearRobot(spaceStart, m_obstacleMap, robPos);
+		clearRobot(spaceStart, tmp, robPos);
+
+		m_plainLock.lock();
 		m_gui->markRobot(robPos);
+		m_plainLock.unlock();
 
 		if(n < 5)
 			robCheck = !m_gui->showError("Is this the robot?",MB_YESNO);
@@ -129,7 +137,7 @@ bool A2BControl::setDestination(Point dest)
 
 
 
-	if( !m_pathing->makePath(spaceDest, spaceStart, m_obstacleMap) )
+	if( !m_pathing->makePath(spaceDest, spaceStart, tmp) )
 	{
 		m_gui->showError("Cannot create a path to indicated destination.",MB_OK);
 	}
@@ -150,29 +158,12 @@ bool A2BControl::setDestination(Point dest)
 
 	//create a thread to handle updata.
 //	m_updatePath = boost::thread(bind(&update, this));
+	delete []tmp;
 	return true;
 }
 
-#include <fstream>
-
 void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 {
-		/* DEBUG: saving the grid in ascii format to out.txt for funs */
-	std::ofstream file("out.txt", std::ios::app);
-	if( file.is_open() )
-	{
-	file << "NOT YET CLEARED ROBOT\n";
-		for( int i = 0; i < COL_SIZE; i++ )
-		{
-			for( int j = 0; j < ROW_SIZE; j++ )
-			{
-				file << (obstMap[i*ROW_SIZE + j] ? '`' : 'X');
-			}
-			file << '\n';
-		}
-		file << '\n';
-
-	}
 
 	//this is assuming that the robot is 11.25 cells long and wide. We will around it to 12 cells.
 	//this is also assuming that the int passed in is the center cell of the robot.
@@ -183,7 +174,7 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 	int bottomLeftSpace = (robotCenter + ((ROBOT_SIZE_SPACE/2)*ROW_SIZE)) - (ROBOT_SIZE_SPACE/2);
 
 	// This actually puts a big white square over the image.
-	m_gui->CoverRobot(Point(robPos.x - ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE),robPos.y - ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE)),Point(robPos.x + ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE),robPos.y + ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE)));
+	//m_gui->CoverRobot(Point(robPos.x - ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE),robPos.y - ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE)),Point(robPos.x + ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE),robPos.y + ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE)));
 
 	for(int i = topRightSpace-2; i <= bottomRightSpace;)
 	{
@@ -199,7 +190,7 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 	}
 
 	/* DEBUG: saving the grid in ascii format to out.txt for funs */
-	if( file.is_open() )
+/*	if( file.is_open() )
 	{
 	file << "CLEARED ROBOT\n";
 		for( int i = 0; i < COL_SIZE; i++ )
@@ -213,7 +204,7 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 		file << '\n';
 
 		file.close();
-	}
+	}*/
 }
 void A2BControl::startThreads()
 {
@@ -231,7 +222,7 @@ void A2BControl::startThreads()
 
 		m_plainImage = m_imageacquisition->getPlain();
 		m_edgedImage = m_imageacquisition->getEdge();
-
+		m_obstacleMap = m_imageacquisition->getObstMap();
 		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
 	}
 	catch(int e)
@@ -242,6 +233,9 @@ void A2BControl::startThreads()
 		m_gui->showError("Camera not found. Please reconnect and try again.");
 		key = 'q';
 	}
+
+	//create a thread to handle updata.
+	m_updatePath = boost::thread(boost::bind(&A2BControl::update, this));
 
 	try
 	{
@@ -259,20 +253,10 @@ void A2BControl::startThreads()
 		connection = false;
 	}
 
-	// Number of cycles to send to robot for manual move demo
-	int cycles = 2;
 
 	while(key != 'q')
 	{
-		// Update window
-		m_plainImage = m_imageacquisition->getPlain();
-		m_edgedImage = m_imageacquisition->getEdge();
-		if(m_pathing->isActive())
-		{
-			m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage);
-		}
-		m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
-		
+		key = 0;	
 		key = waitKey(500); // Get key input from user, poll every 500 ms
 
 		switch(key)
@@ -281,7 +265,7 @@ void A2BControl::startThreads()
 		case 'f':
 			try
 			{
-				m_robotio->sendCommand(RobotCommand('f', cycles));
+				m_robotio->sendCommand(RobotCommand('f', 1000));
 			}
 			catch(int e)
 			{
@@ -293,7 +277,7 @@ void A2BControl::startThreads()
 		case 'l':
 			try
 			{
-				m_robotio->sendCommand(RobotCommand('l', cycles));
+				m_robotio->sendCommand(RobotCommand('l', 1000));
 			}
 			catch(int e)
 			{
@@ -305,7 +289,7 @@ void A2BControl::startThreads()
 		case 'r':
 			try
 			{
-				m_robotio->sendCommand(RobotCommand('r', cycles));
+				m_robotio->sendCommand(RobotCommand('r', 1000));
 			}
 			catch(int e)
 			{
@@ -317,7 +301,7 @@ void A2BControl::startThreads()
 		case 'b':
 			try
 			{
-				m_robotio->sendCommand(RobotCommand('b', cycles));
+				m_robotio->sendCommand(RobotCommand('b', 1000));
 			}
 			catch(int e)
 			{
@@ -358,19 +342,107 @@ void A2BControl::startThreads()
 // This will be the method that a thread will act on.
 // This will, on a timer:
 //		get image. if active, validate and draw path. display image.
-bool A2BControl::update()
+void A2BControl::update()
 {
-	//for debugging only
-	int i = 0;
-	bool cnt = m_pathing->isActive();
-	while(cnt)
+
+		//for debugging only
+	bool travle = true;
+	bool cnt = true;
+	while(1)
 	{
-		i++;
 		//get new image, edged image and obstacle array
+		boost::this_thread::disable_interruption di;
 
-		//run the map over it
+		m_edgedImage = m_imageacquisition->getEdge();
 
-		//if a obstacle happends then return false.
+		m_plainLock.lock();
+		m_plainImage = m_imageacquisition->getPlain();
+		m_plainLock.unlock();
+
+		m_obstLock.lock();
+		m_obstacleMap = m_imageacquisition->getObstMap();
+		m_obstLock.unlock();
+
+		boost::this_thread::restore_interruption ri(di);
+
+		//if(m_pathing->isActive())
+		//{
+		//	//run the map over it
+		//	travle = m_pathing->validatePath(m_obstacleMap);
+
+		//	//if a obstacle happends then return false.
+		//	if(!travle)
+		//	{
+		//		Point robotPlace(0,0);
+		//		int robotSpace = 0;
+		//		//the path is broken repath!
+		//		//shut down the drawing of the map.
+		//		m_robotio->eStop();
+		//		
+		//		robotPlace = ImageProcessor::findRobot(&m_plainImage, m_pathing->getRobot());
+		//		robotSpace = A2BUtilities::pixelToSpaceId(robotPlace.x, robotPlace.y);
+		//		
+		//		cnt = m_pathing->repath(robotSpace, m_obstacleMap);
+		//		m_pathing->setActive(cnt);
+
+		//		
+		//		if(!cnt)
+		//		{
+		//			endMission(0); //assuming 0 is a failed to path end mission
+		//		}
+
+		//	}else
+		//	{
+		//		if(m_showPlainImage)
+		//		{
+		//			m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage);
+		//			m_gui->drawImage(m_plainImage);
+		//		}else
+		//		{
+		//			m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_edgedImage);
+		//			m_gui->drawImage(m_edgedImage);
+		//		}
+		//	}
+		//}else
+		//{
+		if(m_pathing->isActive())
+		{
+			if(m_showPlainImage)
+			{
+				m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage);
+				m_gui->drawImage(m_plainImage);
+			}else
+			{
+				m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_edgedImage);
+				m_gui->drawImage(m_edgedImage);
+			}
+		}else
+		{
+			if(m_showPlainImage)
+			{
+				m_gui->drawImage(m_plainImage);
+			}else
+			{
+				m_gui->drawImage(m_edgedImage);
+			}
+		}
+		//}
 	}
-	return true;
+
+
+
+
+	////for debugging only
+	//int i = 0;
+	//bool cnt = m_pathing->isActive();
+	//while(cnt)
+	//{
+	//	i++;
+	//	//get new image, edged image and obstacle array
+
+	//	//run the map over it
+
+	//	//if a obstacle happends then return false.
+	//}
+	//return true;
 }
