@@ -82,6 +82,7 @@ void A2BGUI::setControl(iControl * ctrl)
 // split this into maybe setImage(Mat) and refresh(). Change later? *****
 void A2BGUI::drawImage(Mat img)
 {
+
 	m_view.release();	// for every clone, should call release()
 	m_view = img.clone();
 	
@@ -141,6 +142,7 @@ void A2BGUI::markRobot(Point c)
 			img(c.y+dy, c.x+dx)[1] = 255;	// set this coloring in that pixel
 	}
 	drawImage(m_view);	// refresh
+	waitKey(500);
 }
 
 // Define the circle. RxV is a vector of ints where the width (x) of the circle from the origin

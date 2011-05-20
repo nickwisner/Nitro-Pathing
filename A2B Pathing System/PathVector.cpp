@@ -16,7 +16,7 @@ const float SPACE_PER_INCH = 14.0/PIXELS_PER_SQUARE;
 const int INCH_PER_SEC = 6;//inches 
 
 const float SPACE_TO_MILLISECONDS = ((INCH_PER_SEC*SPACE_PER_INCH)/1000);
-const int NINETY_DEGREES = 1000;//976;//956;
+const int NINETY_DEGREES = 956;//1000;//976;//956;
 
 //for debugging
 const int DEBUG_MOVE = 2;

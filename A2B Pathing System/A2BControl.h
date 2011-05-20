@@ -53,7 +53,7 @@ public:
 	void startThreads();
 	//Will update the image and check the path
 		//Not implimented
-	bool update();
+	void update();
 	
 	//checks to see if there are any save queueres
 		//Not implimented
@@ -81,7 +81,10 @@ private:
 //	boost::mutex m_obstLock;
 
 	boost::thread m_updatePath;
-	
+
+	boost::mutex m_obstLock;
+	boost::mutex m_plainLock;
+
 	bool * m_obstacleMap; // This bool array contains the place ment of open spaces and obsticle spaces. In terms of SPACE [ 8px X 8px ] 
 	
 	bool m_showPlainImage; // whether to send plain image to GUI (true), or edged (false)
