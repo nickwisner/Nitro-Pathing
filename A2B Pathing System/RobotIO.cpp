@@ -29,7 +29,7 @@ void handle_write(const boost::system::error_code&, // error
 
 // COM4 is hardcoded at this point only because we are only testing from one computer that uses it.
 // It will be changed later on
-RobotIO::RobotIO() : m_robot(0), m_port(m_io, "COM4")	// open the bluetooth connection
+RobotIO::RobotIO() : m_robot(0), m_port(m_io, "COM8")	// open the bluetooth connection
 {
 	sendPriorityCommand(RobotCommand('z', 0));
 }
@@ -168,7 +168,7 @@ bool RobotIO::openPort()
 	if( !m_port.is_open() )
 	{
 		// this hard code of COM4 is once again there... will be fixed to a global const soon and for release will most likely be in a config file
-		m_port.open("COM4");	// opens the bluetooth connection to the robot
+		m_port.open("COM8");	// opens the bluetooth connection to the robot
 	
 		return true;
 	}
