@@ -173,20 +173,104 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 	int bottomRightSpace = (robotCenter + ((ROBOT_SIZE_SPACE/2)*ROW_SIZE)) + (ROBOT_SIZE_SPACE/2);
 	int bottomLeftSpace = (robotCenter + ((ROBOT_SIZE_SPACE/2)*ROW_SIZE)) - (ROBOT_SIZE_SPACE/2);
 
+	// checking to see if are bounds are inside the obstacle map
+
+	// if going off map heading left
+	if(robotCenter % ROW_SIZE < ROBOT_SIZE_SPACE / 2)
+	{
+		// check if heading off map north
+		if(robotCenter - ROBOT_SIZE_SPACE/2*ROW_SIZE < 0)
+		{
+			topLeftSpace = 0;
+		}
+		else // room north but not west
+		{
+			topLeftSpace = robotCenter - ( (ROBOT_SIZE_SPACE/2*ROW_SIZE + robotCenter % ROW_SIZE));
+		}
+
+		// check if heading off map south
+		if(robotCenter + ROBOT_SIZE_SPACE/2*ROW_SIZE >= BOARD_SIZE)
+		{
+			// bottom left space
+			bottomLeftSpace = BOARD_SIZE - ROW_SIZE;
+		}
+		else // room south but not west
+		{
+			bottomLeftSpace = robotCenter + ((ROBOT_SIZE_SPACE/2)*ROW_SIZE) - robotCenter % ROW_SIZE;
+		}
+	}
+	else	// room to the left
+	{
+		// check if heading off map north
+		if(robotCenter - ROBOT_SIZE_SPACE/2*ROW_SIZE < 0)
+		{
+			// room left but not north
+			topLeftSpace = robotCenter % ROW_SIZE - ROBOT_SIZE_SPACE/2;
+		}
+
+		// check if heading off map south
+		if(robotCenter + ROBOT_SIZE_SPACE/2*ROW_SIZE >= BOARD_SIZE)
+		{
+			// room left but not south
+			bottomLeftSpace = BOARD_SIZE - (ROW_SIZE - robotCenter % ROW_SIZE) - ROBOT_SIZE_SPACE/2;
+		}
+
+	}
+
+	// if going off map heading east	
+	if(robotCenter / ROW_SIZE < ( robotCenter + ROBOT_SIZE_SPACE/2) / ROW_SIZE)
+	{
+		// check if heading off map north
+		if(robotCenter - ROBOT_SIZE_SPACE/2*ROW_SIZE < 0)
+		{
+			// top right space
+			topRightSpace = ROW_SIZE - 1;
+		}
+		else	// room north but not east
+		{
+			topRightSpace = robotCenter - ROBOT_SIZE_SPACE/2*ROW_SIZE + (ROW_SIZE - robotCenter % ROW_SIZE - 1);
+		}
+
+		// check if heading off map south
+		if(robotCenter + ROBOT_SIZE_SPACE/2*ROW_SIZE >= BOARD_SIZE)
+		{
+			// no room right or south so bottom right space
+			bottomRightSpace = BOARD_SIZE - 1;
+		}
+		else // room south but not east
+		{
+			bottomRightSpace = robotCenter + ROBOT_SIZE_SPACE/2*ROW_SIZE + (ROW_SIZE - robotCenter % ROW_SIZE - 1);
+		}
+
+	}
+	else // room to the east
+	{
+		// check if heading off map north
+		if(robotCenter - ROBOT_SIZE_SPACE/2*ROW_SIZE < 0)
+		{
+			// room to the east but not to the north
+			topRightSpace = robotCenter % ROW_SIZE + ROBOT_SIZE_SPACE/2;
+		}
+
+		// check if heading off map south
+		if(robotCenter + ROBOT_SIZE_SPACE/2*ROW_SIZE >= BOARD_SIZE)
+		{
+			// room to the east but not tot he south
+			bottomRightSpace = BOARD_SIZE - ROW_SIZE + robotCenter % ROW_SIZE + ROBOT_SIZE_SPACE/2;
+		}
+
+	}
+
 	// This actually puts a big white square over the image.
 	//m_gui->CoverRobot(Point(robPos.x - ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE),robPos.y - ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE)),Point(robPos.x + ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE),robPos.y + ((ROBOT_SIZE_SPACE/2)*PIXELS_PER_SQUARE)));
 
-	for(int i = topRightSpace-2; i <= bottomRightSpace;)
+	// clear all of the robot spaces of obstacle marks
+	for(int rowsCompleted(0); rowsCompleted < ROBOT_SIZE_SPACE; rowsCompleted++)
 	{
-		for(int x = topLeftSpace-2; x <= topRightSpace; x++)
+		for(int currSpace(topLeftSpace + rowsCompleted*ROW_SIZE); currSpace <= topRightSpace + rowsCompleted*ROW_SIZE; currSpace++)
 		{
-			obstMap[x] = false;
-			//the false is to set the space to not be an obstacle!
+			obstMap[currSpace] = false;
 		}
-		i += ROW_SIZE;
-		//changing these should be fine BECAUSE i = topRightSpace only at the start.
-		topLeftSpace += ROW_SIZE;
-		topRightSpace += ROW_SIZE;
 	}
 
 	/* DEBUG: saving the grid in ascii format to out.txt for funs */
@@ -355,13 +439,13 @@ void A2BControl::update()
 
 		m_edgedImage = m_imageacquisition->getEdge();
 
-		m_plainLock.lock();
+//		m_plainLock.lock();
 		m_plainImage = m_imageacquisition->getPlain();
-		m_plainLock.unlock();
+//		m_plainLock.unlock();
 
-		m_obstLock.lock();
+//		m_obstLock.lock();
 		m_obstacleMap = m_imageacquisition->getObstMap();
-		m_obstLock.unlock();
+//		m_obstLock.unlock();
 
 		boost::this_thread::restore_interruption ri(di);
 
@@ -410,23 +494,18 @@ void A2BControl::update()
 			if(m_showPlainImage)
 			{
 				m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage);
-				m_gui->drawImage(m_plainImage);
 			}else
 			{
 				m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_edgedImage);
-				m_gui->drawImage(m_edgedImage);
-			}
-		}else
-		{
-			if(m_showPlainImage)
-			{
-				m_gui->drawImage(m_plainImage);
-			}else
-			{
-				m_gui->drawImage(m_edgedImage);
 			}
 		}
-		//}
+		if(m_showPlainImage)
+		{
+			m_gui->drawImage(m_plainImage);
+		}else
+		{
+			m_gui->drawImage(m_edgedImage);
+		}
 	}
 
 
