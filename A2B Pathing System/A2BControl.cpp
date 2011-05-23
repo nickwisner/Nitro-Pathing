@@ -318,9 +318,6 @@ void A2BControl::startThreads()
 		key = 'q';
 	}
 
-	//create a thread to handle updata.
-	m_updatePath = boost::thread(boost::bind(&A2BControl::update, this));
-
 	try
 	{
 		m_robotio = new RobotIO;
@@ -336,12 +333,19 @@ void A2BControl::startThreads()
 
 		connection = false;
 	}
-
+	if(key != 'q')
+	{
+		//create a thread to handle updata.
+		m_updatePath = boost::thread(boost::bind(&A2BControl::update, this));
+	}
 
 	while(key != 'q')
 	{
 		key = 0;	
 		key = waitKey(500); // Get key input from user, poll every 500 ms
+
+		++key;
+		--key;
 
 		switch(key)
 		{
@@ -421,6 +425,8 @@ void A2BControl::startThreads()
 			break;
 		}
 	}
+	m_updatePath.interrupt();
+	m_updatePath.join();
 }
 
 // This will be the method that a thread will act on.
@@ -437,15 +443,15 @@ void A2BControl::update()
 		//get new image, edged image and obstacle array
 		boost::this_thread::disable_interruption di;
 
+		m_plainLock.lock();
+		m_plainImage = m_imageacquisition->getPlain();
+		m_plainLock.unlock();
+
 		m_edgedImage = m_imageacquisition->getEdge();
 
-//		m_plainLock.lock();
-		m_plainImage = m_imageacquisition->getPlain();
-//		m_plainLock.unlock();
-
-//		m_obstLock.lock();
+		m_obstLock.lock();
 		m_obstacleMap = m_imageacquisition->getObstMap();
-//		m_obstLock.unlock();
+		m_obstLock.unlock();
 
 		boost::this_thread::restore_interruption ri(di);
 
