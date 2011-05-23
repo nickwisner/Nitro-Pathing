@@ -297,7 +297,7 @@ void A2BControl::startThreads()
 	// since apparently OpenCV's camera cannot be in a different thread,
 	// but stuff will be threaded later unless we have to do another workaround
 	int key = 0;
-	
+	bool pathUpdate_start = false;
 	bool connection = true;
 
 	try
@@ -333,10 +333,12 @@ void A2BControl::startThreads()
 
 		connection = false;
 	}
+
 	if(key != 'q')
 	{
 		//create a thread to handle updata.
 		m_updatePath = boost::thread(boost::bind(&A2BControl::update, this));
+		pathUpdate_start = true;
 	}
 
 	while(key != 'q')
@@ -344,8 +346,6 @@ void A2BControl::startThreads()
 		key = 0;	
 		key = waitKey(500); // Get key input from user, poll every 500 ms
 
-		++key;
-		--key;
 
 		switch(key)
 		{
@@ -425,8 +425,11 @@ void A2BControl::startThreads()
 			break;
 		}
 	}
-	m_updatePath.interrupt();
-	m_updatePath.join();
+	if(pathUpdate_start)
+	{
+		m_updatePath.interrupt();
+		m_updatePath.join();
+	}
 }
 
 // This will be the method that a thread will act on.
@@ -450,11 +453,12 @@ void A2BControl::update()
 		m_edgedImage = m_imageacquisition->getEdge();
 
 		m_obstLock.lock();
+		delete []m_obstacleMap;
 		m_obstacleMap = m_imageacquisition->getObstMap();
 		m_obstLock.unlock();
 
 		boost::this_thread::restore_interruption ri(di);
-
+		boost::this_thread::interruption_point();
 		//if(m_pathing->isActive())
 		//{
 		//	//run the map over it

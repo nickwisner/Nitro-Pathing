@@ -49,6 +49,9 @@ class ImageAcquisition : public iImageAcquisition
 		boost::mutex m_plainLock;
 		boost::mutex m_edgeLock;
 		boost::mutex m_obstLock;
+		boost::mutex m_loopLock;
+
+		bool m_updateLoop;
 
 		boost::thread m_imageUpdate;
 
