@@ -12,6 +12,8 @@ using namespace cv;
 
 #include <string>
 using std::string;
+#include <vector>
+using std::vector;
 
 // for constants such as CAMERA_ROWSIZE
 #include "A2BUtilities.h"
@@ -56,7 +58,7 @@ void A2BGUI::onMouse( int event, int x, int y, int, void * gui )
 * referenced by the title, m_window. The callback for the mouse
 * over this window is set to the static method, onMouse.
 **********************************************************************/
-A2BGUI::A2BGUI() : m_control(0), m_view(CAMERA_COL_SIZE, CAMERA_ROW_SIZE,CV_64FC3,Scalar(0,0,0))
+A2BGUI::A2BGUI() : m_control(0), m_view(CAMERA_COL_SIZE, CAMERA_ROW_SIZE,CV_64FC3,Scalar(0,0,0)), m_drawPath(false), m_foundRobot(false)
 {
 	m_window = APPLICATION_NAME;
 	namedWindow(m_window, CV_WINDOW_KEEPRATIO);
@@ -85,7 +87,13 @@ void A2BGUI::drawImage(Mat img)
 
 	m_view.release();	// for every clone, should call release()
 	m_view = img.clone();
-	
+	if(m_drawPath)
+	{
+		drawPath();
+	}else if(m_foundRobot)
+	{
+		drawRobotMark();
+	}
 	imshow(m_window, m_view);
 }
 
@@ -102,14 +110,25 @@ void A2BGUI::drawImage(Mat img)
 * with lines. The Scalar is the color; should probably make that a
 * const up at the top somewhere for easy changing.
 **********************************************************************/
-void A2BGUI::drawPath(const vector<Point> & path, Mat * view)
+void A2BGUI::setPath(const vector<Point> & path)
 {
-	for(int i = 1; i < path.size();i++)
+	if(m_pathPoints.empty())
 	{
-		line(*view, path[i-1], path[i], Scalar(25,83,255),2,7);
+		m_pathPoints = path;
+	}else
+	{
+		m_pathPoints.clear();
+		m_pathPoints = path;
+	}
+	m_drawPath = true;
+}
+void A2BGUI::drawPath()
+{
+	for(int i = 1; i < m_pathPoints.size();i++)
+	{
+		line(m_view, m_pathPoints[i-1], m_pathPoints[i], Scalar(25,83,255),2,7);
 	}
 }
-
 // Not sure if we'll even use this. But it talks to m_database, saying
 // hey we're done, you can save off the mission to the DB now.
 void A2BGUI::endMission()
@@ -129,6 +148,11 @@ int A2BGUI::showError(const string & error, int type)
 // Puts a circle on Point c where the robot is thought to be.
 void A2BGUI::markRobot(Point c)
 {
+	m_foundRobot = true;
+	m_robotCenter = c;
+}
+void A2BGUI::drawRobotMark()
+{
 	int R = 10;
 	vector<int> RxV;
 	getCircularROI(R, RxV); // define circle
@@ -139,10 +163,8 @@ void A2BGUI::markRobot(Point c)
 	{
 		int Rx = RxV[abs(dy)];
 		for( int dx = -Rx; dx <= Rx; dx++ )
-			img(c.y+dy, c.x+dx)[1] = 255;	// set this coloring in that pixel
+			img(m_robotCenter.y+dy, m_robotCenter.x+dx)[1] = 255;	// set this coloring in that pixel
 	}
-	drawImage(m_view);	// refresh
-	waitKey(500);
 }
 
 // Define the circle. RxV is a vector of ints where the width (x) of the circle from the origin
@@ -165,4 +187,12 @@ void A2BGUI::CoverRobot(Point a, Point b)
 	cv::rectangle(m_view, a, b, Scalar(100,100,100),1,0);
 	drawImage(m_view);	// refresh
 	waitKey(100);
+}
+void A2BGUI::stopDrawingPath()
+{
+	m_drawPath = false;
+}
+void A2BGUI::stopMarkingRobot()
+{
+	m_foundRobot = false;
 }

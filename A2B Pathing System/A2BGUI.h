@@ -14,6 +14,7 @@
 using std::string;
 
 
+
 class A2BGUI : public iGUI
 {
 
@@ -27,8 +28,8 @@ public:
 	void setControl(iControl * ctrl);
 	// Displays image inside the window.
 	void drawImage(Mat img);
-	// Displays the path overlaying the image in the window.
-	void drawPath(const vector<Point> & path, Mat * view);
+	void setPath( const vector<Point> & path);
+	
 	// Called when user triggers manual abortion of the robot mission!
 	void endMission();
 	// Pops a message box with error. Basically, wraps WinAPI MessageBox.
@@ -38,6 +39,9 @@ public:
 	//Called when user indicates a destination point. Sends point to Control.
 	void setDest(int x, int y);
 
+	void stopDrawingPath();
+	void stopMarkingRobot();
+
 	//rmv later
 	void CoverRobot(Point a, Point b);
 private:
@@ -45,12 +49,21 @@ private:
 	string m_window;		// name of the window, also used to reference window
 	Mat m_view;				// the image shown in the window; deep copied from source
 
+	// Displays the path overlaying the image in the window.
+	void drawPath();
+
 	// Used for markRobot, finds the area inside the circle to make colored.
 	void getCircularROI(int R, vector < int > & RxV);
 
 	// The callback for mouse events on window
 	static void onMouse( int event, int x, int y, int, void * gui );
 
+	void drawRobotMark();
+
+	bool m_drawPath;
+	bool m_foundRobot;
+	vector<Point> m_pathPoints;
+	Point m_robotCenter;
 };
 
 #endif

@@ -84,9 +84,6 @@ void ImageAcquisition::getImages()
 }
 Mat ImageAcquisition::getPlain()
 {
-	//while(!m_plainLock.try_lock())
-	// boost::this_thread::yield();
-
 	m_plainLock.lock();
 	Mat t = m_plainCur.clone();
 	m_plainLock.unlock();
@@ -94,17 +91,13 @@ Mat ImageAcquisition::getPlain()
 }
 Mat ImageAcquisition::getEdge()
 {
-	//while(!m_edgeLock.try_lock())
-	// boost::this_thread::yield();
 	m_edgeLock.lock();
 	Mat t = m_edgeCur.clone();
 	m_edgeLock.unlock();
 	return t;
 }
 bool* ImageAcquisition::getObstMap()
-{//this is sad-face
-	//while(!m_obstLock.try_lock())
-	// boost::this_thread::yield();
+{
 	m_obstLock.lock();
 	bool * tmp = new bool[ROW_SIZE * COL_SIZE];
 	memcpy(tmp, m_obstMap, sizeof(bool)* (ROW_SIZE*COL_SIZE));

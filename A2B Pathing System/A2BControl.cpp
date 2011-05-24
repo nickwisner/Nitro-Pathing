@@ -47,8 +47,6 @@ bool A2BControl::endMission(int error)
 {
 	return false;
 }
-
-
 void A2BControl::endThreads()
 {
 	// Not yet implemented. Once we have threads, we will kill
@@ -124,9 +122,7 @@ bool A2BControl::setDestination(Point dest)
 		spaceDest = A2BUtilities::pixelToSpaceId( dest.x,dest.y);
 		clearRobot(spaceStart, tmp, robPos);
 
-		m_plainLock.lock();
 		m_gui->markRobot(robPos);
-		m_plainLock.unlock();
 
 		if(n < 5)
 			robCheck = !m_gui->showError("Is this the robot?",MB_YESNO);
@@ -135,7 +131,7 @@ bool A2BControl::setDestination(Point dest)
 	} // keep looping if they answer no
 	while( robCheck );
 
-
+	m_gui->stopMarkingRobot();
 
 	if( !m_pathing->makePath(spaceDest, spaceStart, tmp) )
 	{
@@ -144,6 +140,9 @@ bool A2BControl::setDestination(Point dest)
 	else
 	{
 		m_robotio->fillQueue(m_pathing->getPath());
+
+		
+		m_gui->setPath(m_pathing->getPath()->getPathPoints());
 
 		// this is only for the alpha release... will be replaced by startmission message being sent
 		try
@@ -351,49 +350,61 @@ void A2BControl::startThreads()
 		{
 			// Manual move forward
 		case 'f':
-			try
+			if(!m_pathing->isActive())
 			{
-				m_robotio->sendCommand(RobotCommand('f', 1000));
-			}
-			catch(int e)
-			{
-				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+				try
+				{
+					m_robotio->sendCommand(RobotCommand('f', 1000));
+				}
+				catch(int e)
+				{
+					m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+				}
 			}
 			break;
 
 			// Manual turn left
 		case 'l':
-			try
+			if(!m_pathing->isActive())
 			{
-				m_robotio->sendCommand(RobotCommand('l', 1000));
-			}
-			catch(int e)
-			{
-				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+				try
+				{
+					m_robotio->sendCommand(RobotCommand('l', 1000));
+				}
+				catch(int e)
+				{
+					m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+				}
 			}
 			break;
 
 			// Manual turn right
 		case 'r':
-			try
+			if(!m_pathing->isActive())
 			{
-				m_robotio->sendCommand(RobotCommand('r', 1000));
-			}
-			catch(int e)
-			{
-				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+				try
+				{
+					m_robotio->sendCommand(RobotCommand('r', 1000));
+				}
+				catch(int e)
+				{
+					m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+				}
 			}
 			break;
 
 			// Manual move backwards
 		case 'b':
-			try
+			if(!m_pathing->isActive())
 			{
-				m_robotio->sendCommand(RobotCommand('b', 1000));
-			}
-			catch(int e)
-			{
-				m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+				try
+				{
+					m_robotio->sendCommand(RobotCommand('b', 1000));
+				}
+				catch(int e)
+				{
+					m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+				}
 			}
 			break;
 			// This will connect or disconnect the port!
@@ -498,17 +509,14 @@ void A2BControl::update()
 		//		}
 		//	}
 		//}else
-		//{
-		if(m_pathing->isActive())
+		//{\
+		
+		//will probably want to put a lock on this ish.
+		if(!m_pathing->isActive())
 		{
-			if(m_showPlainImage)
-			{
-				m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage);
-			}else
-			{
-				m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_edgedImage);
-			}
+			m_gui->stopDrawingPath();
 		}
+
 		if(m_showPlainImage)
 		{
 			m_gui->drawImage(m_plainImage);
@@ -517,21 +525,4 @@ void A2BControl::update()
 			m_gui->drawImage(m_edgedImage);
 		}
 	}
-
-
-
-
-	////for debugging only
-	//int i = 0;
-	//bool cnt = m_pathing->isActive();
-	//while(cnt)
-	//{
-	//	i++;
-	//	//get new image, edged image and obstacle array
-
-	//	//run the map over it
-
-	//	//if a obstacle happends then return false.
-	//}
-	//return true;
 }

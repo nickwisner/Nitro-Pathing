@@ -45,12 +45,13 @@ public:
 
 	virtual void setControl(iControl * ctrl) = 0;
 	virtual void drawImage(Mat image) =0;
-	virtual void drawPath(const vector<Point> & Path, Mat * view) =0;
+	virtual void setPath( const vector<Point> & path) =0;
 	virtual void endMission() =0;
 	virtual void markRobot(Point point) =0;
 	virtual void setDest(int x, int y) =0;
 	virtual int showError(const string & error, int type = MB_OK) =0;
-
+	virtual void stopDrawingPath() = 0;
+	virtual void stopMarkingRobot() = 0;
 	//rmv later
 	virtual void CoverRobot(Point a, Point b) = 0;
 
