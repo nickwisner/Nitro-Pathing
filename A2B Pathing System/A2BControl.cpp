@@ -94,26 +94,19 @@ bool A2BControl::setDestination(Point dest)
 {
 	bool * tmp = new bool[ROW_SIZE * COL_SIZE];
 	Point robPos;
-	bool robCheck = true;
 	int n = -1;
 	int spaceStart = 0;
 	int spaceDest = 0;
 
 	//change the first part setDestinatoin to be "findRobot"
-	do
-	{
-		n++;
-		//getImage();
-		//m_obstacleMap = m_imageacquisition->getObstMap();
-		//m_edgedImage = m_imageacquisition->getEdge();
-		//m_plainImage = m_imageacquisition->getPlain();
 
+	bool foundrobot = true;
+	for( int attempt = 0; attempt < 5 && !foundrobot; attempt++ )
+	{
 		m_obstLock.lock();
 		memcpy(tmp, m_obstacleMap, sizeof(bool)* (ROW_SIZE*COL_SIZE));
 		m_obstLock.unlock();
-		//m_gui->drawImage( (m_showPlainImage ? m_plainImage : m_edgedImage) );
 
-		//might want to put this in a temp variable (this being m_plainImage)
 		m_plainLock.lock();
 		robPos = ImageProcessor::findRobot((&m_plainImage), m_pathing->getRobot());
 		m_plainLock.unlock();
@@ -123,13 +116,15 @@ bool A2BControl::setDestination(Point dest)
 		clearRobot(spaceStart, tmp, robPos);
 
 		m_gui->markRobot(robPos);
-
-		if(n < 5)
-			robCheck = !m_gui->showError("Is this the robot?",MB_YESNO);
-		else
-			return false;
-	} // keep looping if they answer no
-	while( robCheck );
+		
+		foundrobot = !m_gui->showError("Is this the robot?", MB_YESNO);
+		// keep looping if they answer no. otherwise, exit loop
+	}
+	if( !foundrobot )
+	{
+		m_gui->showError("Cannot find the robot. Please locate the robot and verify it is in an area viewable by the camera.", MB_OK);
+		return false;
+	}
 
 	m_gui->stopMarkingRobot();
 
