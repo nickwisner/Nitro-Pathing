@@ -45,6 +45,10 @@ A2BControl::~A2BControl()
  */
 bool A2BControl::endMission(int error)
 {
+	if(error = 1)
+	{
+		m_pathing->stopPath();
+	}
 	return false;
 }
 void A2BControl::endThreads()
@@ -316,7 +320,8 @@ void A2BControl::startThreads()
 
 	try
 	{
-		m_robotio = new RobotIO;
+		m_robotio = new RobotIO();//RobotIO();
+		m_robotio->setControl((iControl*)this);
 	}
 	catch(...)
 	{
@@ -439,7 +444,6 @@ void A2BControl::startThreads()
 		m_updatePath.join();
 	}
 }
-
 // This will be the method that a thread will act on.
 // This will, on a timer:
 //		get image. if active, validate and draw path. display image.

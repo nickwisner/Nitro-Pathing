@@ -33,6 +33,7 @@ public:
 	virtual bool setRobot( Robot & domoarigato) = 0;
 	virtual	Robot * getRobot() = 0;
 	virtual int getHeading() = 0;
+	virtual void stopPath() = 0;
 
 private:
 	//virtual void translateToPath( vector<int> path) = 0;

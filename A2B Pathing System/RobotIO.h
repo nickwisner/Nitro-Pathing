@@ -22,9 +22,10 @@ class RobotIO : public iRobotIO
 
 public:
 	RobotIO();
+	//RobotIO(A2BControl * cnt);
 	virtual ~RobotIO();
 
-
+	void setControl(iControl * cnt);
 	//Takes a Path object and iterates over the whole path taking out the robot commands as it goes
 	bool fillQueue(Path * Pathmsg);
 	//Gets called when the robot has send us a message
@@ -52,6 +53,8 @@ private:
 	boost::asio::io_service m_io;
 	//A boost object required to do serial port communication
 	boost::asio::serial_port m_port;
+
+	iControl * m_controller;
 
 ///////////////////////////////////////////
 	bool m_robotRtn;

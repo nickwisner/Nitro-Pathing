@@ -61,6 +61,7 @@ public:
 	//Saves the queries off to a flat file
 		//Not implimented
 	void saveQueriesToFile();
+
 	//sets all of the false (obsticles) on the bool array for where the robot is
 		//AKA makes the robot no longer a obsticle in the bool array
 	void clearRobot(int space, bool * obstMap, Point robPos);

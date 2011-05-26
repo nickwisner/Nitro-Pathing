@@ -30,11 +30,14 @@ void handle_write(const boost::system::error_code&, // error
 
 // COM4 is hardcoded at this point only because we are only testing from one computer that uses it.
 // It will be changed later on
-RobotIO::RobotIO() : m_robot(0),m_io(2), m_port(m_io, "COM4"), m_robotRtn(false)	// open the bluetooth connection
+RobotIO::RobotIO() : m_robot(0),m_io(2), m_port(m_io, "COM4"), m_robotRtn(false), m_controller(0)	// open the bluetooth connection
 {
 	sendPriorityCommand(RobotCommand('z', 0));
 }
-
+void RobotIO::setControl(iControl * cnt)
+{
+	m_controller = cnt;
+}
 RobotIO::~RobotIO()
 {
 	sendPriorityCommand(RobotCommand('a',0));
@@ -109,27 +112,37 @@ void RobotIO::receiveMessage()
 bool RobotIO::commProtocol()
 {
 	bool a = true;
+
+	m_msgQueueLock.lock();
+	bool moreMessage = !m_msgQueue.empty();
+	m_msgQueueLock.unlock();
+
 	RobotCommand curCommand(0,0);
 	char robotRtn = 0;
 	bool sendAgain = true;
+
 	while(a)
 	{
 		if(sendAgain)
 		{
-			m_msgQueueLock.lock();
-			curCommand = m_msgQueue.front();
-			m_msgQueue.pop_front();
-			m_msgQueueLock.unlock();
+			if(moreMessage)
+			{
+				m_msgQueueLock.lock();
+				curCommand = m_msgQueue.front();
+				m_msgQueue.pop_front();
+				m_msgQueueLock.unlock();
 
-			sendCommand(curCommand);
-
-			//should no need to lock this cuz of the yield, but might be wrong. Check wiht jon later
-			while(!m_robotRtn)
-			{boost::this_thread::yield();}
+				sendCommand(curCommand);
+			}
 		}
-			m_rtnValueLock.lock();
-			robotRtn = m_rtnValue;
-			m_rtnValueLock.unlock();
+		//should no need to lock this cuz of the yield, but might be wrong. Check wiht jon later
+		while(!m_robotRtn)
+		{boost::this_thread::yield();}
+		
+
+		m_rtnValueLock.lock();
+		robotRtn = m_rtnValue;
+		m_rtnValueLock.unlock();
 
 		switch(robotRtn)
 		{
@@ -172,10 +185,28 @@ bool RobotIO::commProtocol()
 				break;
 		}
 
+		m_msgQueueLock.lock();
+		if(m_msgQueue.empty())
+		{
+			//not a but somethign for the loop
+			moreMessage = false;
+		}
+		m_msgQueueLock.unlock();
+
+		m_msgCountLock.lock();
+		if(m_msgCount == 0)
+		{
+			a = false;
+		}
+		m_msgCountLock.lock();
 	}
+
 	m_receiveLoopLock.lock();
 	m_receiveCnt = false;
 	m_receiveLoopLock.unlock();
+
+	m_controller->endMission(1);
+
 	//going to clean up the thread mess here!
 	m_robotIn.join();
 

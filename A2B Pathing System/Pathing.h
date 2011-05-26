@@ -37,7 +37,7 @@ public:
 	bool validatePath();
 	Point getRobotPosition();
 	int getHeading();
-	
+	void stopPath();
 	bool setRobot(Robot & domoarigato);
 	Robot * getRobot();
 

@@ -13,7 +13,10 @@ Pathing::Pathing() : m_active(false), m_robot(0), m_path(0), m_heading(1)
 {
 	m_dijk = new Dijkstra(ROW_SIZE, COL_SIZE, ROBOT_SIZE_SPACE);	// create our dijkstra map of a specified grid size
 }
-
+void Pathing::stopPath()
+{
+	m_active = false;
+}
 Pathing::~Pathing()
 {
 	delete m_path;
