@@ -139,11 +139,14 @@ bool A2BControl::setDestination(Point dest)
 		
 		m_gui->setPath(m_pathing->getPath()->getPathPoints());
 
+
+		m_robotio->startCommunication();
 		// this is only for the alpha release... will be replaced by startmission message being sent
 		try
 		{
 			//this should call a method to send the data and listen data coming in aseconisly
-			m_robotio->SendQueue();
+			//m_robotio->SendQueue();
+			
 		}catch(int e)
 		{
 			m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
@@ -155,7 +158,6 @@ bool A2BControl::setDestination(Point dest)
 	delete []tmp;
 	return true;
 }
-
 void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 {
 
