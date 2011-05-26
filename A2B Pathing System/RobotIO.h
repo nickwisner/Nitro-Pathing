@@ -11,8 +11,10 @@
 #include "Robot.h"
 #include "iRobotIO.h"
 
-#include <list>
+#include <boost/thread.hpp>
 #include <boost/asio.hpp>
+
+#include <list>
 using std::list;
 
 class RobotIO : public iRobotIO
@@ -31,9 +33,10 @@ public:
 	bool sendCommand(RobotCommand cmd); // later make private //maybe in beta
 	//Makes a deep copy of the robot object that is passed in and sets it to m_robot
 	void setRobot(Robot & rob);
-	//Sends the whole queue of commands to the robot. 
-		//In beta will be implemented that we will not send a message until the robot has send us a command back.	
+	////Sends the whole queue of commands to the robot. 
+	//	//In beta will be implemented that we will not send a message until the robot has send us a command back.	
 	void SendQueue();
+	void startCommunication();
 	//Trys to open the port if it is closed
 	bool openPort();
 	//Tries to close the port if it is open
@@ -50,8 +53,26 @@ private:
 	//A boost object required to do serial port communication
 	boost::asio::serial_port m_port;
 
-	//takes a string that is the message the robot send us and then returns a int code telling the sytem what to do next
-	int processRobotMessage(string msg);
+///////////////////////////////////////////
+	bool m_robotRtn;
+	char m_rtnValue;
+	int m_msgCount;
+
+	bool m_receiveCnt;
+	boost::mutex m_receiveLoopLock;
+
+	boost::mutex m_msgCountLock;
+	boost::mutex m_rtnValueLock;
+	boost::mutex m_RtnLock;
+
+	boost::thread m_robotOut;
+	boost::thread m_robotIn;
+
+	boost::mutex m_msgQueueLock;
+
+	bool commProtocol();
+
+
 
 };
 #endif

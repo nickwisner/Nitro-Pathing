@@ -11,6 +11,7 @@ using cv::waitKey;
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+#include <boost/thread.hpp>
 
 // used for the bluetooth connection
 using boost::asio::io_service;
@@ -29,7 +30,7 @@ void handle_write(const boost::system::error_code&, // error
 
 // COM4 is hardcoded at this point only because we are only testing from one computer that uses it.
 // It will be changed later on
-RobotIO::RobotIO() : m_robot(0),m_io(2), m_port(m_io, "COM4")	// open the bluetooth connection
+RobotIO::RobotIO() : m_robot(0),m_io(2), m_port(m_io, "COM4"), m_robotRtn(false)	// open the bluetooth connection
 {
 	sendPriorityCommand(RobotCommand('z', 0));
 }
@@ -76,17 +77,109 @@ bool RobotIO::fillQueue(Path * Pathmsg)
 	return filledQueue;
 }
 
-//Should get a string from receiveMessage then process it. Returning a int telling the system what it should do based of the integer.
-int RobotIO::processRobotMessage(string msg){
-	// not implemented
-	return false;
-}
-
 //Should be called to get the whole message the robot is sending
-void RobotIO::receiveMessage(){
-	// not implemented
-}
+void RobotIO::receiveMessage()
+{
+	bool a  = true;
+	m_receiveCnt = true;
 
+	m_receiveLoopLock.lock();
+	while(m_receiveCnt)
+	{
+		m_receiveLoopLock.unlock();
+		while(m_robotRtn)
+		{boost::this_thread::yield();}
+
+
+		// Not sure if I should set all of options
+		std::string buff;
+		m_port.read_some(boost::asio::buffer(buff,1));
+	
+		m_rtnValueLock.lock();
+		m_rtnValue = buff.front();
+		m_rtnValueLock.unlock();
+	
+		m_RtnLock.lock();
+		m_robotRtn = true;
+		m_RtnLock.unlock();
+
+		m_receiveLoopLock.lock();
+	}
+}
+bool RobotIO::commProtocol()
+{
+	bool a = true;
+	RobotCommand curCommand(0,0);
+	char robotRtn = 0;
+	bool sendAgain = true;
+	while(a)
+	{
+		if(sendAgain)
+		{
+			m_msgQueueLock.lock();
+			curCommand = m_msgQueue.front();
+			m_msgQueue.pop_front();
+			m_msgQueueLock.unlock();
+
+			sendCommand(curCommand);
+
+			//should no need to lock this cuz of the yield, but might be wrong. Check wiht jon later
+			while(!m_robotRtn)
+			{boost::this_thread::yield();}
+		}
+			m_rtnValueLock.lock();
+			robotRtn = m_rtnValue;
+			m_rtnValueLock.unlock();
+
+		switch(robotRtn)
+		{
+			//lowercase means finished
+			case 'a':
+				//room for more messages
+				sendAgain = true;
+				m_msgCountLock.lock();
+				--m_msgCount;
+				m_msgCountLock.unlock();
+				break;
+			case 'c':
+				//no room for more messages
+				sendAgain = false;
+
+				m_RtnLock.lock();
+				m_robotRtn = true;
+				m_RtnLock.unlock();
+
+				m_msgCountLock.lock();
+				--m_msgCount;
+				m_msgCountLock.unlock();
+				break;
+			//upercase mean processed but not completed
+			case 'A':
+				//room for more messages
+				sendAgain = true;
+				break;
+			case 'C':
+				//no room for more messages
+				sendAgain = false;
+
+				m_RtnLock.lock();
+				m_robotRtn = true;
+				m_RtnLock.unlock();
+				break;
+			//means a error occured.
+			case 'F':
+				a = false;
+				break;
+		}
+
+	}
+	m_receiveLoopLock.lock();
+	m_receiveCnt = false;
+	m_receiveLoopLock.unlock();
+	//going to clean up the thread mess here!
+	m_robotIn.join();
+
+}
 //Takes a robot command object and then sends the char and integer to the robot.
 	//With how it is currently implemented it just sends the char to the robot for the number of cycles we have.
 	//This will hopefully be changed in beta
@@ -133,6 +226,14 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 
 	delete []cyclesBuff;
 
+	m_RtnLock.lock();
+	m_robotRtn = false;
+	m_RtnLock.unlock();
+
+	m_msgCountLock.lock();
+	++m_msgCount;
+	m_msgCountLock.unlock();
+
 	return true;
 }
 
@@ -142,8 +243,8 @@ void RobotIO::setRobot(Robot & rob)
 	m_robot = new Robot(rob);
 }
 
-// only here for alpha release
-// sends the entire command queue to robot
+//// only here for alpha release
+//// sends the entire command queue to robot
 void RobotIO::SendQueue()
 {
 	while(m_msgQueue.size())
@@ -160,6 +261,14 @@ void RobotIO::SendQueue()
 			throw NO_CONNECTION;
 		}
 	}
+}
+
+
+void RobotIO::startCommunication()
+{
+	m_robotOut = boost::thread(boost::bind(&RobotIO::commProtocol, this));
+	m_robotIn = boost::thread(boost::bind(&RobotIO::receiveMessage, this));
+
 }
 
 //attemps to open the com port. Should have error handing in here.
@@ -204,8 +313,9 @@ void RobotIO::sendPriorityCommand(RobotCommand cmd)
 	buff = cmd.getCode();
 
 	// send it
-	boost::asio::async_write(m_port, boost::asio::buffer(buff),  boost::bind(handle_write, boost::asio::placeholders::error,
-			boost::asio::placeholders::bytes_transferred));
+	m_port.write_some(boost::asio::buffer(buff));
+//	boost::asio::async_write(m_port, boost::asio::buffer(buff),  boost::bind(handle_write, boost::asio::placeholders::error,
+//			boost::asio::placeholders::bytes_transferred));
 
 	// pop the sent command off
 	buff.pop_back();

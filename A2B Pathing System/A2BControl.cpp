@@ -139,6 +139,8 @@ bool A2BControl::setDestination(Point dest)
 		
 		m_gui->setPath(m_pathing->getPath()->getPathPoints());
 
+
+		m_robotio->startCommunication();
 		// this is only for the alpha release... will be replaced by startmission message being sent
 		try
 		{
@@ -158,7 +160,6 @@ bool A2BControl::setDestination(Point dest)
 	delete []tmp;
 	return true;
 }
-
 void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 {
 
