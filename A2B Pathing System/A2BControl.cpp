@@ -149,11 +149,13 @@ bool A2BControl::setDestination(Point dest)
 		try
 		{
 			//this should call a method to send the data and listen data coming in aseconisly
-			//m_robotio->SendQueue();
-			
-		}catch(int e)
+			m_robotio->SendQueue();
+		}
+		catch(int e)
 		{
 			m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+
+//			m_database->error(ErrorLog(
 		}
 	}
 
@@ -274,21 +276,21 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 	}
 
 	/* DEBUG: saving the grid in ascii format to out.txt for funs */
-/*	if( file.is_open() )
-	{
-	file << "CLEARED ROBOT\n";
-		for( int i = 0; i < COL_SIZE; i++ )
-		{
-			for( int j = 0; j < ROW_SIZE; j++ )
-			{
-				file << (obstMap[i*ROW_SIZE + j] ? '`' : 'X');
-			}
-			file << '\n';
-		}
-		file << '\n';
+	//if( file.is_open() )
+	//{
+	//file << "CLEARED ROBOT\n";
+	//	for( int i = 0; i < COL_SIZE; i++ )
+	//	{
+	//		for( int j = 0; j < ROW_SIZE; j++ )
+	//		{
+	//			file << (obstMap[i*ROW_SIZE + j] ? '`' : 'X');
+	//		}
+	//		file << '\n';
+	//	}
+	//	file << '\n';
 
-		file.close();
-	}*/
+	//	file.close();
+	}
 }
 void A2BControl::startThreads()
 {

@@ -24,6 +24,17 @@ const int ROBOT_SIZE_PX = 176;
 const int ROBOT_SIZE_SPACE = (ROBOT_SIZE_PX/PIXELS_PER_SQUARE) + 1;
 
 const string APPLICATION_NAME = "A2B Pathing System";
+const string CONFIG_FILE_NAME = "a2bconfig.cfg";
+const string ERR_LOG_FILE_NAME = "a2bLog.log";
+
+enum A2BError
+{
+	A2BERR_GENERIC_ERROR,
+	A2BERR_CANNOT_FIND_ROBOT,
+	A2BERR_NO_CAMERA,
+	A2BERR_NO_ROBOT,
+	A2BERR_NO_PATH
+};
 
 class A2BUtilities
 {
@@ -32,6 +43,16 @@ public:
 	static int pixelToSpaceId( int x, int y)	 
 	{
 		return (y/PIXELS_PER_SQUARE)*ROW_SIZE + (x/PIXELS_PER_SQUARE);
+	}
+
+	static string GetTime()
+	{
+		time_t rawtime;
+		struct tm * timeinfo;
+
+		time ( &rawtime );
+		timeinfo = localtime ( &rawtime );
+		return asctime(timeinfo);
 	}
 };
 
