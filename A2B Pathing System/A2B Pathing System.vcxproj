@@ -84,6 +84,7 @@
     <ClCompile Include="DummyRobIO.cpp" />
     <ClCompile Include="Edge.cpp" />
     <ClCompile Include="ErrorLog.cpp" />
+    <ClCompile Include="ErrorLogger.cpp" />
     <ClCompile Include="ImageAcquisition.cpp" />
     <ClCompile Include="ImageProcessor.cpp" />
     <ClCompile Include="main.cpp" />
@@ -107,6 +108,7 @@
     <ClInclude Include="DummyRobIO.h" />
     <ClInclude Include="Edge.h" />
     <ClInclude Include="ErrorLog.h" />
+    <ClInclude Include="ErrorLogger.h" />
     <ClInclude Include="iControl.h" />
     <ClInclude Include="iDatabase.h" />
     <ClInclude Include="iGUI.h" />
