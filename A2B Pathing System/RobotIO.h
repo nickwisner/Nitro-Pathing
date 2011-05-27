@@ -73,7 +73,7 @@ private:
 
 	boost::mutex m_msgQueueLock;
 
-	bool commProtocol();
+	void commProtocol();
 
 
 

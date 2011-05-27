@@ -290,7 +290,6 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 	//	file << '\n';
 
 	//	file.close();
-	}
 }
 void A2BControl::startThreads()
 {

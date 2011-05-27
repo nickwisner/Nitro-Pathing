@@ -6,6 +6,7 @@
 ///////////////////////////////////////////////////////////
 
 #include "RobotIO.h"
+#include "iControl.h"
 #include <opencv2/highgui/highgui.hpp>
 using cv::waitKey;
 
@@ -32,6 +33,7 @@ void handle_write(const boost::system::error_code&, // error
 // It will be changed later on
 RobotIO::RobotIO() : m_robot(0),m_io(2), m_port(m_io, "COM4"), m_robotRtn(false), m_controller(0)	// open the bluetooth connection
 {
+	
 	sendPriorityCommand(RobotCommand('z', 0));
 }
 void RobotIO::setControl(iControl * cnt)
@@ -95,11 +97,15 @@ void RobotIO::receiveMessage()
 
 
 		// Not sure if I should set all of options
-		std::string buff;
-		m_port.read_some(boost::asio::buffer(buff,1));
+		//std::string buff;
+
+//		boost::asio::read(m_port, boost::asio::buffer(buff));
+		char buff;
+		boost::asio::read(m_port, boost::asio::buffer(&buff,1));
+//		m_port.read_some(boost::asio::buffer(buff));//,1));
 	
 		m_rtnValueLock.lock();
-		m_rtnValue = buff.front();
+		m_rtnValue = buff;
 		m_rtnValueLock.unlock();
 	
 		m_RtnLock.lock();
@@ -109,7 +115,7 @@ void RobotIO::receiveMessage()
 		m_receiveLoopLock.lock();
 	}
 }
-bool RobotIO::commProtocol()
+void RobotIO::commProtocol()
 {
 	bool a = true;
 

@@ -1,5 +1,5 @@
-#ifndef sdfadfsdf_H//PATH_H
-#define sdfadfsdf_H//PATH_H
+#ifndef sdfapdfsdf_H//PATH_H
+#define sdfapdfsdf_H//PATH_H
 
 #include <opencv2/imgproc/imgproc.hpp>
 using cv::Point;
