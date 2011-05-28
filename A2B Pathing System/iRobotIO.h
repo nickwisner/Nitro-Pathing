@@ -36,7 +36,7 @@ public:
 	//Takes a Path object and iterates over the whole path taking out the robot commands as it goes
 	virtual bool fillQueue(Path * pathMsg) =0;
 	//Gets called when the robot has send us a message
-	virtual void receiveMessage() =0;
+	virtual char receiveMessage() = 0;
 	//Sends a command that is passed into the object
 	virtual bool sendCommand(RobotCommand cmd) =0;
 	//Makes a deep copy of the robot object that is passed in and sets it to m_robot

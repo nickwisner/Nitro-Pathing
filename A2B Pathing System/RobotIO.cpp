@@ -101,44 +101,17 @@ bool RobotIO::fillQueue(Path * Pathmsg)
 }
 
 //Should be called to get the whole message the robot is sending
-void RobotIO::receiveMessage()
+char RobotIO::receiveMessage()
 {
-	bool a  = true;
-	m_receiveCnt = true;
+	int rtn = 0;
 	char buff;
-	m_receiveLoopLock.lock();
-	while(m_receiveCnt)
+
+	while(rtn == 0)
 	{
-		m_receiveLoopLock.unlock();
-
-		m_RtnLock.lock();
-		m_RtnLock.try_lock();
-		while(m_robotRtn)
-		{
-			m_RtnLock.unlock();
-			boost::this_thread::yield();
-			m_RtnLock.lock();
-		}
-		m_RtnLock.unlock();
-
-		// Not sure if I should set all of options
-		//std::string buff;
-
-//		boost::asio::read(m_port, boost::asio::buffer(buff));
-
-		boost::asio::read(m_port, boost::asio::buffer(&buff,1));
-//		m_port.read_some(boost::asio::buffer(buff));//,1));
-	
-		m_rtnValueLock.lock();
-		m_rtnValue = buff;
-		m_rtnValueLock.unlock();
-	
-		m_RtnLock.lock();
-		m_robotRtn = true;
-		m_RtnLock.unlock();
-
-		m_receiveLoopLock.lock();
+		rtn = boost::asio::read(m_port, boost::asio::buffer(&buff,1));
 	}
+
+	return buff;
 }
 void RobotIO::commProtocol()
 {
@@ -154,7 +127,6 @@ void RobotIO::commProtocol()
 
 	while(a)
 	{
-		m_RtnLock.lock();
 		if(sendAgain)
 		{
 			if(moreMessage)
@@ -178,19 +150,8 @@ void RobotIO::commProtocol()
 				}
 			}
 		}
-		//should no need to lock this cuz of the yield, but might be wrong. Check wiht jon later
-		m_RtnLock.lock();
-		while(!m_robotRtn)
-		{
-			m_RtnLock.unlock();
-			boost::this_thread::yield();
-			m_RtnLock.lock();
-		}
-		m_RtnLock.unlock();
 
-		m_rtnValueLock.lock();
-		robotRtn = m_rtnValue;
-		m_rtnValueLock.unlock();
+		robotRtn = receiveMessage();
 
 		switch(robotRtn)
 		{
@@ -350,8 +311,6 @@ void RobotIO::startCommunication()
 	m_msgQueueLock.unlock();
 
 	m_robotOut = boost::thread(boost::bind(&RobotIO::commProtocol, this));
-	//waitKey(100);
-	//m_robotIn = boost::thread(boost::bind(&RobotIO::receiveMessage, this));
 
 }
 

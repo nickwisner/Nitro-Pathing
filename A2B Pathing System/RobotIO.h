@@ -29,7 +29,7 @@ public:
 	//Takes a Path object and iterates over the whole path taking out the robot commands as it goes
 	bool fillQueue(Path * Pathmsg);
 	//Gets called when the robot has send us a message
-	void receiveMessage();
+	char receiveMessage();
 	//Sends a command that is passed into the object
 	bool sendCommand(RobotCommand cmd); // later make private //maybe in beta
 	//Makes a deep copy of the robot object that is passed in and sets it to m_robot
