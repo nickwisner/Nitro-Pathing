@@ -39,7 +39,7 @@ bool ErrorLogger::endMission(Point end)
 
 void ErrorLogger::insertError(ErrorLog code)
 {
-	//m_errStream.open(ERR_LOG_FILE_NAME, ios::app); // appending data to end of file
+	m_errStream.open(ERR_LOG_FILE_NAME, ios::app); // appending data to end of file
 
 	if( m_errStream.is_open() )
 	{

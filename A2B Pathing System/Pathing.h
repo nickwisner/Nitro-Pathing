@@ -40,6 +40,8 @@ public:
 	void stopPath();
 	bool setRobot(Robot & domoarigato);
 	Robot * getRobot();
+	void setStop(bool lean);
+	bool getStop();
 
 private:
 	/**

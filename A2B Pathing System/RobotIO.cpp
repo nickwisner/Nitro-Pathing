@@ -31,10 +31,9 @@ void handle_write(const boost::system::error_code&, // error
 
 // COM4 is hardcoded at this point only because we are only testing from one computer that uses it.
 // It will be changed later on
-RobotIO::RobotIO() : m_robot(0),m_io(2), m_port(m_io, "COM4"), m_robotRtn(false), m_controller(0)	// open the bluetooth connection
+RobotIO::RobotIO() : m_robot(0),m_io(3), m_port(m_io, "COM4"), m_robotRtn(false), m_controller(0), m_canSend(true)	// open the bluetooth connection
 {
-	
-	sendPriorityCommand(RobotCommand('z', 0));
+	//sendPriorityCommand(RobotCommand('z', 0));
 }
 void RobotIO::setControl(iControl * cnt)
 {
@@ -42,10 +41,29 @@ void RobotIO::setControl(iControl * cnt)
 }
 RobotIO::~RobotIO()
 {
-	sendPriorityCommand(RobotCommand('a',0));
+	//sendPriorityCommand(RobotCommand('a',0));
 	m_port.close();	// close the bluetooth connection
 	delete m_robot;
 	m_robot = 0;
+}
+void RobotIO::setCanSend(bool lean)
+{
+	m_caseSendLock.lock();
+	m_canSend = lean;
+	
+	m_msgQueueLock.lock();
+	m_msgQueue.clear();
+	m_msgQueueLock.unlock();
+
+	m_caseSendLock.unlock();
+}
+bool RobotIO::getCanSend()
+{
+	bool ean;
+	m_caseSendLock.lock();
+	ean = m_canSend;
+	m_caseSendLock.unlock();
+	return ean;
 }
 
 //iterates over the path vector and pulls the messages out, then pushs them onto the message queue
@@ -87,20 +105,27 @@ void RobotIO::receiveMessage()
 {
 	bool a  = true;
 	m_receiveCnt = true;
-
+	char buff;
 	m_receiveLoopLock.lock();
 	while(m_receiveCnt)
 	{
 		m_receiveLoopLock.unlock();
-		while(m_robotRtn)
-		{boost::this_thread::yield();}
 
+		m_RtnLock.lock();
+		m_RtnLock.try_lock();
+		while(m_robotRtn)
+		{
+			m_RtnLock.unlock();
+			boost::this_thread::yield();
+			m_RtnLock.lock();
+		}
+		m_RtnLock.unlock();
 
 		// Not sure if I should set all of options
 		//std::string buff;
 
 //		boost::asio::read(m_port, boost::asio::buffer(buff));
-		char buff;
+
 		boost::asio::read(m_port, boost::asio::buffer(&buff,1));
 //		m_port.read_some(boost::asio::buffer(buff));//,1));
 	
@@ -129,6 +154,7 @@ void RobotIO::commProtocol()
 
 	while(a)
 	{
+		m_RtnLock.lock();
 		if(sendAgain)
 		{
 			if(moreMessage)
@@ -137,14 +163,30 @@ void RobotIO::commProtocol()
 				curCommand = m_msgQueue.front();
 				m_msgQueue.pop_front();
 				m_msgQueueLock.unlock();
-
-				sendCommand(curCommand);
+				if(curCommand.getCode() == 'a')
+				{
+					sendPriorityCommand(curCommand);
+				}else if(curCommand.getCode() == 'z')
+				{				
+					sendPriorityCommand(curCommand);
+				}else 
+				{
+					if(!sendCommand(curCommand))
+					{
+						a = false;
+					}
+				}
 			}
 		}
 		//should no need to lock this cuz of the yield, but might be wrong. Check wiht jon later
+		m_RtnLock.lock();
 		while(!m_robotRtn)
-		{boost::this_thread::yield();}
-		
+		{
+			m_RtnLock.unlock();
+			boost::this_thread::yield();
+			m_RtnLock.lock();
+		}
+		m_RtnLock.unlock();
 
 		m_rtnValueLock.lock();
 		robotRtn = m_rtnValue;
@@ -215,63 +257,62 @@ void RobotIO::commProtocol()
 
 	//going to clean up the thread mess here!
 	m_robotIn.join();
-
 }
 //Takes a robot command object and then sends the char and integer to the robot.
 	//With how it is currently implemented it just sends the char to the robot for the number of cycles we have.
 	//This will hopefully be changed in beta
 bool RobotIO::sendCommand(RobotCommand cmd)
 {
+	bool rtn = false;
 	//Checks if the connection is still open. If not will throw a exception.
 	if( !m_port.is_open() )
 	{
 		throw NO_CONNECTION;
 	}
 
-	//Everytime we send a message we reset the options, just in case.
-	m_port.set_option( asio_serial::baud_rate( 9600 ) ); 
-	m_port.set_option( asio_serial::flow_control( asio_serial::flow_control::none ) ); 
-	m_port.set_option( asio_serial::parity( asio_serial::parity::none ) ); 
-	m_port.set_option( asio_serial::stop_bits( asio_serial::stop_bits::one ) ); 
-	m_port.set_option( asio_serial::character_size( 8 ) ); 
-	
-	std::string buff;	
-	char * cyclesBuff = 0;
-	int cycleLeng = 0;
-	for(int i = cmd.getCycles(); i > 0;cycleLeng++)
+	if(m_canSend)
 	{
-		i = i/10;
+		rtn = true;
+		//Everytime we send a message we reset the options, just in case.
+		m_port.set_option( asio_serial::baud_rate( 9600 ) ); 
+		m_port.set_option( asio_serial::flow_control( asio_serial::flow_control::none ) ); 
+		m_port.set_option( asio_serial::parity( asio_serial::parity::none ) ); 
+		m_port.set_option( asio_serial::stop_bits( asio_serial::stop_bits::one ) ); 
+		m_port.set_option( asio_serial::character_size( 8 ) ); 
+	
+		std::string buff;	
+		char * cyclesBuff = 0;
+		int cycleLeng = 0;
+		for(int i = cmd.getCycles(); i > 0;cycleLeng++)
+		{
+			i = i/10;
+		}
+		cyclesBuff = new char[cycleLeng+1];
+
+		// load the robot command
+		buff.push_back('*'); //The starting handshake is a *
+		buff.push_back(cmd.getCode()); //Next the robot expects a 'f','b','l','r' command
+		itoa(cmd.getCycles(),cyclesBuff,10); //This converts the intager for how many miliseconds the robot should move into a stirng
+		buff += cyclesBuff; //the string is then appended onto the buffer to be send to the robot
+		buff.push_back('*'); //Because itoa give us a null terminated string we need to write over that null with a * so the robot knows when the command is over 
+
+		// send it
+	//	boost::asio::async_write(m_port, boost::asio::buffer(buff), boost::bind(handle_write, boost::asio::placeholders::error,
+		//		boost::asio::placeholders::bytes_transferred));
+		m_port.write_some(boost::asio::buffer(buff));
+		// pop the sent command off
+
+		delete []cyclesBuff;
+
+		m_RtnLock.lock();
+		m_robotRtn = false;
+		m_RtnLock.unlock();
+
+		m_msgCountLock.lock();
+		++m_msgCount;
+		m_msgCountLock.unlock();
 	}
-	cyclesBuff = new char[cycleLeng+1];
-
-	// load the robot command
-	buff.push_back('*'); //The starting handshake is a *
-	buff.push_back(cmd.getCode()); //Next the robot expects a 'f','b','l','r' command
-	itoa(cmd.getCycles(),cyclesBuff,10); //This converts the intager for how many miliseconds the robot should move into a stirng
-	buff += cyclesBuff; //the string is then appended onto the buffer to be send to the robot
-	buff.push_back('*'); //Because itoa give us a null terminated string we need to write over that null with a * so the robot knows when the command is over 
-
-	// send it
-//	boost::asio::async_write(m_port, boost::asio::buffer(buff), boost::bind(handle_write, boost::asio::placeholders::error,
-	//		boost::asio::placeholders::bytes_transferred));
-	m_port.write_some(boost::asio::buffer(buff));
-	// pop the sent command off
-
-	waitKey(100);
-
-	//buff.pop_back();
-
-	delete []cyclesBuff;
-
-	m_RtnLock.lock();
-	m_robotRtn = false;
-	m_RtnLock.unlock();
-
-	m_msgCountLock.lock();
-	++m_msgCount;
-	m_msgCountLock.unlock();
-
-	return true;
+	return rtn;
 }
 
 //Makes a deep copy of what is passed in and sets that to the m_robot datamember
@@ -303,8 +344,14 @@ void RobotIO::SendQueue()
 
 void RobotIO::startCommunication()
 {
+	m_msgQueueLock.lock();
+	m_msgQueue.push_back(RobotCommand('a', 0));
+	m_msgQueue.push_front(RobotCommand('z', 0));
+	m_msgQueueLock.unlock();
+
 	m_robotOut = boost::thread(boost::bind(&RobotIO::commProtocol, this));
-	m_robotIn = boost::thread(boost::bind(&RobotIO::receiveMessage, this));
+	//waitKey(100);
+	//m_robotIn = boost::thread(boost::bind(&RobotIO::receiveMessage, this));
 
 }
 
@@ -314,7 +361,7 @@ bool RobotIO::openPort()
 	if( !m_port.is_open() )
 	{
 		// this hard code of COM4 is once again there... will be fixed to a global const soon and for release will most likely be in a config file
-		m_port.open("COM8");	// opens the bluetooth connection to the robot
+		m_port.open("COM4");	// opens the bluetooth connection to the robot
 	
 		return true;
 	}
@@ -354,6 +401,12 @@ void RobotIO::sendPriorityCommand(RobotCommand cmd)
 //	boost::asio::async_write(m_port, boost::asio::buffer(buff),  boost::bind(handle_write, boost::asio::placeholders::error,
 //			boost::asio::placeholders::bytes_transferred));
 
-	// pop the sent command off
-	buff.pop_back();
+
+	m_RtnLock.lock();
+	m_robotRtn = false;
+	m_RtnLock.unlock();
+
+	m_msgCountLock.lock();
+	++m_msgCount;
+	m_msgCountLock.unlock();
 }

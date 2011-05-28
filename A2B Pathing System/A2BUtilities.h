@@ -1,6 +1,8 @@
 #ifndef A2BUtilities_H
 #define A2BUtilities_H
 
+#include <ctime>
+
 // camera pixel dimensions.  the image dimensions we are receiving
 const int CAMERA_ROW_SIZE = 640;
 const int CAMERA_COL_SIZE = 480;

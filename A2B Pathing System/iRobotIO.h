@@ -49,6 +49,8 @@ public:
 	virtual bool openPort() = 0;
 	//attempts to close the com port
 	virtual bool closePort() = 0;
-	virtual void sendPriorityCommand(RobotCommand cmd) = 0;
+	virtual void sendPriorityCommand(RobotCommand cmd) = 0;	
+	virtual void setCanSend(bool lean) = 0;
+	virtual bool getCanSend() = 0;
 };
 #endif // !defined(EA_DBAB8A73_11ED_4c42_9DF2_D06E4B4F2123__INCLUDED_)

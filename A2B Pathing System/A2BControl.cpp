@@ -104,7 +104,7 @@ bool A2BControl::setDestination(Point dest)
 
 	//change the first part setDestinatoin to be "findRobot"
 
-	bool foundrobot = true;
+	bool foundrobot = false;
 	for( int attempt = 0; attempt < 5 && !foundrobot; attempt++ )
 	{
 		m_obstLock.lock();
@@ -121,7 +121,7 @@ bool A2BControl::setDestination(Point dest)
 
 		m_gui->markRobot(robPos);
 		
-		foundrobot = !m_gui->showError("Is this the robot?", MB_YESNO);
+		foundrobot = m_gui->showError("Is this the robot?", MB_YESNO);
 		// keep looping if they answer no. otherwise, exit loop
 	}
 	if( !foundrobot )
@@ -145,18 +145,6 @@ bool A2BControl::setDestination(Point dest)
 
 
 		m_robotio->startCommunication();
-		// this is only for the alpha release... will be replaced by startmission message being sent
-		try
-		{
-			//this should call a method to send the data and listen data coming in aseconisly
-			m_robotio->SendQueue();
-		}
-		catch(int e)
-		{
-			m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
-
-//			m_database->error(ErrorLog(
-		}
 	}
 
 	//create a thread to handle updata.
@@ -321,7 +309,7 @@ void A2BControl::startThreads()
 
 	try
 	{
-		m_robotio = new RobotIO();//RobotIO();
+		m_robotio = new RobotIO();
 		m_robotio->setControl((iControl*)this);
 	}
 	catch(...)
@@ -357,7 +345,10 @@ void A2BControl::startThreads()
 			{
 				try
 				{
+					m_robotio->sendPriorityCommand(RobotCommand('z', 0));
 					m_robotio->sendCommand(RobotCommand('f', 1000));
+					waitKey(1000);
+					m_robotio->sendPriorityCommand(RobotCommand('a', 0));
 				}
 				catch(int e)
 				{
@@ -372,7 +363,10 @@ void A2BControl::startThreads()
 			{
 				try
 				{
+					m_robotio->sendPriorityCommand(RobotCommand('z', 0));
 					m_robotio->sendCommand(RobotCommand('l', 1000));
+					waitKey(1000);
+					m_robotio->sendPriorityCommand(RobotCommand('a', 0));
 				}
 				catch(int e)
 				{
@@ -387,7 +381,10 @@ void A2BControl::startThreads()
 			{
 				try
 				{
+					m_robotio->sendPriorityCommand(RobotCommand('z', 0));
 					m_robotio->sendCommand(RobotCommand('r', 1000));
+					waitKey(1000);
+					m_robotio->sendPriorityCommand(RobotCommand('a', 0));
 				}
 				catch(int e)
 				{
@@ -402,7 +399,31 @@ void A2BControl::startThreads()
 			{
 				try
 				{
+					m_robotio->sendPriorityCommand(RobotCommand('z', 0));
 					m_robotio->sendCommand(RobotCommand('b', 1000));
+					waitKey(1000);
+					m_robotio->sendPriorityCommand(RobotCommand('a', 0));
+				}
+				catch(int e)
+				{
+					m_gui->showError("Robot connection failure. Please turn robot on, then try again. ");
+				}
+			}
+			break;
+		case 's':
+			if(m_pathing->isActive())
+			{
+				try
+				{
+					if(m_robotio->getCanSend())
+					{
+						m_robotio->sendPriorityCommand(RobotCommand('s', 0));
+						m_robotio->setCanSend(false);
+						//set a bool so the sending will stop untill restarted
+					}else
+					{
+						m_robotio->setCanSend(true);
+					}
 				}
 				catch(int e)
 				{

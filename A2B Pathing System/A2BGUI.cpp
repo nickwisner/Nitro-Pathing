@@ -61,8 +61,8 @@ void A2BGUI::onMouse( int event, int x, int y, int, void * gui )
 A2BGUI::A2BGUI() : m_control(0), m_view(CAMERA_COL_SIZE, CAMERA_ROW_SIZE,CV_64FC3,Scalar(0,0,0)), m_drawPath(false), m_foundRobot(false)
 {
 	m_window = APPLICATION_NAME;
-	namedWindow(m_window, CV_WINDOW_KEEPRATIO);
-
+	namedWindow(m_window);
+	drawImage(m_view);
 	setMouseCallback( m_window, onMouse, this );
 }
 

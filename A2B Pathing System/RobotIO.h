@@ -43,6 +43,10 @@ public:
 	//Tries to close the port if it is open
 	bool closePort(); 
 	void sendPriorityCommand(RobotCommand cmd);
+	
+	void setCanSend(bool lean);
+	bool getCanSend();
+
 private:
 	//Hold all of the commands to complete the path
 	list<RobotCommand> m_msgQueue;
@@ -75,7 +79,9 @@ private:
 
 	void commProtocol();
 
+	bool m_canSend;
 
+	boost::mutex m_caseSendLock;
 
 };
 #endif

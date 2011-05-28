@@ -33,6 +33,7 @@
 #include "Robot.h"
 #include <string>
 #include <fstream>
+using std::ofstream;
 
 #include <vector>
 using std::vector;
