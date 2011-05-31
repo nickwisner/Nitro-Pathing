@@ -152,7 +152,7 @@ void RobotIO::commProtocol()
 		}
 
 		robotRtn = receiveMessage();
-
+		waitKey(1000);
 		switch(robotRtn)
 		{
 			//lowercase means finished
@@ -207,7 +207,7 @@ void RobotIO::commProtocol()
 		{
 			a = false;
 		}
-		m_msgCountLock.lock();
+		m_msgCountLock.unlock();
 	}
 
 	m_controller->endMission(1);
