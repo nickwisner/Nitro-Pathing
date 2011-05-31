@@ -91,6 +91,5 @@ private:
 	bool m_showPlainImage; // whether to send plain image to GUI (true), or edged (false)
 
 	bool runPath();
-	bool sendCommand();
 };
 #endif

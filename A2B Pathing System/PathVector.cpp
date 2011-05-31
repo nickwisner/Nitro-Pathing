@@ -7,16 +7,17 @@
 
 #include "PathVector.h"
 #include "A2BUtilities.h"
-//We get 8.3 by assuming that there are 100 pixles in 1 foot. So by dividing 100/12 we get how many pixles in 1 inch
+//We get 8.3 by assuming that there are 100 pixels in 1 foot. So by dividing 100/12 we get how many pixels in 1 inch
 //const float SPACE_PER_INCH = 8.3*PIXELS_PER_SQUARE; //in 1 foot there is 100 pixels.
 
 //this means that there are 14 px per inch, we then multiply that by 16 to find the squares per inch
 const float SPACE_PER_INCH = 14.0/PIXELS_PER_SQUARE;
-//in 1 second we move .5 of a foot
-const int INCH_PER_SEC = 6;//inches 
+
+// In 1 second the robot moves INCH_PER_SEC inches
+const int INCH_PER_SEC = 6;
 
 const float SPACE_TO_MILLISECONDS = ((INCH_PER_SEC*SPACE_PER_INCH)/1000);
-const int NINETY_DEGREES = 900;//956;
+const int NINETY_DEGREES = 900; //956;
 
 //for debugging
 const int DEBUG_MOVE = 2;
@@ -39,7 +40,7 @@ PathVector::PathVector( Edge e, int & heading) : m_edge(e)
 	// 2 = robot facing right
 	// 3 = robot facing bottom
 	// 4 = robot facing left
-	switch( heading)
+	switch( heading )
 	{
 		case 1:
 			heading = translateUp(start, end);
@@ -65,13 +66,11 @@ PathVector::PathVector( const PathVector & cpy)
 
 PathVector & PathVector::operator=(const PathVector & cpy)
 {
-
 	if( this != &cpy)
 	{
 		this->m_commands = cpy.m_commands;
 		this->m_edge = cpy.m_edge;
 	}
-
 	return *this;
 }
 
@@ -82,6 +81,7 @@ int PathVector::findTravelTime(float pixles_to_travel)
 
 	return time_to_travel;
 }
+
 /**************************** translateUp *****************************
 * Purpose:
 *	This method is called when the robot is in the position that if
@@ -104,17 +104,14 @@ int PathVector::translateUp(Point start, Point end)
 {	
 	int diff = 0;
 	int heading = 1;
-	//how we currently have it the
+	
 	if(start.x > end.x) //the robot is to the right the destination point for this pathvector
 	{
 		//move left
 			//turn left
 			//move forward
-
-		//DEBUG_TURN is only to be used until we can have the robot take multiple parameters
-		m_commands.push_back(( RobotCommand('l',NINETY_DEGREES))); 
-
-		m_commands.push_back( ( RobotCommand('f',findTravelTime(start.x - end.x)))); 
+		m_commands.push_back(( RobotCommand('l',NINETY_DEGREES)));
+		m_commands.push_back( ( RobotCommand('f',findTravelTime(start.x - end.x))));
 
 		heading = 4;
 	}
@@ -124,28 +121,24 @@ int PathVector::translateUp(Point start, Point end)
 			//turn right
 			//move forward
 		m_commands.push_back(RobotCommand('r',NINETY_DEGREES));
-	
 		m_commands.push_back( RobotCommand('f',findTravelTime(end.x - start.x))); 
 
 		heading = 2;
 	}
 	else if(start.y > end.y) //the robot is "below" the destination point for this pathvector
 	{
-		//move forward		
-
-		//m_commands.push_back( RobotCommand('f',DEBUG_MOVE));
+		//move forward
 		m_commands.push_back( RobotCommand('f',findTravelTime(start.y - end.y)));
-		
 	}
 	else if(start.y < end.y) //the robot is "above" the destination point for this pathvector
 	{
 		//move backward
-		//m_commands.push_back( RobotCommand('b',DEBUG_MOVE));
 		m_commands.push_back( RobotCommand('b',findTravelTime(end.y - start.y)));
-		
-	}else
-	{ /*Might be empty*/}
-	
+	}
+	else
+	{
+		assert(false); // should never happen
+	}
 	
 	return heading;
 }
@@ -175,39 +168,38 @@ int PathVector::translateRight(Point start, Point end)
 	
 	if(start.x > end.x)
 	{
-
 		//backward
 		m_commands.push_back( RobotCommand('b',findTravelTime(start.x - end.x)));
-			
-	}else if(start.x < end.x)
+	}
+	else if(start.x < end.x)
 	{
-
 		//forward
-		m_commands.push_back(RobotCommand('f',findTravelTime(end.x - start.x))); 
-		
-	}else if(start.y > end.y)
+		m_commands.push_back(RobotCommand('f',findTravelTime(end.x - start.x)));
+	}
+	else if(start.y > end.y)
 	{
 		//move left
 			//turn left
 			//move forward
 		m_commands.push_back( RobotCommand('l',NINETY_DEGREES)); 
-
-		//forward
 		m_commands.push_back(RobotCommand('f',findTravelTime(start.y - end.y)));
+
 		heading = 1;
-	}else if(start.y < end.y)
+	}
+	else if(start.y < end.y)
 	{
 		//move right
 			//turn right
 			//move forward
 		m_commands.push_back( RobotCommand('r',NINETY_DEGREES));
-		
-		//forward
 		m_commands.push_back( RobotCommand('f',findTravelTime(end.y - start.y)));
 
 		heading = 3;
-	}else
-	{ /*Might be empty*/}
+	}
+	else
+	{
+		assert(false); // should never happen
+	}
 	
 	return heading;
 }
@@ -240,13 +232,9 @@ int PathVector::translateBottom(Point start, Point end)
 			//turn right
 			//move forward
 		m_commands.push_back(RobotCommand('r',NINETY_DEGREES));
-	
-		//forward
 		m_commands.push_back( RobotCommand('f',findTravelTime(start.x - end.x)));
-
 		
 		heading = 4;
-		
 	}
 	else if(start.x < end.x)
 	{
@@ -254,8 +242,6 @@ int PathVector::translateBottom(Point start, Point end)
 			//turn left
 			//move forward
 		m_commands.push_back(RobotCommand('l',NINETY_DEGREES)); 
-
-		//forward
 		m_commands.push_back( RobotCommand('f',findTravelTime(end.x - start.x)));
 
 		heading = 2;
@@ -269,10 +255,11 @@ int PathVector::translateBottom(Point start, Point end)
 	{
 		//move forward
 		m_commands.push_back(RobotCommand('f',findTravelTime(end.y - start.y)));
-
 	}
 	else
-	{ /*Might be empty*/}
+	{
+		assert(false); // should never happen
+	}
 	
 	return heading;
 }
@@ -313,12 +300,10 @@ int PathVector::translateLeft(Point start, Point end)
 		//move right
 			//turn right
 			//move forward
-		m_commands.push_back(RobotCommand('r',NINETY_DEGREES));	
-
-		//move forward
+		m_commands.push_back(RobotCommand('r',NINETY_DEGREES));
 		m_commands.push_back( RobotCommand('f',findTravelTime(start.y - end.y)));
 		
-		heading = 1;		
+		heading = 1;
 	}
 	else if(start.y < end.y)
 	{
@@ -326,14 +311,14 @@ int PathVector::translateLeft(Point start, Point end)
 			//turn left
 			//move forward
 		m_commands.push_back(RobotCommand('l',NINETY_DEGREES));
-
-		//move forward
-		m_commands.push_back(RobotCommand('f',findTravelTime(end.y - start.y)));		
+		m_commands.push_back(RobotCommand('f',findTravelTime(end.y - start.y)));
 		
 		heading = 3;
 	}
 	else
-	{ /*Might be empty*/}
+	{
+		assert(false); // should never happen
+	}
 	
 	return heading;
 }
@@ -348,7 +333,7 @@ int PathVector::getCommandSize()
 }
 RobotCommand PathVector::popCommand()
 {
-	RobotCommand r(m_commands.front());	
+	RobotCommand r(m_commands.front());
 	
 	m_commands.pop_front();
 

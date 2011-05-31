@@ -32,7 +32,6 @@ bool Pathing::deletePath(){
 	return false;
 }
 
-
 /**
  * Returns the path pointer
  */
@@ -40,7 +39,6 @@ Path * Pathing::getPath()
 {
 	return  m_path;
 }
-
 
 /**
  * Returns whether it is active or not
@@ -51,9 +49,9 @@ bool Pathing::isActive()
 }
 
 
-/**		CALL INTO DIJKSTRA HERE! *************
+/************************************************
  * Generates the path using given coordinates 
- */
+ *************************************************/
 bool Pathing::makePath(int destSpace, int startSpace, bool * obstMap)
 {
 
@@ -176,7 +174,16 @@ void Pathing::translateToPath( vector<int> path)
 			//cuz they both have the same pointer
 			//i-1 is the starting place and i is the end of the edge
 	//		temp = new PathVector(Edge(Point((path[i-1]%ROW_SIZE)*PIXELS_PER_SQUARE, (path[i-1]/ROW_SIZE)*PIXELS_PER_SQUARE), Point((path[i]%ROW_SIZE)*PIXELS_PER_SQUARE, (path[i]/ROW_SIZE)*PIXELS_PER_SQUARE)), tempHeading);
-			m_path->addVector(PathVector(Edge(Point((path[i-1]%ROW_SIZE)*PIXELS_PER_SQUARE, (path[i-1]/ROW_SIZE)*PIXELS_PER_SQUARE), Point((path[i]%ROW_SIZE)*PIXELS_PER_SQUARE, (path[i]/ROW_SIZE)*PIXELS_PER_SQUARE)), m_heading));	
+			m_path->addVector(
+				PathVector(
+					Edge(
+						Point(
+							(path[i-1] % ROW_SIZE) * PIXELS_PER_SQUARE,
+							(path[i-1] / ROW_SIZE) * PIXELS_PER_SQUARE),
+						Point(
+							(path[i] % ROW_SIZE) * PIXELS_PER_SQUARE,
+							(path[i] / ROW_SIZE) * PIXELS_PER_SQUARE)),
+					m_heading));
 		}
 	}
 }

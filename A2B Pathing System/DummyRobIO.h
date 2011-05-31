@@ -15,9 +15,9 @@ public:
 	virtual ~DummyRobIO();
 
 	bool fillQueue(Path * Pathmsg);
-	void receiveMessage();
+	char receiveMessage();
 	bool receiveCommand(RobotCommand com);
-	bool sendCommand(RobotCommand cmd); // later make private
+	bool sendCommand(RobotCommand cmd);
 	void setRobot(Robot & rob);
 	void SendQueue();
 	bool openPort();
@@ -28,6 +28,5 @@ private:
 	Robot * m_robot;
 
 	int processRobotMessage(string msg);
-
 };
 #endif

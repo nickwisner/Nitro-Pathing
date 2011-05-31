@@ -22,7 +22,6 @@ class RobotIO : public iRobotIO
 
 public:
 	RobotIO();
-	//RobotIO(A2BControl * cnt);
 	virtual ~RobotIO();
 
 	void setControl(iControl * cnt);
@@ -34,8 +33,7 @@ public:
 	bool sendCommand(RobotCommand cmd); // later make private //maybe in beta
 	//Makes a deep copy of the robot object that is passed in and sets it to m_robot
 	void setRobot(Robot & rob);
-	////Sends the whole queue of commands to the robot. 
-	//	//In beta will be implemented that we will not send a message until the robot has send us a command back.	
+	//Sends the whole queue of commands to the robot. 
 	void SendQueue();
 	void startCommunication();
 	//Trys to open the port if it is closed

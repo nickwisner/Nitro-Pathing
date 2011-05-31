@@ -7,37 +7,25 @@
 
 #include "ImageAcquisition.h"
 
-
-//#include <string>
-//using std::string;
-
 // ERRORS
-
 int const NO_WEBCAM = -1;
-
 
 ImageAcquisition::ImageAcquisition()
 {
-	// VideoCapture m_cap(0);
 	m_capture = cvCaptureFromCAM(-1);
 
 	if (!m_capture)
 	{
 		throw NO_WEBCAM;
 	}
-	//if(!m_cap.isOpened());
-	//{
-	// throw NO_WEBCAM;
-	//}
 	m_obstMap = new bool[ROW_SIZE * COL_SIZE];
-	/*m_cap >>*/ m_plainCur = cvQueryFrame(m_capture);
+	m_plainCur = cvQueryFrame(m_capture);
 
 	m_edgeCur = Mat(ImageProcessor::createEdgedImage(&m_plainCur).clone());
 
 	ImageProcessor::mapObstacles(m_edgeCur, m_obstMap);
 
 	m_imageUpdate = boost::thread(bind(&ImageAcquisition::getImages, this));
-
 }
 
 ImageAcquisition::~ImageAcquisition()
@@ -78,10 +66,9 @@ void ImageAcquisition::getImages()
 
 		m_loopLock.lock();
 	}
-	
 	m_loopLock.unlock();
-
 }
+
 Mat ImageAcquisition::getPlain()
 {
 	m_plainLock.lock();

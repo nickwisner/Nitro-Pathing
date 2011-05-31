@@ -68,7 +68,7 @@ void ErrorLogger::error(ErrorLog err)
 
 Robot ErrorLogger::getRobot()
 {
-	return Robot(9600, 1, 50, 75, cv::imread("true_robot.png"));
+	return Robot(9600, 1, ROBOT_SIZE_PX, ROBOT_SIZE_PX, cv::imread("true_robot.png"));
 }
 
 

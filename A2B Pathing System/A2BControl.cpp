@@ -6,15 +6,20 @@
 ///////////////////////////////////////////////////////////
 
 #include "A2BControl.h"
-
 #include "RobotIO.h"
+//#include "DummyRobIO.h"
+
+#define SAVE_ASCII_TXT
+#ifdef SAVE_ASCII_TXT
+#include <fstream>
+using std::ofstream;
+#endif
 
 A2BControl::A2BControl() :m_tUpdatePath(0), m_robotio(0), m_imageacquisition(0), m_showPlainImage(true)
 {
 	m_gui = new A2BGUI;
 	m_gui->setControl(this);
 
-	//m_obstacleMap = new bool[ROW_SIZE * COL_SIZE];
 	m_obstacleMap = 0;
 	m_pathing = new Pathing;
 	m_database = new A2BDatabase;
@@ -86,23 +91,14 @@ bool A2BControl::checkSavedQueries()
 	return false;
 }
 
-bool A2BControl::sendCommand()
-{
-	// Not yet implemented. May or may not need this.
-	// planned for this to send the next command in robotio's queue, like a pop
-	return false;
-}
-
-
 bool A2BControl::setDestination(Point dest)
 {
 	bool * tmp = new bool[ROW_SIZE * COL_SIZE];
 	Point robPos;
-	int n = -1;
 	int spaceStart = 0;
 	int spaceDest = 0;
 
-	//change the first part setDestinatoin to be "findRobot"
+	//change the first part setDestination to be "findRobot"
 
 	bool foundrobot = false;
 	for( int attempt = 0; attempt < 5 && !foundrobot; attempt++ )
@@ -115,6 +111,9 @@ bool A2BControl::setDestination(Point dest)
 		robPos = ImageProcessor::findRobot((&m_plainImage), m_pathing->getRobot());
 		m_plainLock.unlock();
 		
+		// Do we need to do all this with the obstacle map
+		// just to find the robot? Let's do this when we know we have it
+		// outside of this loop, then we can split this setDestination
 		spaceStart = A2BUtilities::pixelToSpaceId(robPos.x, robPos.y);
 		spaceDest = A2BUtilities::pixelToSpaceId( dest.x,dest.y);
 		clearRobot(spaceStart, tmp, robPos);
@@ -129,7 +128,6 @@ bool A2BControl::setDestination(Point dest)
 		m_gui->showError("Cannot find the robot. Please locate the robot and verify it is in an area viewable by the camera.", MB_OK);
 		return false;
 	}
-
 	m_gui->stopMarkingRobot();
 
 	if( !m_pathing->makePath(spaceDest, spaceStart, tmp) )
@@ -140,21 +138,16 @@ bool A2BControl::setDestination(Point dest)
 	{
 		m_robotio->fillQueue(m_pathing->getPath());
 
-		
 		m_gui->setPath(m_pathing->getPath()->getPathPoints());
-
-
+		
 		m_robotio->startCommunication();
 	}
-
-	//create a thread to handle updata.
-//	m_updatePath = boost::thread(bind(&update, this));
 	delete []tmp;
 	return true;
 }
+
 void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 {
-
 	//this is assuming that the robot is 11.25 cells long and wide. We will around it to 12 cells.
 	//this is also assuming that the int passed in is the center cell of the robot.
 
@@ -204,7 +197,6 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 			// room left but not south
 			bottomLeftSpace = BOARD_SIZE - (ROW_SIZE - robotCenter % ROW_SIZE) - ROBOT_SIZE_SPACE/2;
 		}
-
 	}
 
 	// if going off map heading east	
@@ -231,7 +223,6 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 		{
 			bottomRightSpace = robotCenter + ROBOT_SIZE_SPACE/2*ROW_SIZE + (ROW_SIZE - robotCenter % ROW_SIZE - 1);
 		}
-
 	}
 	else // room to the east
 	{
@@ -248,7 +239,6 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 			// room to the east but not tot he south
 			bottomRightSpace = BOARD_SIZE - ROW_SIZE + robotCenter % ROW_SIZE + ROBOT_SIZE_SPACE/2;
 		}
-
 	}
 
 	// This actually puts a big white square over the image.
@@ -263,22 +253,28 @@ void A2BControl::clearRobot(int robotCenter, bool * obstMap, Point robPos)
 		}
 	}
 
+#ifdef SAVE_ASCII_TXT
 	/* DEBUG: saving the grid in ascii format to out.txt for funs */
-	//if( file.is_open() )
-	//{
-	//file << "CLEARED ROBOT\n";
-	//	for( int i = 0; i < COL_SIZE; i++ )
-	//	{
-	//		for( int j = 0; j < ROW_SIZE; j++ )
-	//		{
-	//			file << (obstMap[i*ROW_SIZE + j] ? '`' : 'X');
-	//		}
-	//		file << '\n';
-	//	}
-	//	file << '\n';
+	ofstream file("out.txt", ios::app);
 
-	//	file.close();
+	if( file.is_open() )
+	{
+	file << "CLEARED ROBOT\n";
+		for( int i = 0; i < COL_SIZE; i++ )
+		{
+			for( int j = 0; j < ROW_SIZE; j++ )
+			{
+				file << (obstMap[i*ROW_SIZE + j] ? '`' : 'X');
+			}
+			file << '\n';
+		}
+		file << '\n';
+
+		file.close();
+	}
+#endif
 }
+
 void A2BControl::startThreads()
 {
 	// getKey and all user interaction is what GUI should be handling.
@@ -410,6 +406,8 @@ void A2BControl::startThreads()
 				}
 			}
 			break;
+
+		// stop robot
 		case 's':
 			if(m_pathing->isActive())
 			{
@@ -419,8 +417,9 @@ void A2BControl::startThreads()
 					{
 						m_robotio->sendPriorityCommand(RobotCommand('s', 0));
 						m_robotio->setCanSend(false);
-						//set a bool so the sending will stop untill restarted
-					}else
+						// set a bool so the sending will stop until restarted
+					}
+					else
 					{
 						m_robotio->setCanSend(true);
 					}
@@ -431,6 +430,7 @@ void A2BControl::startThreads()
 				}
 			}
 			break;
+			
 			// This will connect or disconnect the port!
 		case 'c':
 			if(connection)
@@ -439,19 +439,6 @@ void A2BControl::startThreads()
 				m_robotio->openPort();
 			
 			connection = (connection) ? false : true;
-			break;
-
-			// Test OK message box
-		case 'e':
-			m_gui->showError("This is a substantial error. Please regard.", MB_OK);
-			break;
-		
-			// Test YES/NO message box
-		case 'z':
-			if(m_gui->showError("Would you like to continue?", MB_YESNO))
-				m_gui->showError("Coolio",MB_OK);
-			else
-				key = 'q';
 			break;
 
 			// Toggle image
@@ -466,15 +453,15 @@ void A2BControl::startThreads()
 		m_updatePath.join();
 	}
 }
+
 // This will be the method that a thread will act on.
 // This will, on a timer:
 //		get image. if active, validate and draw path. display image.
 void A2BControl::update()
 {
-
-		//for debugging only
-	bool travle = true;
+	//for debugging only
 	bool cnt = true;
+	
 	while(1)
 	{
 		//get new image, edged image and obstacle array
@@ -493,46 +480,6 @@ void A2BControl::update()
 
 		boost::this_thread::restore_interruption ri(di);
 		boost::this_thread::interruption_point();
-		//if(m_pathing->isActive())
-		//{
-		//	//run the map over it
-		//	travle = m_pathing->validatePath(m_obstacleMap);
-
-		//	//if a obstacle happends then return false.
-		//	if(!travle)
-		//	{
-		//		Point robotPlace(0,0);
-		//		int robotSpace = 0;
-		//		//the path is broken repath!
-		//		//shut down the drawing of the map.
-		//		m_robotio->eStop();
-		//		
-		//		robotPlace = ImageProcessor::findRobot(&m_plainImage, m_pathing->getRobot());
-		//		robotSpace = A2BUtilities::pixelToSpaceId(robotPlace.x, robotPlace.y);
-		//		
-		//		cnt = m_pathing->repath(robotSpace, m_obstacleMap);
-		//		m_pathing->setActive(cnt);
-
-		//		
-		//		if(!cnt)
-		//		{
-		//			endMission(0); //assuming 0 is a failed to path end mission
-		//		}
-
-		//	}else
-		//	{
-		//		if(m_showPlainImage)
-		//		{
-		//			m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_plainImage);
-		//			m_gui->drawImage(m_plainImage);
-		//		}else
-		//		{
-		//			m_gui->drawPath(m_pathing->getPath()->getPathPoints(), &m_edgedImage);
-		//			m_gui->drawImage(m_edgedImage);
-		//		}
-		//	}
-		//}else
-		//{\
 		
 		//will probably want to put a lock on this ish.
 		if(!m_pathing->isActive())
@@ -543,7 +490,8 @@ void A2BControl::update()
 		if(m_showPlainImage)
 		{
 			m_gui->drawImage(m_plainImage);
-		}else
+		}
+		else
 		{
 			m_gui->drawImage(m_edgedImage);
 		}
