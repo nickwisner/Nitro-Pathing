@@ -37,12 +37,10 @@ void A2BGUI::onMouse( int event, int x, int y, int, void * gui )
 {
 	switch( event )
     {
-		
     case CV_EVENT_LBUTTONDOWN: // click on pic, set destination.
 
 		reinterpret_cast<iGUI*>(gui)->setDest(x,y);
         break;
-
     }
 }
 
@@ -84,13 +82,14 @@ void A2BGUI::setControl(iControl * ctrl)
 // split this into maybe setImage(Mat) and refresh(). Change later? *****
 void A2BGUI::drawImage(Mat img)
 {
-
 	m_view.release();	// for every clone, should call release()
 	m_view = img.clone();
+
 	if(m_drawPath)
 	{
 		drawPath();
-	}else if(m_foundRobot)
+	}
+	else if(m_foundRobot)
 	{
 		drawRobotMark();
 	}
@@ -115,20 +114,23 @@ void A2BGUI::setPath(const vector<Point> & path)
 	if(m_pathPoints.empty())
 	{
 		m_pathPoints = path;
-	}else
+	}
+	else
 	{
 		m_pathPoints.clear();
 		m_pathPoints = path;
 	}
 	m_drawPath = true;
 }
+
 void A2BGUI::drawPath()
 {
-	for(int i = 1; i < m_pathPoints.size();i++)
+	for(int i = 1; i < m_pathPoints.size(); i++)
 	{
 		line(m_view, m_pathPoints[i-1], m_pathPoints[i], Scalar(25,83,255),2,7);
 	}
 }
+
 // Not sure if we'll even use this. But it talks to m_database, saying
 // hey we're done, you can save off the mission to the DB now.
 void A2BGUI::endMission()
@@ -136,8 +138,6 @@ void A2BGUI::endMission()
 	// Not implemented yet
 }
 
-// We had a A2BMessageBox before which is why we have tests for it in Control
-// WinAPI MessageBox >>>> rolling your ugly own
 // This returns 1 (true) if Yes button clicked. 0 (false) if No. 0 if it was just an OK box.
 int A2BGUI::showError(const string & error, int type)
 {
@@ -151,6 +151,7 @@ void A2BGUI::markRobot(Point c)
 	m_foundRobot = true;
 	m_robotCenter = c;
 }
+
 void A2BGUI::drawRobotMark()
 {
 	int R = 10;
@@ -182,16 +183,19 @@ void A2BGUI::setDest(int x, int y)
 	m_control->setDestination(Point(x,y));
 }
 
+// not used
 void A2BGUI::CoverRobot(Point a, Point b)
 {
 	cv::rectangle(m_view, a, b, Scalar(100,100,100),1,0);
 	drawImage(m_view);	// refresh
 	waitKey(100);
 }
+
 void A2BGUI::stopDrawingPath()
 {
 	m_drawPath = false;
 }
+
 void A2BGUI::stopMarkingRobot()
 {
 	m_foundRobot = false;

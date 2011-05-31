@@ -17,21 +17,15 @@ using cv::waitKey;
 // used for the bluetooth connection
 using boost::asio::io_service;
 using boost::asio::serial_port_base;
+char BLUETOOTH_COM_PORT[] = "COM4";
 
 typedef boost::asio::serial_port_base asio_serial;
 
 const int NO_CONNECTION = -1;
  /*Commands:
- f b l r*/
+ f b l r s*/
 
-void handle_write(const boost::system::error_code&, // error
-	size_t ) // bytes transferred
-{
-}
-
-// COM4 is hardcoded at this point only because we are only testing from one computer that uses it.
-// It will be changed later on
-RobotIO::RobotIO() : m_robot(0),m_io(3), m_port(m_io, "COM4"/*"COM3"*/), m_robotRtn(false), m_controller(0), m_canSend(true)	// open the bluetooth connection
+RobotIO::RobotIO() : m_robot(0),m_io(3), m_port(m_io, BLUETOOTH_COM_PORT), m_robotRtn(false), m_controller(0), m_canSend(true)	// open the bluetooth connection
 {
 	//sendPriorityCommand(RobotCommand('z', 0));
 }
@@ -77,7 +71,6 @@ bool RobotIO::fillQueue(Path * Pathmsg)
 	// for each pathing vector
 	for(int i = 0; i < size; i++)
 	{
-
 		PathVector v = Pathmsg->getPathVector(i);
 
 		// how many commands implement this vector 
@@ -152,7 +145,7 @@ void RobotIO::commProtocol()
 		}
 
 		robotRtn = receiveMessage();
-
+		waitKey(1000);
 		switch(robotRtn)
 		{
 			//lowercase means finished
@@ -207,21 +200,14 @@ void RobotIO::commProtocol()
 		{
 			a = false;
 		}
-		m_msgCountLock.lock();
+		m_msgCountLock.unlock();
 	}
 
-	m_receiveLoopLock.lock();
-	m_receiveCnt = false;
-	m_receiveLoopLock.unlock();
-
 	m_controller->endMission(1);
-
-	//going to clean up the thread mess here!
-	m_robotIn.join();
 }
+
 //Takes a robot command object and then sends the char and integer to the robot.
 	//With how it is currently implemented it just sends the char to the robot for the number of cycles we have.
-	//This will hopefully be changed in beta
 bool RobotIO::sendCommand(RobotCommand cmd)
 {
 	bool rtn = false;
@@ -234,7 +220,7 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 	if(m_canSend)
 	{
 		rtn = true;
-		//Everytime we send a message we reset the options, just in case.
+		//Every time we send a message we reset the options, just in case.
 		m_port.set_option( asio_serial::baud_rate( 9600 ) ); 
 		m_port.set_option( asio_serial::flow_control( asio_serial::flow_control::none ) ); 
 		m_port.set_option( asio_serial::parity( asio_serial::parity::none ) ); 
@@ -258,8 +244,6 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 		buff.push_back('*'); //Because itoa give us a null terminated string we need to write over that null with a * so the robot knows when the command is over 
 
 		// send it
-	//	boost::asio::async_write(m_port, boost::asio::buffer(buff), boost::bind(handle_write, boost::asio::placeholders::error,
-		//		boost::asio::placeholders::bytes_transferred));
 		m_port.write_some(boost::asio::buffer(buff));
 		// pop the sent command off
 
@@ -294,8 +278,8 @@ void RobotIO::SendQueue()
 			m_msgQueue.pop_front();
 
 			waitKey(100);
-
-		}catch(int e)
+		}
+		catch(int e)
 		{
 			throw NO_CONNECTION;
 		}
@@ -311,7 +295,6 @@ void RobotIO::startCommunication()
 	m_msgQueueLock.unlock();
 
 	m_robotOut = boost::thread(boost::bind(&RobotIO::commProtocol, this));
-
 }
 
 //attemps to open the com port. Should have error handing in here.
@@ -319,12 +302,11 @@ bool RobotIO::openPort()
 {
 	if( !m_port.is_open() )
 	{
-		// this hard code of COM4 is once again there... will be fixed to a global const soon and for release will most likely be in a config file
-		m_port.open("COM4");	// opens the bluetooth connection to the robot
+		// opens the bluetooth connection to the robot
+		m_port.open(BLUETOOTH_COM_PORT);
 	
 		return true;
 	}
-
 	return false;
 }
 
@@ -337,7 +319,6 @@ bool RobotIO::closePort()
 
 		return true;
 	}
-
 	return false;
 }
 
@@ -357,9 +338,6 @@ void RobotIO::sendPriorityCommand(RobotCommand cmd)
 
 	// send it
 	m_port.write_some(boost::asio::buffer(buff));
-//	boost::asio::async_write(m_port, boost::asio::buffer(buff),  boost::bind(handle_write, boost::asio::placeholders::error,
-//			boost::asio::placeholders::bytes_transferred));
-
 
 	m_RtnLock.lock();
 	m_robotRtn = false;

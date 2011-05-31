@@ -1,5 +1,5 @@
-#ifndef _PATH_H
-#define _PATH_H
+#ifndef PATH_HH
+#define PATH_HH
 
 #include <opencv2/imgproc/imgproc.hpp>
 using cv::Point;
@@ -19,7 +19,6 @@ public:
 	Path& operator=(const Path & cpy);
 
 	void addVector(PathVector vector);
-	PathVector popVector();
 	vector<Point> & getPathPoints();
 	PathVector getPathVector(int i);
 	int	getPathVSize();

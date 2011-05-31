@@ -27,8 +27,9 @@ int DummyRobIO::processRobotMessage(string msg){
 }
 
 
-void DummyRobIO::receiveMessage(){
+char DummyRobIO::receiveMessage(){
 	// not implemented
+	return 0;
 }
 
 
