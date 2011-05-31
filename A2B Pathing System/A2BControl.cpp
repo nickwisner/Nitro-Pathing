@@ -17,7 +17,7 @@ A2BControl::A2BControl() :m_tUpdatePath(0), m_robotio(0), m_imageacquisition(0),
 	//m_obstacleMap = new bool[ROW_SIZE * COL_SIZE];
 	m_obstacleMap = 0;
 	m_pathing = new Pathing;
-	m_database = new A2BDatabase;
+	m_database = new ErrorLogger;//new A2BDatabase;
 	m_pathing->setRobot( (m_database->getRobot()) );
 }
 
@@ -127,6 +127,11 @@ bool A2BControl::setDestination(Point dest)
 	if( !foundrobot )
 	{
 		m_gui->showError("Cannot find the robot. Please locate the robot and verify it is in an area viewable by the camera.", MB_OK);
+
+		// log the error
+		m_database->error(ErrorLog(1,1 /*insert mission id*/, 1, 1, A2BUtilities::GetTime()));
+//  printf ( "The current date/time is: %s", asctime (timeinfo) );
+
 		return false;
 	}
 
@@ -138,6 +143,8 @@ bool A2BControl::setDestination(Point dest)
 	}
 	else
 	{
+		m_database->startMission(spaceStart, spaceDest);
+
 		m_robotio->fillQueue(m_pathing->getPath());
 
 		

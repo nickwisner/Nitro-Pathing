@@ -44,9 +44,9 @@ public:
 
 	int getCurrentMission();
 	
-	bool endMission(Point end);
+	bool endMission(int end);
 	void insertError(ErrorLog code);
-	int startMission(Point start, Point dest);
+	int startMission(int start, int dest);
 	void error(ErrorLog err);
 	Robot getRobot();
 	void update(string query);

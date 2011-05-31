@@ -27,6 +27,7 @@ using cv::Mat;
 #include "A2BGUI.h"
 #include "ImageAcquisition.h"
 #include "A2BDatabase.h"
+#include "ErrorLogger.h"
 #include "Pathing.h"
 #include "RobotIO.h"
 

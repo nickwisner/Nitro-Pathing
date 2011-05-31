@@ -24,7 +24,7 @@ int A2BDatabase::getCurrentMission()
 }
 
 
-bool A2BDatabase::endMission(Point end)
+bool A2BDatabase::endMission(int end)
 {
 	return false;
 }
@@ -35,7 +35,7 @@ void A2BDatabase::insertError(ErrorLog code){
 }
 
 
-int A2BDatabase::startMission(Point start, Point dest)
+int A2BDatabase::startMission(int start, int dest)
 {
 	return 0;
 }

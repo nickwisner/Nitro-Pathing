@@ -23,10 +23,10 @@ public:
 	virtual ~iDatabase() {
 
 	}
-	virtual bool endMission(Point end) =0;
+	virtual bool endMission(int end) =0;
 	virtual void error(ErrorLog err) =0;
 	virtual Robot getRobot() =0;
-	virtual int startMission(Point start, Point dest) =0;
+	virtual int startMission(int start, int dest) =0;
 	virtual void update(string query) =0;
 
 };

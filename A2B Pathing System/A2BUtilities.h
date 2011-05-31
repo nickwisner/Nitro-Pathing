@@ -51,10 +51,23 @@ public:
 	{
 		time_t rawtime;
 		struct tm * timeinfo;
-
+		string currtime;
 		time ( &rawtime );
 		timeinfo = localtime ( &rawtime );
-		return asctime(timeinfo);
+		currtime = asctime(timeinfo);
+		int currpos(0);
+
+		// for all spaces in the time
+		while((currpos = currtime.find(' ')) != string::npos)
+		{
+		// take the spaces out of it and replace them with '-'
+			currtime[currpos] = '-'; 
+		}
+
+		// remove the '\n' from the end of the string;
+		//currtime[currtime.size()-1] = 0;
+
+		return currtime;
 	}
 };
 
