@@ -210,14 +210,7 @@ void RobotIO::commProtocol()
 		m_msgCountLock.lock();
 	}
 
-	m_receiveLoopLock.lock();
-	m_receiveCnt = false;
-	m_receiveLoopLock.unlock();
-
 	m_controller->endMission(1);
-
-	//going to clean up the thread mess here!
-	m_robotIn.join();
 }
 //Takes a robot command object and then sends the char and integer to the robot.
 	//With how it is currently implemented it just sends the char to the robot for the number of cycles we have.
