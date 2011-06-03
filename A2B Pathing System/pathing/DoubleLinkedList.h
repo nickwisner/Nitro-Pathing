@@ -124,7 +124,7 @@ DoubleLinkedList<T>& DoubleLinkedList<T>::operator=
 
 			currentRhs = currentRhs->next;
 
-			while(currentRhs != 0)	// cycle the rest of the nodes in
+			while(currentRhs != 0)	// milisec the rest of the nodes in
 			{
 				Append(currentRhs->Data());
 				currentRhs = currentRhs->next;

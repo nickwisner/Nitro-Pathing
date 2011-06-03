@@ -8,8 +8,8 @@
 #include "Robot.h"
 
 
-Robot::Robot(int brate, int distance_per_cycle, int len, int wid, Mat &symbol)
-	: m_baudrate(brate), m_distancepermiliseconds(distance_per_cycle), m_length(len), m_width(wid), m_symbol(symbol)
+Robot::Robot(int brate, int distance_per_milisec, int len, int wid, Mat &symbol)
+	: m_baudrate(brate), m_distancepermiliseconds(distance_per_milisec), m_length(len), m_width(wid), m_symbol(symbol)
 { }
 
 Robot::Robot( const Robot & cpy)

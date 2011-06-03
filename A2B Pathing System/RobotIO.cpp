@@ -26,37 +26,46 @@ const int NO_CONNECTION = -1;
  f b l r s*/
 
 RobotIO::RobotIO() : m_robot(0),m_io(3), m_port(m_io, BLUETOOTH_COM_PORT), m_robotRtn(false), m_controller(0), m_canSend(true)	// open the bluetooth connection
-{
-	//sendPriorityCommand(RobotCommand('z', 0));
-}
+{}
+
+// setter for the control class
 void RobotIO::setControl(iControl * cnt)
 {
 	m_controller = cnt;
 }
+
+// destructor for robotIO
 RobotIO::~RobotIO()
 {
-	//sendPriorityCommand(RobotCommand('a',0));
 	m_port.close();	// close the bluetooth connection
 	delete m_robot;
 	m_robot = 0;
 }
+
+// makes sure we can send to robot at this time
 void RobotIO::setCanSend(bool lean)
 {
+	// set canSend bool
 	m_caseSendLock.lock();
 	m_canSend = lean;
 	
+	// clear the queue
 	m_msgQueueLock.lock();
 	m_msgQueue.clear();
 	m_msgQueueLock.unlock();
 
 	m_caseSendLock.unlock();
 }
+
+// checks if we can send to the robot
 bool RobotIO::getCanSend()
 {
 	bool ean;
+
 	m_caseSendLock.lock();
 	ean = m_canSend;
 	m_caseSendLock.unlock();
+	
 	return ean;
 }
 
@@ -106,6 +115,14 @@ char RobotIO::receiveMessage()
 
 	return buff;
 }
+
+//	commProtocol() 
+//
+//	
+//
+//	In: None
+//
+//	Out: None
 void RobotIO::commProtocol()
 {
 	bool a = true;
@@ -118,6 +135,7 @@ void RobotIO::commProtocol()
 	char robotRtn = 0;
 	bool sendAgain = true;
 
+	// run forever
 	while(a)
 	{
 		if(sendAgain)
@@ -128,13 +146,16 @@ void RobotIO::commProtocol()
 				curCommand = m_msgQueue.front();
 				m_msgQueue.pop_front();
 				m_msgQueueLock.unlock();
+
+				// start mission code
 				if(curCommand.getCode() == 'a')
 				{
 					sendPriorityCommand(curCommand);
+					// end mission code
 				}else if(curCommand.getCode() == 'z')
 				{				
 					sendPriorityCommand(curCommand);
-				}else 
+				}else	// regular msg 
 				{
 					if(!sendCommand(curCommand))
 					{
@@ -207,20 +228,22 @@ void RobotIO::commProtocol()
 }
 
 //Takes a robot command object and then sends the char and integer to the robot.
-	//With how it is currently implemented it just sends the char to the robot for the number of cycles we have.
 bool RobotIO::sendCommand(RobotCommand cmd)
 {
 	bool rtn = false;
+
 	//Checks if the connection is still open. If not will throw a exception.
 	if( !m_port.is_open() )
 	{
 		throw NO_CONNECTION;
 	}
 
+	// if we have the robot io ready to send the the robot
 	if(m_canSend)
 	{
 		rtn = true;
-		//Every time we send a message we reset the options, just in case.
+
+		//set the port options
 		m_port.set_option( asio_serial::baud_rate( 9600 ) ); 
 		m_port.set_option( asio_serial::flow_control( asio_serial::flow_control::none ) ); 
 		m_port.set_option( asio_serial::parity( asio_serial::parity::none ) ); 
@@ -228,35 +251,41 @@ bool RobotIO::sendCommand(RobotCommand cmd)
 		m_port.set_option( asio_serial::character_size( 8 ) ); 
 	
 		std::string buff;	
-		char * cyclesBuff = 0;
-		int cycleLeng = 0;
-		for(int i = cmd.getCycles(); i > 0;cycleLeng++)
+		char * milisecsBuff = 0;	// the message we are going to send
+		int milisecLeng = 0;	// keeps track of the length of the milisec
+
+		// find how many mill
+		for(int i = cmd.getMilisecs(); i > 0;milisecLeng++)
 		{
 			i = i/10;
 		}
-		cyclesBuff = new char[cycleLeng+1];
+
+		milisecsBuff = new char[milisecLeng+1];
 
 		// load the robot command
 		buff.push_back('*'); //The starting handshake is a *
 		buff.push_back(cmd.getCode()); //Next the robot expects a 'f','b','l','r' command
-		itoa(cmd.getCycles(),cyclesBuff,10); //This converts the intager for how many miliseconds the robot should move into a stirng
-		buff += cyclesBuff; //the string is then appended onto the buffer to be send to the robot
+		itoa(cmd.getMilisecs(),milisecsBuff,10); //This converts the intager for how many miliseconds the robot should move into a stirng
+		buff += milisecsBuff; //the string is then appended onto the buffer to be send to the robot
 		buff.push_back('*'); //Because itoa give us a null terminated string we need to write over that null with a * so the robot knows when the command is over 
 
 		// send it
 		m_port.write_some(boost::asio::buffer(buff));
 		// pop the sent command off
 
-		delete []cyclesBuff;
+		delete []milisecsBuff;
 
+		//when robot is not sending a message to us
 		m_RtnLock.lock();
 		m_robotRtn = false;
 		m_RtnLock.unlock();
 
+		// increment the message count
 		m_msgCountLock.lock();
 		++m_msgCount;
 		m_msgCountLock.unlock();
 	}
+
 	return rtn;
 }
 
@@ -270,6 +299,7 @@ void RobotIO::setRobot(Robot & rob)
 //// sends the entire command queue to robot
 void RobotIO::SendQueue()
 {
+
 	while(m_msgQueue.size())
 	{
 		try
@@ -286,18 +316,30 @@ void RobotIO::SendQueue()
 	}
 }
 
-
+//	startCommunication
+//
+//	begins the robot communication thread
+//
+//	in:	None
+//
+//	out: None
+//
 void RobotIO::startCommunication()
 {
+
+	// primes the communication
 	m_msgQueueLock.lock();
+	// queues start a mission code
 	m_msgQueue.push_back(RobotCommand('a', 0));
+	// queues end mission code
 	m_msgQueue.push_front(RobotCommand('z', 0));
 	m_msgQueueLock.unlock();
 
+	// start the thread
 	m_robotOut = boost::thread(boost::bind(&RobotIO::commProtocol, this));
 }
 
-//attemps to open the com port. Should have error handing in here.
+//attemps to open the com port. 
 bool RobotIO::openPort()
 {
 	if( !m_port.is_open() )

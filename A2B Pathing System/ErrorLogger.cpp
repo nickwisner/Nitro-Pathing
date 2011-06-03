@@ -80,11 +80,16 @@ int ErrorLogger::startMission(int start, int dest)
 	// increment the current mission id
 	m_currMissionID++;
 
+	// open file for append writing
 	m_errStream.open(ERR_LOG_FILE_NAME, ios::app);
 
+	// create log of mission start including missionid, start point, destination point and time
 	if( m_errStream.is_open() )
 	{
+		// enter line
 		m_errStream << "START ";
+		m_errStream << m_currMissionID;
+		m_errStream << " ";
 		m_errStream << start;
 		m_errStream << " ";
 		m_errStream << dest;
@@ -93,9 +98,6 @@ int ErrorLogger::startMission(int start, int dest)
 
 		m_errStream.close();
 	}
-	// create log of mission start including missionid, start point, destination point and time
-	// open file for append writing
-	// enter line
 
 	// return the missionid
 	return m_currMissionID;

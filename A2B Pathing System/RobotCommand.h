@@ -15,21 +15,21 @@ using std::string;
 class RobotCommand
 {
 public:
-	RobotCommand(char cmd, int cycles);
+	RobotCommand(char cmd, int milisecs);
 	RobotCommand & operator=( const RobotCommand & cmd );
 	RobotCommand( const RobotCommand & cmd );
 	~RobotCommand();
 
 	//getters
 	char getCode();
-	int getCycles();
+	int getMilisecs();
 
 private:
 	//A char which is either f,b,l,r meaning forward, back, left or right respectivly.
 	//Can also be s for stop.
 	char m_code;
 	//The amount of time in miliseconds that the robot will set the motors.
-	int m_cycles;	
+	int m_milisecs;	
 
 };
 

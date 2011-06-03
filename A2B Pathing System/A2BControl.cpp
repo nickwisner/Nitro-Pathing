@@ -91,65 +91,86 @@ bool A2BControl::checkSavedQueries()
 	return false;
 }
 
+// setDestination
+//
+//	Handles the users choice of destination and tells the robot to begin its mission
+//
+//  In:  dest is the coordinates of the end point where the robot will end its mission
+//
+//	Out: the return value is if the destination was successfully set
 bool A2BControl::setDestination(Point dest)
 {
-	bool * tmp = new bool[ROW_SIZE * COL_SIZE];
-	Point robPos;
-	int spaceStart = 0;
-	int spaceDest = 0;
-
-	//change the first part setDestination to be "findRobot"
+	bool * tmp = new bool[ROW_SIZE * COL_SIZE];	// creates a temporary obstacle map to transfer around
+	Point robPos;	// the robots current position
+	int spaceStart = 0;	// grid space of the obstacle map where the robot starts
+	int spaceDest = 0;	// grid space of the obstacle map where the robot is trying to get to
 
 	bool foundrobot = false;
+
+	// try to find the robot up to 5 times
 	for( int attempt = 0; attempt < 5 && !foundrobot; attempt++ )
 	{
+		// mutex locking obstacle map as we set it
 		m_obstLock.lock();
 		memcpy(tmp, m_obstacleMap, sizeof(bool)* (ROW_SIZE*COL_SIZE));
 		m_obstLock.unlock();
 
+		// mutex locking the plain image while we find the robot
 		m_plainLock.lock();
 		robPos = ImageProcessor::findRobot((&m_plainImage), m_pathing->getRobot());
 		m_plainLock.unlock();
 		
-		// Do we need to do all this with the obstacle map
-		// just to find the robot? Let's do this when we know we have it
-		// outside of this loop, then we can split this setDestination
+		// change the start and destination space from coordinates to grid space
 		spaceStart = A2BUtilities::pixelToSpaceId(robPos.x, robPos.y);
 		spaceDest = A2BUtilities::pixelToSpaceId( dest.x,dest.y);
+
+		// clear the robot so it isn't mistaken for an obstacle
 		clearRobot(spaceStart, tmp, robPos);
 
+		// mark the robot on the gui so we know what we are looking at
 		m_gui->markRobot(robPos);
 		
 		foundrobot = m_gui->showError("Is this the robot?", MB_YESNO);
 		// keep looping if they answer no. otherwise, exit loop
 	}
+
+	// if we weren't able to find the robot after the 5 attempts
 	if( !foundrobot )
 	{
 		m_gui->showError("Cannot find the robot. Please locate the robot and verify it is in an area viewable by the camera.", MB_OK);
 
 		// log the error
 		m_database->error(ErrorLog(1,1 /*insert mission id*/, 1, 1, A2BUtilities::GetTime()));
-//  printf ( "The current date/time is: %s", asctime (timeinfo) );
 
 		return false;
 	}
+
+	// clear the mark around the robot
 	m_gui->stopMarkingRobot();
 
+	// couldn't make a path (something may be in the way?)
 	if( !m_pathing->makePath(spaceDest, spaceStart, tmp) )
 	{
 		m_gui->showError("Cannot create a path to indicated destination.",MB_OK);
 	}
-	else
+	else	// able to make a path
 	{
+		// log the start of the mission
 		m_database->startMission(spaceStart, spaceDest);
 
+		// fill the queue to send the robot
 		m_robotio->fillQueue(m_pathing->getPath());
 
+		// show the path on the gui display
 		m_gui->setPath(m_pathing->getPath()->getPathPoints());
 		
+		// start talking to the robot
 		m_robotio->startCommunication();
 	}
+
+	// clear the temporary obstacle map
 	delete []tmp;
+
 	return true;
 }
 

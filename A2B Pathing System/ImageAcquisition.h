@@ -36,7 +36,6 @@ class ImageAcquisition : public iImageAcquisition
 		bool* getObstMap();
 
 	private:
-		//VideoCapture m_capture;
 		VideoCapture m_cap;
 
 		Mat m_plainCur;

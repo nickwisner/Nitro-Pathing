@@ -16,7 +16,7 @@ class Robot
 
 public:
 	//This constructor will be called after the database gets all of the robot information 
-	Robot(int brate, int distance_per_cycle, int len, int wid, Mat &symbol);
+	Robot(int brate, int distance_per_milisec, int len, int wid, Mat &symbol);
 	//A deconstructor, nothing is newed so nothing is destroyed
 	~Robot();
 	//A operator= that makes a deep copy
