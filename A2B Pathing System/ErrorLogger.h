@@ -26,7 +26,7 @@
 #ifndef ERRORLOGGER_H
 #define ERRORLOGGER_H
 
-#include "Mission.h"
+//#include "Mission.h"
 #include "ErrorLog.h"
 #include "iDatabase.h"
 
@@ -56,7 +56,7 @@ public:
 	void update(string query);
 
 private:
-	Mission m_currentMisson;
+//	Mission m_currentMisson;
 //	hconnection m_db;
 	vector<ErrorLog> m_tempqueue;
 	int m_currMissionID;

@@ -33,7 +33,8 @@ public:
 	// Called when user triggers manual abortion of the robot mission!
 	void endMission();
 	// Pops a message box with error. Basically, wraps WinAPI MessageBox.
-	int showError(const string & error, int type = MB_OK);
+	//type value corresponds to MB_OK
+	int showError(const string & error, int type = 0);
 	// Draws a mark overlaying the image on where the robot is thought to be.
 	void markRobot(Point point);
 	//Called when user indicates a destination point. Sends point to Control.

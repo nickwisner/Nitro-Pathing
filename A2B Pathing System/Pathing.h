@@ -8,6 +8,17 @@
 #ifndef PATHING_H
 #define PATHING_H
 
+#ifndef __MYWINSOCK2_H
+#define __MYWINSOCK2_H
+#pragma push_macro("_WINSOCKAPI_")
+// We clear _WINSOCKAPI_ to avoid preprocessor warnings about
+// multiple definitions of the _WINSOCKAPI_ macro, as winsock2.h will
+// attempt to #define _WINSOCKAPI_ itself.
+#undef _WINSOCKAPI_
+#include <boost/asio/detail/socket_types.hpp>
+#pragma pop_macro("_WINSOCKAPI_")
+#endif // __MYWINSOCK2_H
+
 #include "Robot.h"
 #include "Path.h"
 #include "ImageProcessor.h"

@@ -28,9 +28,6 @@ using std::vector;
 #include <string>
 using std::string;
 
-// for MessageBox
-#include <Windows.h>
-
 class iGUI
 {
 
@@ -49,7 +46,8 @@ public:
 	virtual void endMission() =0;
 	virtual void markRobot(Point point) =0;
 	virtual void setDest(int x, int y) =0;
-	virtual int showError(const string & error, int type = MB_OK) =0;
+	//type value corresponds to MB_OK
+	virtual int showError(const string & error, int type = 0) =0;
 	virtual void stopDrawingPath() = 0;
 	virtual void stopMarkingRobot() = 0;
 	//rmv later

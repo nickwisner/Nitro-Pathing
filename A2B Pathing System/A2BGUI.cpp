@@ -21,6 +21,11 @@ using std::vector;
 #include "RobotIO.h"
 
 
+#define WIN32_LEAN_AND_MEAN
+// for MessageBox
+#include <Windows.h>
+
+
 /************************** A2BGUI::onMouse ***************************
 * The callback function for the window for A2BGUI.
 * 
